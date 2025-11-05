@@ -1,0 +1,2 @@
+const supabaseUrl = 'https://weqnmkoswedzlmzptier.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcW5ta29zd2VkemxtenB0aWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1NjY0MzUsImV4cCI6MjA3NjE0MjQzNX0.JN86dGQE4zYeka6EBm-8hZnyid3XjFM5p_fHeJZC17E';
