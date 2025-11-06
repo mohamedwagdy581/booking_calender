@@ -41,7 +41,7 @@ class DateTimePickersSection extends StatelessWidget {
           ],
         ),
         SizedBox(height: AppSpacing.kSpaceM),
-        Row(
+        /*Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
@@ -54,7 +54,7 @@ class DateTimePickersSection extends StatelessWidget {
             ),
             OutlinedButton(onPressed: onPickTime, style: buttonStyle, child: const Text('Pick Time')),
           ],
-        ),
+        ),*/
         Divider(height: AppSpacing.kSpaceXL),
       ],
     );

@@ -1,4 +1,6 @@
+
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file_plus/open_file_plus.dart';
@@ -22,6 +24,13 @@ class BookingDetailsDialog extends StatelessWidget {
         mimeType: MimeType.pdf,
       );
 
+      if (filePath == null || filePath.isEmpty) {
+        if (kDebugMode) {
+          print('File saving cancelled or failed.');
+        }
+        return; // Don't proceed if the file path is invalid
+      }
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -29,9 +38,7 @@ class BookingDetailsDialog extends StatelessWidget {
           action: SnackBarAction(
             label: 'View',
             onPressed: () {
-              if (filePath != null) {
-                OpenFile.open(filePath);
-              }
+              OpenFile.open(filePath);
             },
           ),
         ),

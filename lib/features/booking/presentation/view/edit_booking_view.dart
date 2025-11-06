@@ -20,6 +20,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _familyNameController;
+  late final TextEditingController _emailController;
   late final TextEditingController _locationController;
   late final TextEditingController _hallNameController;
   late final TextEditingController _totalAmountController;
@@ -147,6 +148,7 @@ class _EditBookingViewState extends State<EditBookingView> {
                   BookingFormFieldsSection(
                     titleController: _titleController,
                     familyNameController: _familyNameController,
+                    emailController: _emailController,
                     locationController: _locationController,
                     hallNameController: _hallNameController,
                     totalAmountController: _totalAmountController,

@@ -18,6 +18,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _familyNameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _locationController = TextEditingController();
   final _hallNameController = TextEditingController();
   final _totalAmountController = TextEditingController();
@@ -93,7 +94,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
         images: [], // We will handle image picking later
       );
 
-      context.read<BookingCubit>().addBooking(newBooking);
+      //context.read<BookingCubit>().addBooking(newBooking);
 
       // Clear all controllers manually for a clean slate
       _formKey.currentState!.reset();
@@ -108,7 +109,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
       _artistNameController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Booking Added!')),
+        const SnackBar(content: Text('Loading')),
       );
     }
   }
@@ -134,6 +135,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
                 BookingFormFieldsSection(
                   titleController: _titleController,
                   familyNameController: _familyNameController,
+                  emailController: _emailController,
                   locationController: _locationController,
                   hallNameController: _hallNameController,
                   totalAmountController: _totalAmountController,
