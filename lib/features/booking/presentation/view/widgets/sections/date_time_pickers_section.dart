@@ -24,38 +24,41 @@ class DateTimePickersSection extends StatelessWidget {
       minimumSize: const Size(120, 48),
     );
 
-    return Column(
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Date", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                SizedBox(height: AppSpacing.kSpaceXS),
-                Text(DateFormat.yMMMd().format(selectedDate)),
-              ],
-            ),
-            OutlinedButton(onPressed: onPickDate, style: buttonStyle, child: const Text('Pick Date')),
-          ],
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Date", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  SizedBox(height: AppSpacing.kSpaceXS),
+                  Text(DateFormat.yMMMd().format(selectedDate)),
+                ],
+              ),
+              OutlinedButton(onPressed: onPickDate, style: buttonStyle, child: const Text('Pick Date')),
+            ],
+          ),
         ),
-        SizedBox(height: AppSpacing.kSpaceM),
-        /*Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Time", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                SizedBox(height: AppSpacing.kSpaceXS),
-                Text(selectedTime.format(context)),
-              ],
-            ),
-            OutlinedButton(onPressed: onPickTime, style: buttonStyle, child: const Text('Pick Time')),
-          ],
-        ),*/
-        Divider(height: AppSpacing.kSpaceXL),
+        VerticalDivider(width: AppSpacing.kSpaceXXL, thickness: 4,),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Time", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  SizedBox(height: AppSpacing.kSpaceXS),
+                  Text(selectedTime.format(context)),
+                ],
+              ),
+              OutlinedButton(onPressed: onPickTime, style: buttonStyle, child: const Text('Pick Time')),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+
 import 'package:equatable/equatable.dart';
 
 class Booking extends Equatable {
@@ -5,6 +6,7 @@ class Booking extends Equatable {
   final String title;
   final DateTime date;
   final String familyName;
+  final String email;
   final String location;
   final String hallName;
   final double totalAmount;
@@ -19,6 +21,7 @@ class Booking extends Equatable {
     required this.title,
     required this.date,
     required this.familyName,
+    required this.email,
     required this.location,
     required this.hallName,
     required this.totalAmount,
@@ -32,10 +35,10 @@ class Booking extends Equatable {
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['id'] as String?,
-      // Safely handle missing titles in old data.
       title: json['title'] as String? ?? 'Untitled',
       date: DateTime.parse(json['date'] as String),
       familyName: json['family_name'] as String? ?? '',
+      email: json['email'] as String? ?? '',
       location: json['location'] as String? ?? '',
       hallName: json['hall_name'] as String? ?? '',
       totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
@@ -53,6 +56,7 @@ class Booking extends Equatable {
       'title': title,
       'date': date.toIso8601String(),
       'family_name': familyName,
+      'email': email,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
@@ -69,6 +73,7 @@ class Booking extends Equatable {
       'title': title,
       'date': date.toIso8601String(),
       'family_name': familyName,
+      'email': email,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
@@ -86,6 +91,7 @@ class Booking extends Equatable {
         title,
         date,
         familyName,
+        email,
         location,
         hallName,
         totalAmount,
