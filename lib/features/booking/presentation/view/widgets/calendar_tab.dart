@@ -58,6 +58,7 @@ class _CalendarView extends StatelessWidget {
                 if (events.isNotEmpty) {
                   if (events.length == 1) {
                     showDialog(context: uiContext, builder: (_) => BookingDetailsDialog(booking: events.first));
+                    
                   } else {
                     showDialog(context: uiContext, builder: (_) => DayEventsDialog(day: selectedDay, events: events));
                   }
@@ -73,6 +74,7 @@ class _CalendarView extends StatelessWidget {
                 todayDecoration: BoxDecoration(color: AppColors.primary.withOpacity(0.5), shape: BoxShape.circle),
                 selectedDecoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 markerDecoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+                markerSizeScale: 0.4,
               ),
               headerStyle: HeaderStyle(
                 titleTextStyle: textTheme.titleLarge!,

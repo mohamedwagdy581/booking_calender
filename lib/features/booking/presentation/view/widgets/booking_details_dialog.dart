@@ -1,4 +1,3 @@
-
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ class BookingDetailsDialog extends StatelessWidget {
       final pdfData = await PdfService.generateQuotation(booking);
       final fileName = 'Quotation-${booking.familyName.replaceAll(' ', '_')}-${DateFormat('yyyy-MM-dd').format(booking.date)}.pdf';
 
-      final String? filePath = await FileSaver.instance.saveFile(
+      final String filePath = await FileSaver.instance.saveFile(
         name: fileName,
         bytes: pdfData,
         mimeType: MimeType.pdf,
@@ -86,7 +85,9 @@ class BookingDetailsDialog extends StatelessWidget {
           },
         ),
         ElevatedButton(
-          onPressed: () => _generateAndSavePdf(context),
+          onPressed: () {
+            _generateAndSavePdf(context);
+            },
           child: const Text('Generate Quotation'),
         ),
       ],

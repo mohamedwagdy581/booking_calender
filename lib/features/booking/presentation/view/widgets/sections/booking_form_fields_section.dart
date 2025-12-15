@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../../../../../../core/constants/spacing/app_spacing.dart';
@@ -39,16 +40,16 @@ class BookingFormFieldsSection extends StatelessWidget {
             Expanded(
               child: CustomTextFormField(
                 controller: titleController,
-                labelText: 'Booking Title',
-                validator: (value) => value!.isEmpty ? 'Please enter a title' : null,
+                labelText: 'عنوان الحجز',
+                validator: (value) => value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
               ),
             ),
             SizedBox(width: AppSpacing.kSpaceXXL),
             Expanded(
               child: CustomTextFormField(
                 controller: locationController,
-                labelText: 'Location',
-                validator: (value) => value!.isEmpty ? 'Please enter a location' : null,
+                labelText: 'العنوان',
+                validator: (value) => value!.isEmpty ? 'برجاء اضافة العنوان' : null,
               ),
             ),
 
@@ -60,26 +61,16 @@ class BookingFormFieldsSection extends StatelessWidget {
             Expanded(
               child: CustomTextFormField(
                 controller: familyNameController,
-                labelText: 'Family Name',
-                validator: (value) => value!.isEmpty ? 'Please enter a family name' : null,
+                labelText: 'اسم العائلة',
+                validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العائلة' : null,
               ),
             ),
             SizedBox(width: AppSpacing.kSpaceXXL),
             Expanded(
               child: CustomTextFormField(
                 controller: emailController,
-                labelText: 'Email',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  final bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
-                  if (!emailValid) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
+                labelText: 'الايميل',
+                validator: (value) => value!.isEmpty ? 'برجاء ادخال ايميل صحيح' : null,
               ),
             ),
           ],
@@ -90,15 +81,15 @@ class BookingFormFieldsSection extends StatelessWidget {
             Expanded(
               child: CustomTextFormField(
                 controller: artistNameController,
-                labelText: 'Artist Name',
-                validator: (value) => value!.isEmpty ? 'Please enter the artist name' : null,
+                labelText: 'اسم الفنان',
+                validator: (value) => value!.isEmpty ? 'برجاء ادخال اسم الفنان' : null,
               ),
             ),
             SizedBox(width: AppSpacing.kSpaceXXL),
             Expanded(
               child: CustomTextFormField(
                 controller: hallNameController,
-                labelText: 'Hall Name',
+                labelText: 'اسم القاعة',
               ),
             ),
           ],
@@ -109,35 +100,37 @@ class BookingFormFieldsSection extends StatelessWidget {
             Expanded(
               child: CustomTextFormField(
                 controller: totalAmountController,
-                labelText: 'Total Amount',
+                labelText: 'القيمة الكلية',
                 keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'Please enter the total amount' : null,
+                validator: (value) => value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
               ),
             ),
             SizedBox(width: AppSpacing.kSpaceXXL),
             Expanded(
               child: CustomTextFormField(
                 controller: firstPaymentController,
-                labelText: "First Payment",
+                labelText: "الدفعة الاولى",
                 keyboardType: TextInputType.number,
               ),
             ),
+
+
           ],
         ),
         SizedBox(height: AppSpacing.kSpaceM),
         Row(
           children: [
             Expanded(child: CustomTextFormField(
-              controller: cashPaymentController,
-              labelText: "Cash Payment",
+              controller: artistPaymentController,
+              labelText: "دفعة الفنان",
               keyboardType: TextInputType.number,
             ),),
             SizedBox(width: AppSpacing.kSpaceXXL),
             Expanded(child: CustomTextFormField(
-              controller: artistPaymentController,
-              labelText: "Artist Payment",
+              controller: cashPaymentController,
+              labelText: "الدفعة الاخيرة",
               keyboardType: TextInputType.number,
-            ),),
+            ),), // Keep layout consistent
           ],
         ),
       ],

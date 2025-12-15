@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,6 +35,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
   void dispose() {
     _titleController.dispose();
     _familyNameController.dispose();
+    _emailController.dispose();
     _locationController.dispose();
     _hallNameController.dispose();
     _totalAmountController.dispose();
@@ -70,7 +72,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final combinedDateTime = DateTime(
         _selectedDate.year,
@@ -84,33 +86,51 @@ class _AddBookingTabState extends State<AddBookingTab> {
         title: _titleController.text,
         date: combinedDateTime,
         familyName: _familyNameController.text,
+        email: _emailController.text,
         location: _locationController.text,
         hallName: _hallNameController.text,
-        totalAmount: double.parse(_totalAmountController.text),
-        firstPayment: double.parse(_firstPaymentController.text),
-        cashPayment: double.parse(_cashPaymentController.text),
-        artistPayment: double.parse(_artistPaymentController.text),
+        totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
+        firstPayment: double.tryParse(_firstPaymentController.text) ?? 0.0,
+        cashPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
+        artistPayment: double.tryParse(_artistPaymentController.text) ?? 0.0,
         artistName: _artistNameController.text,
         images: [], // We will handle image picking later
       );
 
-      //context.read<BookingCubit>().addBooking(newBooking);
-
-      // Clear all controllers manually for a clean slate
-      _formKey.currentState!.reset();
-      _titleController.clear();
-      _familyNameController.clear();
-      _locationController.clear();
-      _hallNameController.clear();
-      _totalAmountController.clear();
-      _firstPaymentController.clear();
-      _cashPaymentController.clear();
-      _artistPaymentController.clear();
-      _artistNameController.clear();
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Loading')),
+        const SnackBar(content: Text('جار اضافة حجز جديد ...')),
       );
+
+      try {
+        await context.read<BookingCubit>().addBooking(newBooking);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم اضافة حجز جديد بنجاح!')),
+          );
+        }
+
+        // Clear all controllers manually for a clean slate
+        _formKey.currentState!.reset();
+        _titleController.clear();
+        _familyNameController.clear();
+        _emailController.clear();
+        _locationController.clear();
+        _hallNameController.clear();
+        _totalAmountController.clear();
+        _firstPaymentController.clear();
+        _cashPaymentController.clear();
+        _artistPaymentController.clear();
+        _artistNameController.clear();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('فشل في اضافة الحجز: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -147,7 +167,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
                 SizedBox(height: AppSpacing.kSpaceL),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: const Text('Add Booking'),
+                  child: const Text('إضافة حجز'),
                 ),
               ],
             ),

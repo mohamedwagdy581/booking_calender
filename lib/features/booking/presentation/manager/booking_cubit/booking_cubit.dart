@@ -1,3 +1,4 @@
+
 import 'package:bloc/bloc.dart';
 
 import '../../../data/models/booking_model.dart';
@@ -22,8 +23,12 @@ class BookingCubit extends Cubit<BookingState> {
   Future<void> addBooking(Booking booking) async {
     emit(BookingLoading());
     try {
+      // This will now only add the booking, just like it did before.
       await _bookingRepository.addBooking(booking);
-      getBookings(); // Refresh the list after adding
+      // The email sending logic has been removed to restore functionality.
+
+      // Refresh the list to show the new booking.
+      getBookings();
     } catch (e) {
       emit(BookingError('Failed to add booking: $e'));
     }

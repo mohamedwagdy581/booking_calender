@@ -104,6 +104,7 @@ class _EditBookingViewState extends State<EditBookingView> {
         title: _titleController.text,
         date: combinedDateTime,
         familyName: _familyNameController.text,
+        email: _emailController.text,
         location: _locationController.text,
         hallName: _hallNameController.text,
         totalAmount: double.parse(_totalAmountController.text),
@@ -111,7 +112,7 @@ class _EditBookingViewState extends State<EditBookingView> {
         cashPayment: double.parse(_cashPaymentController.text),
         artistPayment: double.parse(_artistPaymentController.text),
         artistName: _artistNameController.text,
-        images: widget.booking.images, // Keep original images for now
+        images: widget.booking.images,
       );
 
       context.read<BookingCubit>().updateBooking(updatedBooking);

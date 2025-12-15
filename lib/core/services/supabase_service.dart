@@ -1,2 +1,27 @@
-const supabaseUrl = 'https://weqnmkoswedzlmzptier.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcW5ta29zd2VkemxtenB0aWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1NjY0MzUsImV4cCI6MjA3NjE0MjQzNX0.JN86dGQE4zYeka6EBm-8hZnyid3XjFM5p_fHeJZC17E';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../features/booking/data/models/booking_model.dart';
+
+class SupabaseService {
+  final SupabaseClient _client;
+
+  SupabaseService(this._client);
+
+  Future<void> sendBookingConfirmationEmail(Booking booking) async {
+    try {
+      await _client.functions.invoke(
+        'send-email',
+        body: {
+          //'email': booking.email,
+          'subject': 'Booking Confirmation',
+          'message': 'Your booking for ${booking.title} on ${booking.date} has been successfully received and is awaiting the first payment to be confirmed.',
+        },
+      );
+    } catch (e) {
+      // Handle email sending failure
+      print('Failed to send confirmation email: $e');
+      rethrow;
+    }
+  }
+}

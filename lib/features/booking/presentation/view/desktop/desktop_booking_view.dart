@@ -20,8 +20,8 @@ class DesktopBookingView extends StatelessWidget {
 
   final List<Widget> _pages = const [
     AddBookingTab(),
-    Blank1(),
-    //CalendarTab(),
+    // Blank1(),
+    CalendarTab(),
     // We will add the Export page here later
   ];
 
