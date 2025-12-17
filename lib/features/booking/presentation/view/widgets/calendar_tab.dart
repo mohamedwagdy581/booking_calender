@@ -71,7 +71,7 @@ class _CalendarView extends StatelessWidget {
                 weekendTextStyle: textTheme.bodyMedium!.copyWith(color: AppColors.primary),
                 todayTextStyle: textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold, color: AppColors.onPrimary),
                 selectedTextStyle: textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold, color: AppColors.onPrimary),
-                todayDecoration: BoxDecoration(color: AppColors.primary.withOpacity(0.5), shape: BoxShape.circle),
+                todayDecoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.5), shape: BoxShape.circle),
                 selectedDecoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 markerDecoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
                 markerSizeScale: 0.4,

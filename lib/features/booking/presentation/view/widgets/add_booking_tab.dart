@@ -94,7 +94,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
         cashPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
         artistPayment: double.tryParse(_artistPaymentController.text) ?? 0.0,
         artistName: _artistNameController.text,
-        images: [], // We will handle image picking later
+        images: const [], // We will handle image picking later
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/constants/colors/app_colors.dart';
 import '../../../../../core/utils/app_router.dart';
 import '../../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
-import '../../../../splash/presentation/view/blank.dart';
 import '../widgets/add_booking_tab.dart';
 import '../widgets/calendar_tab.dart';
 

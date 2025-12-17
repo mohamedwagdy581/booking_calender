@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/services/supabase_service.dart';
@@ -20,14 +21,15 @@ class BookingRepositoryImpl implements BookingRepository {
       }
       return Booking.fromJson(response.first);
     } catch (e) {
-      print('Failed to add booking: $e');
+      if (kDebugMode) {
+        print('Failed to add booking: $e');
+      }
       rethrow;
     }
   }
 
   @override
   Future<void> deleteBooking(String id) {
-    // TODO: implement deleteBooking
     throw UnimplementedError();
   }
 
@@ -38,7 +40,9 @@ class BookingRepositoryImpl implements BookingRepository {
       final bookings = (response as List).map((booking) => Booking.fromJson(booking)).toList();
       return bookings;
     } catch (e) {
-      print('Failed to get bookings: $e');
+      if (kDebugMode) {
+        print('Failed to get bookings: $e');
+      }
       rethrow;
     }
   }
@@ -50,7 +54,6 @@ class BookingRepositoryImpl implements BookingRepository {
 
   @override
   Future<void> updateBooking(Booking booking) {
-    // TODO: implement updateBooking
     throw UnimplementedError();
   }
 }

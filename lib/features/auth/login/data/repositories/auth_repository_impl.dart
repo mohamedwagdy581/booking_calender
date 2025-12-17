@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/repositories/auth_repository.dart';
@@ -21,10 +22,14 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     } on AuthException catch (e) {
       // You can handle specific auth errors here if needed
-      print('Auth Error on Sign In: ${e.message}');
+      if (kDebugMode) {
+        print('Auth Error on Sign In: ${e.message}');
+      }
       rethrow;
     } catch (e) {
-      print('Error on Sign In: $e');
+      if (kDebugMode) {
+        print('Error on Sign In: $e');
+      }
       rethrow;
     }
   }
@@ -34,7 +39,9 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await supabaseClient.auth.signOut();
     } catch (e) {
-      print('Error on Sign Out: $e');
+      if (kDebugMode) {
+        print('Error on Sign Out: $e');
+      }
       rethrow;
     }
   }
@@ -47,10 +54,14 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
     } on AuthException catch (e) {
-      print('Auth Error on Sign Up: ${e.message}');
+      if (kDebugMode) {
+        print('Auth Error on Sign Up: ${e.message}');
+      }
       rethrow;
     } catch (e) {
-      print('Error on Sign Up: $e');
+      if (kDebugMode) {
+        print('Error on Sign Up: $e');
+      }
       rethrow;
     }
   }
@@ -60,10 +71,14 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await supabaseClient.auth.resetPasswordForEmail(email);
     } on AuthException catch (e) {
-      print('Auth Error on Password Reset: ${e.message}');
+      if (kDebugMode) {
+        print('Auth Error on Password Reset: ${e.message}');
+      }
       rethrow;
     } catch (e) {
-      print('Error on Password Reset: $e');
+      if (kDebugMode) {
+        print('Error on Password Reset: $e');
+      }
       rethrow;
     }
   }

@@ -49,7 +49,7 @@ class _SplashViewBodyState extends State<SplashViewBody> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final splashColor = Theme.of(context).colorScheme.onPrimary;
+    //final splashColor = Theme.of(context).colorScheme.onPrimary;
 
     return Center(
       child: Column(
@@ -61,7 +61,7 @@ class _SplashViewBodyState extends State<SplashViewBody> with SingleTickerProvid
               AppAssets.logo,
               height: 150,
               errorBuilder: (context, error, stackTrace) {
-                return Icon(
+                return const Icon(
                   Icons.calendar_month_rounded,
                   size: 150,
                   color: AppColors.error,

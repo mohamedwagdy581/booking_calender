@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/booking/data/models/booking_model.dart';
@@ -20,7 +21,9 @@ class SupabaseService {
       );
     } catch (e) {
       // Handle email sending failure
-      print('Failed to send confirmation email: $e');
+      if (kDebugMode) {
+        print('Failed to send confirmation email: $e');
+      }
       rethrow;
     }
   }

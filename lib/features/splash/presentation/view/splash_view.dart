@@ -24,9 +24,9 @@ class SplashView extends StatelessWidget {
           context.go(AppRoutes.login);
         }
       },
-      child: Scaffold(
+      child: const Scaffold(
         backgroundColor: AppColors.background,
-        body: const SplashViewBody(),
+        body: SplashViewBody(),
       ),
     );
   }

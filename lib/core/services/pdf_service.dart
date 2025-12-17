@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -14,315 +13,266 @@ class PdfService {
 
     final fontRegular = pw.Font.ttf(await rootBundle.load(AppAssets.notoFontRegular));
     final fontBold = pw.Font.ttf(await rootBundle.load(AppAssets.notoFontBold));
-
-    final logoData = await rootBundle.load(AppAssets.logo);
+    final logoData = await rootBundle.load(AppAssets.fullLogo);
     final logo = pw.MemoryImage(logoData.buffer.asUint8List());
 
-    final accent = PdfColor.fromHex("#7FC242");
+    final accentColor = PdfColor.fromHex("#49A4B3");
 
     pdf.addPage(
-      pw.MultiPage(
+      pw.Page(
         pageFormat: PdfPageFormat.a4.landscape,
-        margin: pw.EdgeInsets.all(10),
+        margin: const pw.EdgeInsets.all(30),
         theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold),
         textDirection: pw.TextDirection.rtl,
-        build: (ctx) => [
-          _header(logo),
-          pw.SizedBox(height: 10),
-          _title(accent),
-          pw.SizedBox(height: 10),
-          _toFromSection(booking, accent),
-          pw.SizedBox(height: 15),
-          _invoiceTable(booking, accent),
-          pw.SizedBox(height: 20),
-        ],
-        footer: (ctx) => _footer(booking),
+        build: (ctx) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            // 1. الرأس المعدل (التاريخ يمين - عرض السعر يسار)
+            _buildNewTopHeader(logo, accentColor),
+            pw.SizedBox(height: 15),
+            
+            // 2. سكشن من / إلى (بالتقسيمة اللي طلبتها)
+            _buildDetailedInfoSection(booking, accentColor),
+            pw.SizedBox(height: 15),
+            
+            // 3. النص الترحيبي
+            _buildWelcomeText(booking),
+            pw.SizedBox(height: 10),
+            
+            // 4. الجدول الرئيسي (مرتب من اليمين للياسر)
+            _buildMainDataTable(booking, accentColor),
+            pw.SizedBox(height: 15),
+            
+            // 5. المعلومات البنكية
+            _buildBankInfo(),
+            
+            pw.Spacer(),
+            
+            // 6. التوقيع والختام
+            _buildSignature(logo),
+            //pw.Divider(thickness: 0.5, color: PdfColors.grey),
+            _buildBottomContactLine(),
+          ],
+        ),
       ),
     );
 
     return pdf.save();
   }
 
-  // -------------------------------------------
-  // HEADER
-  // -------------------------------------------
-  static pw.Widget _header(pw.ImageProvider logo) {
+  static pw.Widget _buildNewTopHeader(pw.ImageProvider logo, PdfColor accent) {
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
+        // يمين: أرقام المرجع والتاريخ
+        // يمين: أرقام المرجع والتاريخ باستخدام الجدول لإلغاء المسافات
         pw.Container(
-          height: 80,
-          width: 80,
-          child: pw.Image(logo),
+          width: 150, // حدد عرض مناسب
+          child: pw.Table(
+            // هنا بنلغي أي حدود وبنخلي المسافات صفر
+            columnWidths: {0: const pw.FlexColumnWidth()},
+            children: [
+              _buildNoSpaceRow("الرقم: 383 / 11 / د م"),
+              _buildNoSpaceRow("التاريخ: 23 جمادى الآخرة 1447هـ"),
+              _buildNoSpaceRow("الموافق: 14 ديسمبر 2025م"),
+            ],
+          ),
         ),
+        // منتصف: اللوجو
+        pw.Image(logo, height: 60),
+        // يسار: كلمة عرض سعر
         pw.Container(
-          width: 250,
-          padding: pw.EdgeInsets.all(8),
+          width: 80,
+          height: 40,
           decoration: pw.BoxDecoration(
-            border: pw.Border.all(color: PdfColors.black),
+            color: accent,
+            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
           ),
-          child: pw.Text(
-            "www.dimahmusic.com",
-            textAlign: pw.TextAlign.center,
-          ),
-        )
+          alignment: pw.Alignment.center,
+          child: pw.Text("عرض سعر", style: const pw.TextStyle(color: PdfColors.white, fontSize: 14)),
+        ),
       ],
     );
   }
 
-  // -------------------------------------------
-  // TITLE
-  // -------------------------------------------
-  static pw.Widget _title(PdfColor accent) {
-    return pw.Center(
-      child: pw.Container(
-        padding: pw.EdgeInsets.symmetric(vertical: 6, horizontal: 30),
-        decoration: pw.BoxDecoration(
-          color: accent,
-          border: pw.Border.all(color: PdfColors.black),
+  // التعديل الثالث: تقسيم جدول من وإلى لخانات متقابلة
+  static pw.Widget _buildDetailedInfoSection(Booking booking, PdfColor accent) {
+    return pw.Row(
+      children: [
+        // جدول "من" (المؤسسة)
+        pw.Expanded(
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.black, width: 1.0),
+            columnWidths: {
+              0: const pw.FlexColumnWidth(2.4),
+              1: const pw.FlexColumnWidth(0.6),
+            },
+            children: [
+              _buildSplitRow("من", "مؤسسة ديمة الفنية التجارية", accent, isHeader: true),
+              _buildSplitRow("العنوان", "المملكة العربية السعودية - جدة - حي البساتين - طريق الملك - برج النخلة", accent),
+              _buildSplitRow("الرقم الضريبي", "310092693700003", accent),
+            ],
+          ),
         ),
-        child: pw.Text(
-          "عرض سعر",
-          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
+        pw.SizedBox(width: 20),
+        // جدول "إلى" (العميل)
+        pw.Expanded(
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.black, width: 1.0),
+            columnWidths: {
+              0: const pw.FlexColumnWidth(2.4), // خانة العنوان
+              1: const pw.FlexColumnWidth(0.6), // خانة القيمة
+            },
+            children: [
+              _buildSplitRow("إلى", booking.familyName, accent, isHeader: true),
+              _buildSplitRow("العنوان", booking.location, accent),
+              _buildSplitRow("الرقم الضريبي", "إذ وجد", accent),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
-  // -------------------------------------------
-  // FROM / TO
-  // -------------------------------------------
-  static pw.Widget _toFromSection(Booking booking, PdfColor accent) {
-    DateTime now = DateTime.now();
-    // ميلادي
-    final gregorian = DateFormat('dd/MM/yyyy').format(now);
 
-    // هجري
-    final hijri = HijriCalendar.fromDate(now);
-    final hijriStr = "${hijri.hDay}/${hijri.hMonth}/${hijri.hYear}";
+  // ميثود مساعدة لعمل الصفوف المقسمة (Label | Value)
+  static pw.TableRow _buildSplitRow(String label, String value, PdfColor accent, {bool isHeader = false}) {
+    return pw.TableRow(
+      children: [
+        // القسم الأيسر (القيمة)
+        pw.Container(
+          padding: const pw.EdgeInsets.all(5),
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(value, style: pw.TextStyle(fontSize: 9, fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal)),
+        ),
+        // القسم الأيمن (الاسم/العنوان/الضريبة)
+        pw.Container(
+          padding: const pw.EdgeInsets.all(5),
+          color: accent,
+          alignment: pw.Alignment.center,
+          child: pw.Text(label, style: const pw.TextStyle(color: PdfColors.white, fontSize: 9)),
+        ),
+      ],
+    );
+  }
+
+  // التعديل الثاني: الجدول الرئيسي مرتب من اليمين لليسار
+  static pw.Widget _buildMainDataTable(Booking booking, PdfColor accent) {
+    // الترتيب حسب الصورة: الرقم | الفنان | التاريخ | المكان | الكمية | القيمة | الضريبة | الإجمالي
+    final headers = ["الرقم", "الفنان / الفنانة", "التاريخ", "المكان", "الكمية", "القيمة بالريال", "VAT 15%", "الإجمالي"];
+    final vat = booking.totalAmount * 0.15;
+    final total = booking.totalAmount + vat;
+
     return pw.Table(
-      //border: pw.TableBorder.all(),
+      border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
       columnWidths: {
-        0: pw.FlexColumnWidth(4),
-        1: pw.FlexColumnWidth(4),
-        2: pw.FlexColumnWidth(1),
+        0: const pw.FixedColumnWidth(30),
+        1: const pw.FlexColumnWidth(2),
       },
       children: [
         pw.TableRow(
-          /// TODO: NEED TO EDIT THIS TABLE TO BE EXPANDED
-            children: [
-              pw.Padding(
-                padding: pw.EdgeInsets.symmetric(horizontal: 10),
-                child: customRowText(
-                  firstTitle: "تاريخ إصدار المطالبة:",
-                  firstValue: "$gregorian م — $hijriStr هـ",
-                  secondTitle: "رقم المطالبة: ",
-                  secondValue: booking.id.toString(),
-                  thirdTitle: "ملاحظة: ",
-                  thirdValue: "",
-                ),
-              ),
-          pw.Padding(
-            padding: pw.EdgeInsets.symmetric(horizontal: 10),
-            child: customRowText(
-              firstTitle: "من:",
-              firstValue: "مؤسسة ديمة الفنية التجارية",
-              secondTitle: "العنوان: ",
-              secondValue: "جدة - حي البساتين 4457",
-              thirdTitle: "الرقم الضريبي: ",
-              thirdValue: "310092693700003",
-            ),
-          ),
-
-          pw.Container(
-            color: accent,
-            padding: pw.EdgeInsets.all(8),
-            alignment: pw.Alignment.center,
-            child: pw.Text("من:", textAlign: pw.TextAlign.center, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          ),
-        ],
-        ),
-        pw.TableRow(children: [
-          pw.Padding(
-            // TODO: NEED TO EDIT THIS TABLE TO 2 COLUMNS ONLY
-            padding: pw.EdgeInsets.symmetric(horizontal: 10),
-            child: customRowText(
-              firstTitle: "رقم المبنى:",
-              firstValue: "44223",
-              secondTitle: "الرمز البريدي: ",
-              secondValue: "2355",
-              thirdTitle: "الرقم الضريبي: ",
-              thirdValue: "310092693700003",
-            ),
-          ),
-          pw.Padding(
-            padding: pw.EdgeInsets.symmetric(horizontal: 10),
-            child: customRowText(
-              firstTitle: "الاسم:",
-              firstValue: booking.familyName,
-              secondTitle: "الهاتف: ",
-              secondValue: booking.familyName,
-              thirdTitle: "العنوان: ",
-              thirdValue: booking.location,
-            ),
-          ),
-          pw.Container(
-            color: accent,
-            alignment: pw.Alignment.center,
-            padding: pw.EdgeInsets.all(8),
-            child: pw.Text("إلى:", textAlign: pw.TextAlign.center, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          ),
-        ]),
-      ],
-    );
-  }
-  // -------------------------------------------
-  // MAIN INVOICE TABLE
-  // -------------------------------------------
-  /// TODO:: Make the table from right to left
-  static pw.Widget _invoiceTable(Booking booking, PdfColor accent) {
-    final vat = booking.totalAmount * 0.15;
-    final total = booking.totalAmount + vat;
-
-    final headers = [
-      "الرقم",
-      "الوصف",
-      "الوحدة",
-      "الكمية",
-      "سعر الوحدة",
-      "القيمة",
-      "نسبة الضريبة",
-      "ضريبة القيمة المضافة",
-      "الإجمالي"
-    ];
-
-    final widths = {
-      0: pw.FixedColumnWidth(40),
-      1: pw.FlexColumnWidth(4),
-      2: pw.FixedColumnWidth(50),
-      3: pw.FixedColumnWidth(50),
-      4: pw.FixedColumnWidth(70),
-      5: pw.FixedColumnWidth(70),
-      6: pw.FixedColumnWidth(60),
-      7: pw.FixedColumnWidth(80),
-      8: pw.FixedColumnWidth(80),
-    };
-
-    return pw.Table(
-      border: pw.TableBorder.all(),
-      columnWidths: widths,
-      children: [
-        pw.TableRow(
           decoration: pw.BoxDecoration(color: accent),
-          children: headers
-              .map((e) => pw.Padding(
-            padding: pw.EdgeInsets.all(6),
-            child: pw.Text(e, textAlign: pw.TextAlign.center, style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-          ))
-              .toList(),
+          children: headers.map((h) => pw.Container(
+            padding: const pw.EdgeInsets.all(6),
+            child: pw.Text(h, style: pw.TextStyle(color: PdfColors.white, fontSize: 8, fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
+          )).toList(),
         ),
-        pw.TableRow(children: [
-          _cell("1"),
-          _cell("قيمة إحياء حفلة بالفنانة ${booking.artistName} مع التجهيزات الصوتية في ${DateFormat('d MMMM y').format(booking.date)}"),
-          _cell("1"),
-          _cell("1"),
-          _cell(booking.totalAmount.toStringAsFixed(2)),
-          _cell(booking.totalAmount.toStringAsFixed(2)),
-          _cell("15%"),
-          _cell(vat.toStringAsFixed(2)),
-          _cell(total.toStringAsFixed(2)),
-        ])
+        pw.TableRow(
+          children: [
+            _cell("1"),
+            _cell(booking.artistName),
+            _cell(DateFormat('dd/MM/yyyy').format(booking.date)),
+            _cell(booking.location),
+            _cell("1"),
+            _cell(booking.totalAmount.toStringAsFixed(2)),
+            _cell(vat.toStringAsFixed(2)),
+            _cell(total.toStringAsFixed(2)),
+          ],
+        ),
       ],
     );
   }
 
-  static pw.Widget _cell(String value) {
+  // باقي الميثودات المساعدة
+  static pw.TableRow _buildNoSpaceRow(String text) {
+    return pw.TableRow(
+      children: [
+        pw.Padding(
+          padding: pw.EdgeInsets.zero, // إلغاء أي مسافات داخلية
+          child: pw.Text(
+            text,
+            style: const pw.TextStyle(fontSize: 9),
+            textAlign: pw.TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+  static pw.Widget _cell(String text) {
     return pw.Padding(
-      padding: pw.EdgeInsets.all(6),
-      child: pw.Text(value, textAlign: pw.TextAlign.center),
+      padding: const pw.EdgeInsets.all(6),
+      child: pw.Text(text, textAlign: pw.TextAlign.center, style: const pw.TextStyle(fontSize: 8)),
     );
   }
 
-  // -------------------------------------------
-  // FOOTER
-  // -------------------------------------------
-  static pw.Widget _footer(Booking booking) {
-    final vat = booking.totalAmount * 0.15;
-    final total = booking.totalAmount + vat;
+  static pw.Widget _buildWelcomeText(Booking booking) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          "نشكر لكم اختياركم مؤسسة ديمة الفنية للمشاركة في حفلكم العامر الموضحة بياناته أدناه. ونحن إذ يسرنا ذلك، فإننا نود إفادتكم بالعرض التالي، شاملاً ما يلي:",
+          style: const pw.TextStyle(fontSize: 10),
+        ),
+        pw.SizedBox(height: 4),
+        pw.Text(
+          "• تكاليف وأجور الفنان/الفنانة ${booking.artistName} والفرقة الموسيقية السعودية، وتكاليف السفر والإقامة والمواصلات، والحضور لمدة ( ) ساعات فقط. (بدون تجهيزات صوتية).",
+          style: const pw.TextStyle(fontSize: 9),
+        ),
+      ],
+    );
+  }
 
+  static pw.Widget _buildBankInfo() {
+    return pw.Text(
+      "يرجى تعميدنا في حالة موافقتكم على العرض بعاليه، والتفضل بتحويل القيمة المالية المذكورة إلى الحساب البنكي الخاص بالمؤسسة بموجب المعلومات المصرفية التالية:\n"
+      "• مؤسسة ديمة الفنية التجارية.\n"
+      "• حساب مصرف الراجحي / جدة.\n"
+      "• رقم الآيبان: SA 31 8000 0577 6080 1003 8837",
+      style: const pw.TextStyle(fontSize: 9),
+    );
+  }
+
+  static pw.Widget _buildSignature(pw.ImageProvider logo) {
+    return pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.center,
+      children: [
+        pw.Column(
+          children: [
+            pw.Text("المدير العام", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11)),
+            pw.Text("محمد إبراهيم القريبي", style: const pw.TextStyle(fontSize: 10)),
+            pw.SizedBox(height: 5),
+            pw.Image(logo, height: 40),
+          ],
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _buildBottomContactLine() {
+    final accentColor = PdfColor.fromHex("#49A4B3");
     return pw.Container(
-      padding: pw.EdgeInsets.only(top: 10),
-      decoration: pw.BoxDecoration(border: pw.Border(top: pw.BorderSide(color: PdfColors.grey))),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-        children: [
-          pw.Expanded(
-            child: customRowText(
-              firstTitle: "اسم الشركة:",
-              firstValue: "مؤسسة ديمة الفنية التجارية",
-              secondTitle: "البنك: ",
-              secondValue: "بنك الراجحي",
-              thirdTitle: "الأيبان: ",
-              thirdValue: "SA82550000000R0651500147",
-            ),
-          ),
+      margin: const pw.EdgeInsets.only(top: 10),
+      padding: const pw.EdgeInsets.only(top: 5),
+      decoration:  pw.BoxDecoration(
+        border: pw.Border(top: pw.BorderSide(width: 0.5, color: accentColor)),
 
-          pw.Expanded(
-            child: customRowText(
-              firstTitle: "الإجمالي غير شامل ضريبة القيمة المضافة:",
-              firstValue: booking.totalAmount.toStringAsFixed(2),
-              secondTitle: "ضريبة القيمة المضافة 15% : ",
-              secondValue: vat.toStringAsFixed(2),
-              thirdTitle: "الإجمالي شامل ضريبة القيمة المضافة:",
-              thirdValue: total.toStringAsFixed(2),
-            ),
-          ),
-        ],
+      ),
+      child: pw.Center(
+        child: pw.Text(
+          "C.R 4030171445 | info@dimahmusic.com | www.dimahmusic.com",
+          style: pw.TextStyle(fontSize: 8, color: accentColor),
+        ),
       ),
     );
   }
-
-  static pw.Column customRowText({required String firstTitle, required String firstValue, required String secondTitle, required String secondValue, required String thirdTitle, required String thirdValue}) {
-    return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-              children: [
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.start,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(firstTitle),
-
-                pw.Expanded(child: pw.Container(
-                  child: pw.Text(firstValue),
-                  alignment: pw.Alignment.center,
-                ),),
-              ],
-            ),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.start,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(secondTitle),
-
-                pw.Expanded(child: pw.Container(
-                  child: pw.Text(secondValue),
-                  alignment: pw.Alignment.center,
-                ),),
-              ],
-            ),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.start,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(thirdTitle),
-
-                pw.Expanded(child: pw.Container(
-                  child: pw.Text(thirdValue),
-                  alignment: pw.Alignment.center,
-                ),),
-              ],
-            ),
-          ]);
-  }
 }
-
