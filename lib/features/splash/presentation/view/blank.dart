@@ -143,7 +143,7 @@ class Blank2 extends StatelessWidget {
                     SizedBox(width: AppSpacing.kSpaceXXL),
                     Expanded(child: CustomTextFormField(
                       controller: artistPaymentController,
-                      labelText: "Artist Payment",
+                      labelText: "عدد الساعات",
                       keyboardType: TextInputType.number,
                     ),),
                   ],

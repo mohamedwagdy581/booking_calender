@@ -39,6 +39,9 @@ dependencies:
   hijri_calendar: ^1.0.7+7
   hijri: ^3.0.0
   logger: ^2.6.2
+  mailer: ^6.0.0
+  path_provider: ^2.1.2
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +55,8 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/notosans/
+    - assets/fonts/diin/
+    - .env # <-- أضف هذا السطر لتعريف الملف
 
   fonts:
     - family: NotoSansArabic
@@ -60,3 +65,8 @@ flutter:
           weight: 400
         - asset: assets/fonts/notosans/NotoSansArabic-Bold.ttf
           weight: 700
+
+    - family: DINNextLTArabic
+      fonts:
+        - asset: assets/fonts/diin/DINNextLTArabic-Regular-2.ttf
+          weight: 400

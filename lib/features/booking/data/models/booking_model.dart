@@ -12,7 +12,9 @@ class Booking extends Equatable {
   final double totalAmount;
   final double firstPayment;
   final double cashPayment;
-  final double artistPayment;
+  final int hours;
+final String currency;
+final String paymentMethod;
   final String artistName;
   final List<String> images;
 
@@ -27,16 +29,18 @@ class Booking extends Equatable {
     required this.totalAmount,
     required this.firstPayment,
     required this.cashPayment,
-    required this.artistPayment,
+    required this.hours, 
+    required this.currency, 
+    required this.paymentMethod,
     required this.artistName,
-    required this.images,
+    required this.images, 
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['id'] as String?,
       title: json['title'] as String? ?? 'Untitled',
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.parse(json['date'] as String),  
       familyName: json['family_name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       location: json['location'] as String? ?? '',
@@ -44,7 +48,9 @@ class Booking extends Equatable {
       totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
       firstPayment: (json['first_payment'] as num? ?? 0).toDouble(),
       cashPayment: (json['cash_payment'] as num? ?? 0).toDouble(),
-      artistPayment: (json['artist_payment'] as num? ?? 0).toDouble(),
+      hours: (json['hours'] as num? ?? 0).toInt(),
+      currency: json['currency'] as String? ?? 'SAR',
+      paymentMethod: json['payment_method'] as String? ?? 'Cash',
       artistName: json['artist_name'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? []).map((e) => e as String).toList(),
     );
@@ -62,7 +68,9 @@ class Booking extends Equatable {
       'total_amount': totalAmount,
       'first_payment': firstPayment,
       'cash_payment': cashPayment,
-      'artist_payment': artistPayment,
+      'hours': hours,
+      'currency': currency,
+      'payment_method': paymentMethod,
       'artist_name': artistName,
       'images': images,
     };
@@ -79,7 +87,9 @@ class Booking extends Equatable {
       'total_amount': totalAmount,
       'first_payment': firstPayment,
       'cash_payment': cashPayment,
-      'artist_payment': artistPayment,
+      'hours': hours,
+      'currency': currency,
+      'payment_method': paymentMethod,
       'artist_name': artistName,
       'images': images,
     };
@@ -97,7 +107,9 @@ class Booking extends Equatable {
         totalAmount,
         firstPayment,
         cashPayment,
-        artistPayment,
+        hours,
+        currency,
+        paymentMethod,
         artistName,
         images,
       ];

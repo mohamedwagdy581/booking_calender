@@ -13,8 +13,9 @@ class BookingFormFieldsSection extends StatelessWidget {
   final TextEditingController totalAmountController;
   final TextEditingController firstPaymentController;
   final TextEditingController cashPaymentController;
-  final TextEditingController artistPaymentController;
+  final TextEditingController hoursController;
   final TextEditingController artistNameController;
+  final String paymentMethod; // إضافة متغير طريقة الدفع
 
   const BookingFormFieldsSection({
     super.key,
@@ -26,8 +27,9 @@ class BookingFormFieldsSection extends StatelessWidget {
     required this.totalAmountController,
     required this.firstPaymentController,
     required this.cashPaymentController,
-    required this.artistPaymentController,
+    required this.hoursController,
     required this.artistNameController,
+    this.paymentMethod = 'Installments', // قيمة افتراضية
   });
 
   @override
@@ -106,23 +108,23 @@ class BookingFormFieldsSection extends StatelessWidget {
               ),
             ),
             SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(
-              child: CustomTextFormField(
-                controller: firstPaymentController,
-                labelText: "الدفعة الاولى",
-                keyboardType: TextInputType.number,
+            // إخفاء الدفعة الأولى إذا كان الدفع إجمالي
+            if (paymentMethod == 'Installments')
+              Expanded(
+                child: CustomTextFormField(
+                  controller: firstPaymentController,
+                  labelText: "الدفعة الاولى",
+                  keyboardType: TextInputType.number,
+                ),
               ),
-            ),
-
-
           ],
         ),
         SizedBox(height: AppSpacing.kSpaceM),
         Row(
           children: [
             Expanded(child: CustomTextFormField(
-              controller: artistPaymentController,
-              labelText: "دفعة الفنان",
+              controller: hoursController,
+              labelText: "عدد الساعات",
               keyboardType: TextInputType.number,
             ),),
             SizedBox(width: AppSpacing.kSpaceXXL),

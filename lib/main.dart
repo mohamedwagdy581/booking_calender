@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/services/service_locator.dart';
@@ -10,13 +11,17 @@ import 'core/theme/app_theme.dart';
 import 'core/utils/app_router.dart';
 import 'features/auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 
-// TODO: Move these to a separate config file
-const supabaseUrl = 'https://weqnmkoswedzlmzptier.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndlcW5ta29zd2VkemxtenB0aWVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1NjY0MzUsImV4cCI6MjA3NjE0MjQzNX0.JN86dGQE4zYeka6EBm-8hZnyid3XjFM5p_fHeJZC17E';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("⚠️ Error loading .env file: $e");
+  }
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
   setupServiceLocator(); // Initialize the service locator
   await CacheHelper.init();
   DioHelper.init();

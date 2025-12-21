@@ -53,6 +53,7 @@ class BookingDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final currencySymbol = booking.currency == 'USD' ? '\$' : 'SAR';
 
     return AlertDialog(
       title: Text(booking.title, style: textTheme.headlineSmall),
@@ -65,11 +66,11 @@ class BookingDetailsDialog extends StatelessWidget {
             _buildDetailRow(context, 'Location', booking.location),
             _buildDetailRow(context, 'Hall', booking.hallName),
             _buildDetailRow(context, 'Artist', booking.artistName),
+            _buildDetailRow(context, 'Hours', '${booking.hours}'),
             const Divider(height: 20),
-            _buildDetailRow(context, 'Total Amount', '\$${booking.totalAmount.toStringAsFixed(2)}'),
-            _buildDetailRow(context, 'First Payment', '\$${booking.firstPayment.toStringAsFixed(2)}'),
-            _buildDetailRow(context, 'Cash Payment', '\$${booking.cashPayment.toStringAsFixed(2)}'),
-            _buildDetailRow(context, 'Artist Payment', '\$${booking.artistPayment.toStringAsFixed(2)}'),
+            _buildDetailRow(context, 'Total Amount', '$currencySymbol ${booking.totalAmount.toStringAsFixed(2)}'),
+            _buildDetailRow(context, 'First Payment', '$currencySymbol ${booking.firstPayment.toStringAsFixed(2)}'),
+            _buildDetailRow(context, 'Cash Payment', '$currencySymbol ${booking.cashPayment.toStringAsFixed(2)}'),
           ],
         ),
       ),

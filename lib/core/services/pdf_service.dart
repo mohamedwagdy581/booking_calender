@@ -11,45 +11,54 @@ class PdfService {
   static Future<Uint8List> generateQuotation(Booking booking) async {
     final pdf = pw.Document();
 
-    final fontRegular = pw.Font.ttf(await rootBundle.load(AppAssets.notoFontRegular));
-    final fontBold = pw.Font.ttf(await rootBundle.load(AppAssets.notoFontBold));
+    final fontRegular = pw.Font.ttf(await rootBundle.load('assets/fonts/diin/DINNextLTArabic-Regular-2.ttf'));
+    final fontBold = pw.Font.ttf(await rootBundle.load('assets/fonts/diin/DINNextLTArabic-Regular-2.ttf'));
     final logoData = await rootBundle.load(AppAssets.fullLogo);
     final logo = pw.MemoryImage(logoData.buffer.asUint8List());
 
-    final accentColor = PdfColor.fromHex("#49A4B3");
+    final accentColor = PdfColor.fromHex("#009873");
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4.landscape,
-        margin: const pw.EdgeInsets.all(30),
+        margin: const pw.EdgeInsets.symmetric(vertical: 30, horizontal: 0),
         theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold),
         textDirection: pw.TextDirection.rtl,
         build: (ctx) => pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // 1. الرأس المعدل (التاريخ يمين - عرض السعر يسار)
-            _buildNewTopHeader(logo, accentColor),
+            // نضيف Padding يدوي للعناصر اللي محتاجة هوامش
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+              child: _buildNewTopHeader(logo, accentColor),
+            ),
             pw.SizedBox(height: 15),
             
-            // 2. سكشن من / إلى (بالتقسيمة اللي طلبتها)
             _buildDetailedInfoSection(booking, accentColor),
+            
             pw.SizedBox(height: 15),
             
-            // 3. النص الترحيبي
-            _buildWelcomeText(booking),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+              child: _buildWelcomeText(booking, accentColor),
+            ),
             pw.SizedBox(height: 10),
             
-            // 4. الجدول الرئيسي (مرتب من اليمين للياسر)
+            // 4. الجدول الرئيسي (بدون Padding عشان ياخد العرض كامل)
             _buildMainDataTable(booking, accentColor),
             pw.SizedBox(height: 15),
             
-            // 5. المعلومات البنكية
-            _buildBankInfo(),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+              child: _buildBankInfo(),
+            ),
             
             pw.Spacer(),
             
-            // 6. التوقيع والختام
-            _buildSignature(logo),
+            pw.Padding(
+              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+              child: _buildSignature(logo),
+            ),
             //pw.Divider(thickness: 0.5, color: PdfColors.grey),
             _buildBottomContactLine(),
           ],
@@ -80,11 +89,11 @@ class PdfService {
           ),
         ),
         // منتصف: اللوجو
-        pw.Image(logo, height: 60),
+        pw.Image(logo, height: 80),
         // يسار: كلمة عرض سعر
         pw.Container(
           width: 80,
-          height: 40,
+          height: 80,
           decoration: pw.BoxDecoration(
             color: accent,
             borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
@@ -142,6 +151,7 @@ class PdfService {
         // القسم الأيسر (القيمة)
         pw.Container(
           padding: const pw.EdgeInsets.all(5),
+          color: PdfColors.grey200,
           alignment: pw.Alignment.centerRight,
           child: pw.Text(value, style: pw.TextStyle(fontSize: 9, fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal)),
         ),
@@ -149,7 +159,7 @@ class PdfService {
         pw.Container(
           padding: const pw.EdgeInsets.all(5),
           color: accent,
-          alignment: pw.Alignment.center,
+          alignment: pw.Alignment.centerLeft,
           child: pw.Text(label, style: const pw.TextStyle(color: PdfColors.white, fontSize: 9)),
         ),
       ],
@@ -159,25 +169,36 @@ class PdfService {
   // التعديل الثاني: الجدول الرئيسي مرتب من اليمين لليسار
   static pw.Widget _buildMainDataTable(Booking booking, PdfColor accent) {
     // الترتيب حسب الصورة: الرقم | الفنان | التاريخ | المكان | الكمية | القيمة | الضريبة | الإجمالي
-    final headers = ["الرقم", "الفنان / الفنانة", "التاريخ", "المكان", "الكمية", "القيمة بالريال", "VAT 15%", "الإجمالي"];
+    final currencyLabel = booking.currency == 'USD' ? 'بالدولار' : 'بالريال';
+    final headers = ["الرقم", "الفنان / الفنانة", "التاريخ", "المكان", "الكمية", "القيمة $currencyLabel", "VAT 15%", "الإجمالي"];
     final vat = booking.totalAmount * 0.15;
     final total = booking.totalAmount + vat;
+
+    // التعديل 2: عكسنا ترتيب الهيدر عشان يظهر "الرقم" على اليمين
+    final reversedHeaders = headers.reversed.toList();
 
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
       columnWidths: {
-        0: const pw.FixedColumnWidth(30),
-        1: const pw.FlexColumnWidth(2),
+        7: const pw.FixedColumnWidth(30), // الرقم
+        6: const pw.FlexColumnWidth(2),   // الفنان (الأكبر)
+        5: const pw.FlexColumnWidth(1.0), // التاريخ
+        4: const pw.FlexColumnWidth(1.0), // المكان
+        3: const pw.FlexColumnWidth(0.7), // الكمية
+        2: const pw.FlexColumnWidth(1.0), // القيمة
+        1: const pw.FlexColumnWidth(1.0), // الضريبة
+        0: const pw.FlexColumnWidth(1.0), // الإجمالي
       },
       children: [
         pw.TableRow(
           decoration: pw.BoxDecoration(color: accent),
-          children: headers.map((h) => pw.Container(
+          children: reversedHeaders.map((h) => pw.Container(
             padding: const pw.EdgeInsets.all(6),
             child: pw.Text(h, style: pw.TextStyle(color: PdfColors.white, fontSize: 8, fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.center),
           )).toList(),
         ),
         pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
           children: [
             _cell("1"),
             _cell(booking.artistName),
@@ -187,7 +208,7 @@ class PdfService {
             _cell(booking.totalAmount.toStringAsFixed(2)),
             _cell(vat.toStringAsFixed(2)),
             _cell(total.toStringAsFixed(2)),
-          ],
+          ].reversed.toList(), // عكسنا ترتيب الخلايا كمان عشان تطابق الهيدر
         ),
       ],
     );
@@ -215,7 +236,7 @@ class PdfService {
     );
   }
 
-  static pw.Widget _buildWelcomeText(Booking booking) {
+  static pw.Widget _buildWelcomeText(Booking booking, PdfColor accent) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -224,10 +245,21 @@ class PdfService {
           style: const pw.TextStyle(fontSize: 10),
         ),
         pw.SizedBox(height: 4),
-        pw.Text(
-          "• تكاليف وأجور الفنان/الفنانة ${booking.artistName} والفرقة الموسيقية السعودية، وتكاليف السفر والإقامة والمواصلات، والحضور لمدة ( ) ساعات فقط. (بدون تجهيزات صوتية).",
-          style: const pw.TextStyle(fontSize: 9),
-        ),
+        pw.RichText(
+            textDirection: pw.TextDirection.rtl,
+            text: pw.TextSpan(
+                style: const pw.TextStyle(fontSize: 9),
+                children: [
+              pw.TextSpan(text: "• تكاليف وأجور الفنان/الفنانة ${booking.artistName} والفرقة الموسيقية السعودية، وتكاليف السفر والإقامة والمواصلات، والحضور لمدة ("),
+              pw.TextSpan(
+                text: ' ${booking.hours} ',
+                style: pw.TextStyle(
+                  color: accent,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              const pw.TextSpan(text: ") ساعات فقط. (بدون تجهيزات صوتية)."),
+            ])),
       ],
     );
   }

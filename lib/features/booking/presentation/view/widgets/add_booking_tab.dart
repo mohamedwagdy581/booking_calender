@@ -1,8 +1,12 @@
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../../core/constants/spacing/app_spacing.dart';
+import '../../../../../core/services/email_service.dart';
+import '../../../../../core/services/pdf_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 import 'sections/booking_form_fields_section.dart';
@@ -25,11 +29,13 @@ class _AddBookingTabState extends State<AddBookingTab> {
   final _totalAmountController = TextEditingController();
   final _firstPaymentController = TextEditingController();
   final _cashPaymentController = TextEditingController();
-  final _artistPaymentController = TextEditingController();
+  final _hoursController = TextEditingController();
   final _artistNameController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+  String _selectedCurrency = 'SAR';
+  String _selectedPaymentMethod = 'Installments';
 
   @override
   void dispose() {
@@ -41,7 +47,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
     _totalAmountController.dispose();
     _firstPaymentController.dispose();
     _cashPaymentController.dispose();
-    _artistPaymentController.dispose();
+    _hoursController.dispose();
     _artistNameController.dispose();
     super.dispose();
   }
@@ -92,8 +98,10 @@ class _AddBookingTabState extends State<AddBookingTab> {
         totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
         firstPayment: double.tryParse(_firstPaymentController.text) ?? 0.0,
         cashPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
-        artistPayment: double.tryParse(_artistPaymentController.text) ?? 0.0,
+        hours: int.tryParse(_hoursController.text) ?? 0,
         artistName: _artistNameController.text,
+        currency: _selectedCurrency,
+        paymentMethod: _selectedPaymentMethod,
         images: const [], // We will handle image picking later
       );
 
@@ -103,6 +111,38 @@ class _AddBookingTabState extends State<AddBookingTab> {
 
       try {
         await context.read<BookingCubit>().addBooking(newBooking);
+
+        // --- بداية كود إرسال الإيميل ---
+        try {
+          // 1. توليد ملف الـ PDF
+          final pdfBytes = await PdfService.generateQuotation(newBooking);
+          
+          // 2. حفظه في ملف مؤقت
+          final tempDir = await getTemporaryDirectory();
+          final file = File('${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf');
+          await file.writeAsBytes(pdfBytes);
+
+          // 3. إرسال الإيميل
+          await EmailService.sendBookingConfirmation(
+            recipientEmail: newBooking.email,
+            clientName: newBooking.familyName,
+            pdfFile: file,
+          );
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم إرسال الإيميل للعميل بنجاح ✅')),
+            );
+          }
+        } catch (emailError) {
+          print("Email Error: $emailError");
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('تم الحفظ ولكن فشل إرسال الإيميل: $emailError')),
+            );
+          }
+        }
+        // --- نهاية كود إرسال الإيميل ---
 
         if (mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -121,8 +161,12 @@ class _AddBookingTabState extends State<AddBookingTab> {
         _totalAmountController.clear();
         _firstPaymentController.clear();
         _cashPaymentController.clear();
-        _artistPaymentController.clear();
+        _hoursController.clear();
         _artistNameController.clear();
+        setState(() {
+          _selectedCurrency = 'SAR';
+          _selectedPaymentMethod = 'Installments';
+        });
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -152,6 +196,49 @@ class _AddBookingTabState extends State<AddBookingTab> {
                   onPickDate: _pickDate,
                   onPickTime: _pickTime,
                 ),
+                SizedBox(height: AppSpacing.kSpaceM),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCurrency,
+                        decoration: const InputDecoration(
+                          labelText: 'العملة',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: ['SAR', 'USD']
+                            .map((label) => DropdownMenuItem(
+                                  value: label,
+                                  child: Text(label),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedCurrency = value!);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: AppSpacing.kSpaceXXL),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedPaymentMethod,
+                        decoration: const InputDecoration(
+                          labelText: 'طريقة الدفع',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: ['Installments', 'Total']
+                            .map((label) => DropdownMenuItem(
+                                  value: label,
+                                  child: Text(label == 'Installments' ? 'دفعات' : 'إجمالي'),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedPaymentMethod = value!);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: AppSpacing.kSpaceM),
                 BookingFormFieldsSection(
                   titleController: _titleController,
                   familyNameController: _familyNameController,
@@ -161,8 +248,9 @@ class _AddBookingTabState extends State<AddBookingTab> {
                   totalAmountController: _totalAmountController,
                   firstPaymentController: _firstPaymentController,
                   cashPaymentController: _cashPaymentController,
-                  artistPaymentController: _artistPaymentController,
+                  hoursController: _hoursController,
                   artistNameController: _artistNameController,
+                  paymentMethod: _selectedPaymentMethod, // تمرير طريقة الدفع
                 ),
                 SizedBox(height: AppSpacing.kSpaceL),
                 ElevatedButton(

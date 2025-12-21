@@ -26,11 +26,13 @@ class _EditBookingViewState extends State<EditBookingView> {
   late final TextEditingController _totalAmountController;
   late final TextEditingController _firstPaymentController;
   late final TextEditingController _cashPaymentController;
-  late final TextEditingController _artistPaymentController;
+  late final TextEditingController _hoursController;
   late final TextEditingController _artistNameController;
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
+  late String _selectedCurrency;
+  late String _selectedPaymentMethod;
 
   @override
   void initState() {
@@ -43,10 +45,12 @@ class _EditBookingViewState extends State<EditBookingView> {
     _totalAmountController = TextEditingController(text: booking.totalAmount.toString());
     _firstPaymentController = TextEditingController(text: booking.firstPayment.toString());
     _cashPaymentController = TextEditingController(text: booking.cashPayment.toString());
-    _artistPaymentController = TextEditingController(text: booking.artistPayment.toString());
+    _hoursController = TextEditingController(text: booking.hours.toString());
     _artistNameController = TextEditingController(text: booking.artistName);
     _selectedDate = booking.date;
     _selectedTime = TimeOfDay.fromDateTime(booking.date);
+    _selectedCurrency = booking.currency;
+    _selectedPaymentMethod = booking.paymentMethod;
   }
 
   @override
@@ -58,7 +62,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     _totalAmountController.dispose();
     _firstPaymentController.dispose();
     _cashPaymentController.dispose();
-    _artistPaymentController.dispose();
+    _hoursController.dispose();
     _artistNameController.dispose();
     super.dispose();
   }
@@ -110,7 +114,9 @@ class _EditBookingViewState extends State<EditBookingView> {
         totalAmount: double.parse(_totalAmountController.text),
         firstPayment: double.parse(_firstPaymentController.text),
         cashPayment: double.parse(_cashPaymentController.text),
-        artistPayment: double.parse(_artistPaymentController.text),
+        hours: int.parse(_hoursController.text),
+        currency: _selectedCurrency,
+        paymentMethod: _selectedPaymentMethod,
         artistName: _artistNameController.text,
         images: widget.booking.images,
       );
@@ -146,6 +152,50 @@ class _EditBookingViewState extends State<EditBookingView> {
                     onPickDate: _pickDate,
                     onPickTime: _pickTime,
                   ),
+                  SizedBox(height: AppSpacing.kSpaceM),
+                  // نقلنا القوائم المنسدلة للأعلى لتتحكم في ظهور الحقول
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedCurrency,
+                          decoration: const InputDecoration(
+                            labelText: 'العملة',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['SAR', 'USD']
+                              .map((label) => DropdownMenuItem(
+                                    value: label,
+                                    child: Text(label),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() => _selectedCurrency = value!);
+                          },
+                        ),
+                      ),
+                      SizedBox(width: AppSpacing.kSpaceXXL),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedPaymentMethod,
+                          decoration: const InputDecoration(
+                            labelText: 'طريقة الدفع',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['Installments', 'Total']
+                              .map((label) => DropdownMenuItem(
+                                    value: label,
+                                    child: Text(label == 'Installments' ? 'دفعات' : 'إجمالي'),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() => _selectedPaymentMethod = value!);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: AppSpacing.kSpaceM),
                   BookingFormFieldsSection(
                     titleController: _titleController,
                     familyNameController: _familyNameController,
@@ -155,8 +205,9 @@ class _EditBookingViewState extends State<EditBookingView> {
                     totalAmountController: _totalAmountController,
                     firstPaymentController: _firstPaymentController,
                     cashPaymentController: _cashPaymentController,
-                    artistPaymentController: _artistPaymentController,
+                    hoursController: _hoursController,
                     artistNameController: _artistNameController,
+                    paymentMethod: _selectedPaymentMethod, // تمرير طريقة الدفع
                   ),
                   SizedBox(height: AppSpacing.kSpaceL),
                   ElevatedButton(
