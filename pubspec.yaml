@@ -34,8 +34,8 @@ dependencies:
   supabase_flutter: ^2.5.5
   # PDF
   pdf: ^3.11.0
-  open_file_plus: ^3.4.1+1
-  file_saver: ^0.2.12
+  open_filex: ^4.4.0
+  file_saver: ^0.3.1
   hijri_calendar: ^1.0.7+7
   hijri: ^3.0.0
   logger: ^2.6.2
@@ -48,6 +48,13 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/fullLogo.ico"
+  min_sdk_android: 21 # مهم عشان الأندرويد الحديث
 
 flutter:
   uses-material-design: true

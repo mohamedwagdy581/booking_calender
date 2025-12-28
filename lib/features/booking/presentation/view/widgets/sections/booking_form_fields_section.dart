@@ -32,108 +32,101 @@ class BookingFormFieldsSection extends StatelessWidget {
     this.paymentMethod = 'Installments', // قيمة افتراضية
   });
 
+  // دالة مساعدة لإنشاء صف متجاوب (يتحول لعمود في الشاشات الصغيرة)
+  Widget _buildResponsiveRow(Widget child1, Widget child2) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 500) { // لو العرض أقل من 500 (موبايل)
+          return Column(
+            children: [
+              child1,
+              SizedBox(height: AppSpacing.kSpaceM),
+              child2,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: child1),
+            SizedBox(width: AppSpacing.kSpaceXXL),
+            Expanded(child: child2),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextFormField(
-                controller: titleController,
-                labelText: 'عنوان الحجز',
-                validator: (value) => value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
-              ),
-            ),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(
-              child: CustomTextFormField(
-                controller: locationController,
-                labelText: 'العنوان',
-                validator: (value) => value!.isEmpty ? 'برجاء اضافة العنوان' : null,
-              ),
-            ),
-
-          ],
+        _buildResponsiveRow(
+          CustomTextFormField(
+            controller: titleController,
+            labelText: 'عنوان الحجز',
+            validator: (value) => value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
+          ),
+          CustomTextFormField(
+            controller: locationController,
+            labelText: 'العنوان',
+            validator: (value) => value!.isEmpty ? 'برجاء اضافة العنوان' : null,
+          ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextFormField(
-                controller: familyNameController,
-                labelText: 'اسم العائلة',
-                validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العائلة' : null,
-              ),
-            ),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(
-              child: CustomTextFormField(
-                controller: emailController,
-                labelText: 'الايميل',
-                validator: (value) => value!.isEmpty ? 'برجاء ادخال ايميل صحيح' : null,
-              ),
-            ),
-          ],
+        _buildResponsiveRow(
+          CustomTextFormField(
+            controller: familyNameController,
+            labelText: 'اسم العائلة',
+            validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العائلة' : null,
+          ),
+          CustomTextFormField(
+            controller: emailController,
+            labelText: 'الايميل',
+            validator: (value) => value!.isEmpty ? 'برجاء ادخال ايميل صحيح' : null,
+          ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextFormField(
-                controller: artistNameController,
-                labelText: 'اسم الفنان',
-                validator: (value) => value!.isEmpty ? 'برجاء ادخال اسم الفنان' : null,
-              ),
-            ),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(
-              child: CustomTextFormField(
-                controller: hallNameController,
-                labelText: 'اسم القاعة',
-              ),
-            ),
-          ],
+        _buildResponsiveRow(
+          CustomTextFormField(
+            controller: artistNameController,
+            labelText: 'اسم الفنان',
+            validator: (value) => value!.isEmpty ? 'برجاء ادخال اسم الفنان' : null,
+          ),
+          CustomTextFormField(
+            controller: hallNameController,
+            labelText: 'اسم القاعة',
+          ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextFormField(
-                controller: totalAmountController,
-                labelText: 'القيمة الكلية',
-                keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
-              ),
-            ),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            // إخفاء الدفعة الأولى إذا كان الدفع إجمالي
-            if (paymentMethod == 'Installments')
-              Expanded(
-                child: CustomTextFormField(
+        _buildResponsiveRow(
+          CustomTextFormField(
+            controller: totalAmountController,
+            labelText: 'القيمة الكلية',
+            keyboardType: TextInputType.number,
+            validator: (value) => value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
+          ),
+          // إخفاء الدفعة الأولى إذا كان الدفع إجمالي
+          paymentMethod == 'Installments'
+              ? CustomTextFormField(
                   controller: firstPaymentController,
                   labelText: "الدفعة الاولى",
                   keyboardType: TextInputType.number,
-                ),
-              ),
-          ],
+                )
+              : const SizedBox(), // عنصر فارغ للحفاظ على التنسيق
         ),
         SizedBox(height: AppSpacing.kSpaceM),
-        Row(
-          children: [
-            Expanded(child: CustomTextFormField(
-              controller: hoursController,
-              labelText: "عدد الساعات",
-              keyboardType: TextInputType.number,
-            ),),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(child: CustomTextFormField(
-              controller: cashPaymentController,
-              labelText: "الدفعة الاخيرة",
-              keyboardType: TextInputType.number,
-            ),), // Keep layout consistent
-          ],
+        _buildResponsiveRow(
+          CustomTextFormField(
+            controller: hoursController,
+            labelText: "عدد الساعات",
+            keyboardType: TextInputType.number,
+          ),
+          CustomTextFormField(
+            controller: cashPaymentController,
+            labelText: "الدفعة الاخيرة",
+            keyboardType: TextInputType.number,
+          ),
         ),
       ],
     );

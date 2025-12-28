@@ -3,5 +3,6 @@
         "cupertino",
         "Schyler",
         "screenutil"
-    ]
+    ],
+    "cmake.sourceDirectory": "D:/Flutter Projects/booking_calender/windows/flutter"
 }

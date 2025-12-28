@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +12,6 @@ import '../../../../../core/services/pdf_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 import 'sections/booking_form_fields_section.dart';
-import 'sections/date_time_pickers_section.dart';
 
 class AddBookingTab extends StatefulWidget {
   const AddBookingTab({super.key});
@@ -36,6 +37,8 @@ class _AddBookingTabState extends State<AddBookingTab> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   String _selectedCurrency = 'SAR';
   String _selectedPaymentMethod = 'Installments';
+  bool _isCompany = false; // متغير لتحديد هل العميل شركة
+  String _selectedBank = 'Rajhi'; // البنك الافتراضي
 
   @override
   void dispose() {
@@ -88,8 +91,14 @@ class _AddBookingTabState extends State<AddBookingTab> {
         _selectedTime.minute,
       );
 
+      // Generate the reference number here so it can be saved
+      final now = DateTime.now();
+      final random = math.Random();
+      final refNumber = "${random.nextInt(900) + 100} / ${now.month.toString().padLeft(2, '0')} / د م";
+
       final newBooking = Booking(
         title: _titleController.text,
+        createdAt: now, // تسجيل تاريخ ووقت الإنشاء الحالي
         date: combinedDateTime,
         familyName: _familyNameController.text,
         email: _emailController.text,
@@ -102,6 +111,9 @@ class _AddBookingTabState extends State<AddBookingTab> {
         artistName: _artistNameController.text,
         currency: _selectedCurrency,
         paymentMethod: _selectedPaymentMethod,
+        refNumber: refNumber,
+        isCompany: _isCompany, // تمرير القيمة للموديل (تأكد من إضافتها في Booking)
+        bankName: _selectedBank,
         images: const [], // We will handle image picking later
       );
 
@@ -166,6 +178,8 @@ class _AddBookingTabState extends State<AddBookingTab> {
         setState(() {
           _selectedCurrency = 'SAR';
           _selectedPaymentMethod = 'Installments';
+          _isCompany = false;
+          _selectedBank = 'Rajhi';
         });
       } catch (e) {
         if (mounted) {
@@ -176,6 +190,55 @@ class _AddBookingTabState extends State<AddBookingTab> {
         }
       }
     }
+  }
+
+  // دالة مساعدة لإنشاء صف متجاوب
+  Widget _buildResponsiveRow(Widget child1, Widget child2) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 500) {
+          return Column(
+            children: [child1, SizedBox(height: AppSpacing.kSpaceM), child2],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: child1),
+            SizedBox(width: AppSpacing.kSpaceXXL),
+            Expanded(child: child2),
+          ],
+        );
+      },
+    );
+  }
+
+  // دالة لبناء قسم التاريخ والوقت بشكل متجاوب
+  Widget _buildDateTimeSection() {
+    final dateWidget = InkWell(
+      onTap: _pickDate,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'التاريخ',
+          border: OutlineInputBorder(),
+          suffixIcon: Icon(Icons.calendar_today),
+        ),
+        child: Text(DateFormat('yyyy-MM-dd').format(_selectedDate)),
+      ),
+    );
+
+    final timeWidget = InkWell(
+      onTap: _pickTime,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'الوقت',
+          border: OutlineInputBorder(),
+          suffixIcon: Icon(Icons.access_time),
+        ),
+        child: Text(_selectedTime.format(context)),
+      ),
+    );
+
+    return _buildResponsiveRow(dateWidget, timeWidget);
   }
 
   @override
@@ -190,53 +253,61 @@ class _AddBookingTabState extends State<AddBookingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                DateTimePickersSection(
-                  selectedDate: _selectedDate,
-                  selectedTime: _selectedTime,
-                  onPickDate: _pickDate,
-                  onPickTime: _pickTime,
+                _buildDateTimeSection(),
+                SizedBox(height: AppSpacing.kSpaceM),
+                _buildResponsiveRow(
+                  DropdownButtonFormField<String>(
+                    value: _selectedCurrency,
+                    decoration: const InputDecoration(
+                      labelText: 'العملة',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ['SAR', 'USD']
+                        .map((label) => DropdownMenuItem(value: label, child: Text(label)))
+                        .toList(),
+                    onChanged: (value) => setState(() => _selectedCurrency = value!),
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _selectedPaymentMethod,
+                    decoration: const InputDecoration(
+                      labelText: 'طريقة الدفع',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ['Installments', 'Total']
+                        .map((label) => DropdownMenuItem(
+                              value: label,
+                              child: Text(label == 'Installments' ? 'دفعات' : 'إجمالي'),
+                            ))
+                        .toList(),
+                    onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+                  ),
                 ),
                 SizedBox(height: AppSpacing.kSpaceM),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: _selectedCurrency,
-                        decoration: const InputDecoration(
-                          labelText: 'العملة',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: ['SAR', 'USD']
-                            .map((label) => DropdownMenuItem(
-                                  value: label,
-                                  child: Text(label),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => _selectedCurrency = value!);
-                        },
-                      ),
-                    ),
-                    SizedBox(width: AppSpacing.kSpaceXXL),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: _selectedPaymentMethod,
-                        decoration: const InputDecoration(
-                          labelText: 'طريقة الدفع',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: ['Installments', 'Total']
-                            .map((label) => DropdownMenuItem(
-                                  value: label,
-                                  child: Text(label == 'Installments' ? 'دفعات' : 'إجمالي'),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => _selectedPaymentMethod = value!);
-                        },
-                      ),
-                    ),
+                // قائمة اختيار البنك
+                DropdownButtonFormField<String>(
+                  value: _selectedBank,
+                  decoration: const InputDecoration(
+                    labelText: 'الحساب البنكي (للعرض في الفاتورة)',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Rajhi', child: Text('مصرف الراجحي')),
+                    DropdownMenuItem(value: 'AlJazira', child: Text('مصرف الجزيرة')),
                   ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedBank = value);
+                    }
+                  },
+                ),
+                SizedBox(height: AppSpacing.kSpaceM),
+                // خيار تحديد نوع العميل (شركة/فرد) لحساب الضريبة
+                SwitchListTile(
+                  title: const Text('هل العميل شركة؟ (تطبيق ضريبة القيمة المضافة)'),
+                  value: _isCompany,
+                  onChanged: (bool value) {
+                    setState(() => _isCompany = value);
+                  },
                 ),
                 SizedBox(height: AppSpacing.kSpaceM),
                 BookingFormFieldsSection(
