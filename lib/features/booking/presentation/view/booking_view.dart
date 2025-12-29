@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/service_locator.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../manager/booking_cubit/booking_cubit.dart';
-import '../manager/booking_cubit/booking_state.dart';
 import 'desktop/desktop_booking_view.dart';
 import 'mobile/mobile_booking_view.dart';
 

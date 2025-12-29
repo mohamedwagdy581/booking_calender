@@ -25,11 +25,11 @@ void main() async {
   setupServiceLocator(); // Initialize the service locator
   await CacheHelper.init();
   DioHelper.init();
-  runApp(const MyApp());
+  runApp(const DimahBooking());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DimahBooking extends StatelessWidget {
+  const DimahBooking({super.key});
 
   @override
   Widget build(BuildContext context) {

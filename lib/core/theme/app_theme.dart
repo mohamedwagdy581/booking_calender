@@ -9,12 +9,9 @@ ThemeData getAppTheme() {
       primary: AppColors.primary,
       secondary: AppColors.primaryLight,
       surface: AppColors.surface,
-      background: AppColors.background,
-      error: AppColors.error,
       onPrimary: AppColors.onPrimary,
       onSecondary: AppColors.onPrimary,
       onSurface: AppColors.onSurface,
-      onBackground: AppColors.onSurface,
       onError: AppColors.onPrimary,
     ),
 

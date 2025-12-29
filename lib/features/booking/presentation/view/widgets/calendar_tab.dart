@@ -5,7 +5,6 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../../../core/constants/colors/app_colors.dart';
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
-import '../../manager/booking_cubit/booking_state.dart';
 import '../../manager/calendar_ui_cubit/calendar_ui_cubit.dart';
 import '../../manager/calendar_ui_cubit/calendar_ui_state.dart';
 import 'booking_details_dialog.dart';

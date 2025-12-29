@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
+import '../../../../../core/services/email_service.dart';
+import '../../../../../core/services/pdf/pdf_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../../domain/repositories/booking_repository.dart';
-import 'booking_state.dart';
+
+part 'booking_state.dart';
 
 class BookingCubit extends Cubit<BookingState> {
   final BookingRepository _bookingRepository;
@@ -22,12 +28,29 @@ class BookingCubit extends Cubit<BookingState> {
   Future<void> addBooking(Booking booking) async {
     emit(BookingLoading());
     try {
-      // This will now only add the booking, just like it did before.
+      // 1. إضافة الحجز للداتابيز
       await _bookingRepository.addBooking(booking);
-      // The email sending logic has been removed to restore functionality.
 
-      // Refresh the list to show the new booking.
-      getBookings();
+      // 2. منطق الإيميل والـ PDF (تم نقله هنا لتنظيف الـ UI)
+      try {
+        final pdfBytes = await PdfService.generateQuotation(booking);
+        final tempDir = await getTemporaryDirectory();
+        final file = File('${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf');
+        await file.writeAsBytes(pdfBytes);
+
+        await EmailService.sendBookingConfirmation(
+          recipientEmail: booking.email,
+          clientName: booking.familyName,
+          pdfFile: file,
+        );
+      } catch (e) {
+        // لو فشل الإيميل، مش هنوقف العملية، بس ممكن نطبعه في اللوج
+        // print("Email warning: $e");
+      }
+
+      // 3. إشعار النجاح وتحديث القائمة
+      emit(BookingOperationSuccess('تم إضافة الحجز وإرسال الإيميل بنجاح!'));
+      getBookings(); // إعادة تحميل القائمة
     } catch (e) {
       emit(BookingError('Failed to add booking: $e'));
     }
@@ -37,7 +60,8 @@ class BookingCubit extends Cubit<BookingState> {
     emit(BookingLoading());
     try {
       await _bookingRepository.updateBooking(booking);
-      getBookings(); // Refresh the list after updating
+      emit(BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
+      getBookings(); 
     } catch (e) {
       emit(BookingError('Failed to update booking: $e'));
     }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
 
-import '../../../../../core/services/pdf_service.dart';
+import '../../../../../core/services/pdf/pdf_service.dart';
 import '../../../data/models/booking_model.dart';
 
 class BookingDetailsDialog extends StatelessWidget {

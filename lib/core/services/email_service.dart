@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -27,11 +28,11 @@ class EmailService {
     try {
       // 3. إرسال الرسالة
       final sendReport = await send(message, smtpServer);
-      print('Message sent: ' + sendReport.toString());
+      debugPrint('Message sent: $sendReport');
     } on MailerException catch (e) {
-      print('Message not sent.');
+      debugPrint('Message not sent.');
       for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
+        debugPrint('Problem: ${p.code}: ${p.msg}');
       }
       rethrow; // نعيد رمي الخطأ عشان نظهره في الـ UI لو حبينا
     }

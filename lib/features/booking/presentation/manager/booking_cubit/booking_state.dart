@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-import '../../../data/models/booking_model.dart';
+part of 'booking_cubit.dart';
 
 abstract class BookingState extends Equatable {
   const BookingState();
@@ -20,6 +18,16 @@ class BookingLoaded extends BookingState {
 
   @override
   List<Object> get props => [bookings];
+}
+
+// حالة جديدة لنجاح العمليات (إضافة/تعديل/حذف)
+class BookingOperationSuccess extends BookingState {
+  final String message;
+
+  const BookingOperationSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
 }
 
 class BookingError extends BookingState {
