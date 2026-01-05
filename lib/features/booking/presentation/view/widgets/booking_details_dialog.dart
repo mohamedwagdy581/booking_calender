@@ -1,5 +1,5 @@
 import 'package:file_saver/file_saver.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
@@ -13,9 +13,16 @@ class BookingDetailsDialog extends StatelessWidget {
   const BookingDetailsDialog({super.key, required this.booking});
 
   Future<void> _generateAndSavePdf(BuildContext context) async {
+    // 1. إظهار مؤشر تحميل (Loading) ليدل على أن العملية جارية
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
     try {
       final pdfData = await PdfService.generateQuotation(booking);
-      final fileName = 'Quotation-${booking.familyName.replaceAll(' ', '_')}-${DateFormat('yyyy-MM-dd').format(booking.date)}.pdf';
+      final fileName = 'Quotation-${booking.clientName.replaceAll(' ', '_')}-${DateFormat('yyyy-MM-dd').format(booking.date)}.pdf';
 
       final String filePath = await FileSaver.instance.saveFile(
         name: fileName,
@@ -23,29 +30,25 @@ class BookingDetailsDialog extends StatelessWidget {
         mimeType: MimeType.pdf,
       );
 
-      if (filePath == null || filePath.isEmpty) {
-        if (kDebugMode) {
-          print('File saving cancelled or failed.');
-        }
-        return; // Don't proceed if the file path is invalid
+      // 2. إغلاق مؤشر التحميل
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (filePath.isEmpty) return;
+
+      // 3. فتح الملف مباشرة (تجربة احترافية بدلاً من السناك بار)
+      await OpenFilex.open(filePath);
+
+    } catch (e) {
+      // إغلاق مؤشر التحميل في حالة الخطأ
+      if (context.mounted) {
+        Navigator.of(context).pop();
       }
 
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Quotation saved successfully!'),
-          action: SnackBarAction(
-            label: 'View',
-            onPressed: () {
-              OpenFilex.open(filePath);
-            },
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save quotation: $e')),
+        SnackBar(content: Text('فشل إنشاء الملف: $e')),
       );
     }
   }
@@ -53,43 +56,48 @@ class BookingDetailsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final currencySymbol = booking.currency == 'USD' ? '\$' : 'SAR';
+    final currencySymbol = booking.currency == 'USD' ? '\$' : 'ر.س';
 
     return AlertDialog(
-      title: Text(booking.title, style: textTheme.headlineSmall),
-      content: SingleChildScrollView(
-        child: ListBody(
-          children: <Widget>[
-            _buildDetailRow(context, 'Family Name', booking.familyName),
-            _buildDetailRow(context, 'Date', DateFormat.yMMMd().format(booking.date)),
-            _buildDetailRow(context, 'Time', DateFormat.jm().format(booking.date)),
-            _buildDetailRow(context, 'Location', booking.location),
-            _buildDetailRow(context, 'Hall', booking.hallName),
-            _buildDetailRow(context, 'Artist', booking.artistName),
-            _buildDetailRow(context, 'Hours', '${booking.hours}'),
-            const Divider(height: 20),
-            _buildDetailRow(context, 'Total Amount', '$currencySymbol ${booking.totalAmount.toStringAsFixed(2)}'),
-            _buildDetailRow(context, 'First Payment', '$currencySymbol ${booking.firstPayment.toStringAsFixed(2)}'),
-            _buildDetailRow(context, 'Cash Payment', '$currencySymbol ${booking.cashPayment.toStringAsFixed(2)}'),
-          ],
+      title: Text(booking.title, textAlign: TextAlign.center, style: textTheme.headlineSmall),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Directionality(
+            textDirection: ui.TextDirection.rtl,
+            child: ListBody(
+              children: <Widget>[
+                if (booking.refNumber != null)
+                _buildDetailRow(context, 'الرقم المرجعي', booking.refNumber!),
+                _buildDetailRow(context, 'اسم العميل', booking.clientName),
+                _buildDetailRow(context, 'التاريخ', DateFormat('yyyy-MM-dd').format(booking.date)),
+                _buildDetailRow(context, 'الوقت', DateFormat.jm().format(booking.date)),
+                _buildDetailRow(context, 'الموقع', booking.location),
+                _buildDetailRow(context, 'القاعة', booking.hallName),
+                _buildDetailRow(context, 'عدد الساعات', '${booking.hours}'),
+                const Divider(height: 20),
+                _buildDetailRow(context, 'المبلغ الإجمالي', '$currencySymbol ${booking.totalAmount.toStringAsFixed(2)}'),
+                _buildDetailRow(context, 'الدفعة الأولى', '$currencySymbol ${booking.firstPayment.toStringAsFixed(2)}'),
+                _buildDetailRow(context, 'الدفعة الاخيرة', '$currencySymbol ${booking.lastPayment.toStringAsFixed(2)}'),
+              ],
+            ),
+          ),
         ),
       ),
       actions: [
         TextButton(
-          child: const Text('Close'),
+          child: const Text('إغلاق', style: TextStyle(color: Colors.grey)),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            // We will navigate to the edit screen here
-          },
         ),
         ElevatedButton(
           onPressed: () {
             _generateAndSavePdf(context);
-            },
-          child: const Text('Generate Quotation'),
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF009873),
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('طباعة عرض السعر'),
         ),
       ],
     );
@@ -103,7 +111,7 @@ class BookingDetailsDialog extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-          Text(value, style: textTheme.bodyMedium),
+          Expanded(child: Text(value, textAlign: TextAlign.left, style: textTheme.bodyMedium)),
         ],
       ),
     );

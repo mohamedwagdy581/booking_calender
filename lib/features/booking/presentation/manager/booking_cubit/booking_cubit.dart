@@ -40,7 +40,7 @@ class BookingCubit extends Cubit<BookingState> {
 
         await EmailService.sendBookingConfirmation(
           recipientEmail: booking.email,
-          clientName: booking.familyName,
+          clientName: booking.clientName,
           pdfFile: file,
         );
       } catch (e) {
@@ -49,7 +49,7 @@ class BookingCubit extends Cubit<BookingState> {
       }
 
       // 3. إشعار النجاح وتحديث القائمة
-      emit(BookingOperationSuccess('تم إضافة الحجز وإرسال الإيميل بنجاح!'));
+      emit(const BookingOperationSuccess('تم إضافة الحجز وإرسال الإيميل بنجاح!'));
       getBookings(); // إعادة تحميل القائمة
     } catch (e) {
       emit(BookingError('Failed to add booking: $e'));
@@ -60,7 +60,7 @@ class BookingCubit extends Cubit<BookingState> {
     emit(BookingLoading());
     try {
       await _bookingRepository.updateBooking(booking);
-      emit(BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
+      emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
       getBookings(); 
     } catch (e) {
       emit(BookingError('Failed to update booking: $e'));

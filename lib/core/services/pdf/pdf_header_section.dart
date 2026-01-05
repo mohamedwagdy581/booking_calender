@@ -25,9 +25,9 @@ class PdfHeaderSection {
           child: pw.Table(
             columnWidths: {0: const pw.FlexColumnWidth()},
             children: [
-              _buildNoSpaceRow("الرقم: ${booking.refNumber ?? 'N/A'}"),
-              _buildNoSpaceRow("التاريخ: $hijriDate"),
-              _buildNoSpaceRow("الموافق: $gregorianDate"),
+              _buildNoSpaceRow("الرقم ${booking.refNumber ?? 'N/A'}"),
+              _buildNoSpaceRow("التاريخ $hijriDate"),
+              _buildNoSpaceRow("الموافق $gregorianDate"),
             ],
           ),
         ),

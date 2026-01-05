@@ -7,13 +7,13 @@ class Booking extends Equatable {
   final DateTime createdAt; // تاريخ إنشاء عرض السعر
   final String title;
   final DateTime date;
-  final String familyName;
+  final String clientName;
   final String email;
   final String location;
   final String hallName;
   final double totalAmount;
   final double firstPayment;
-  final double cashPayment;
+  final double lastPayment;
   final int hours;
 final String currency;
 final bool isCompany;
@@ -28,13 +28,13 @@ final String paymentMethod;
     required this.createdAt,
     required this.title,
     required this.date,
-    required this.familyName,
+    required this.clientName,
     required this.email,
     required this.location,
     required this.hallName,
     required this.totalAmount,
     required this.firstPayment,
-    required this.cashPayment,
+    required this.lastPayment,
     required this.hours, 
     required this.currency, 
     required this.isCompany,
@@ -54,13 +54,13 @@ final String paymentMethod;
           : DateTime.now(),
       title: json['title'] as String? ?? 'Untitled',
       date: DateTime.parse(json['date'] as String),  
-      familyName: json['family_name'] as String? ?? '',
+      clientName: json['client_name'] as String? ?? '',
       email: json['email'] as String? ?? '',
       location: json['location'] as String? ?? '',
       hallName: json['hall_name'] as String? ?? '',
       totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
       firstPayment: (json['first_payment'] as num? ?? 0).toDouble(),
-      cashPayment: (json['cash_payment'] as num? ?? 0).toDouble(),
+      lastPayment: (json['last_payment'] as num? ?? 0).toDouble(),
       hours: (json['hours'] as num? ?? 0).toInt(),
       currency: json['currency'] as String? ?? 'SAR',
       isCompany: json['is_company'] as bool? ?? false,
@@ -78,13 +78,13 @@ final String paymentMethod;
       'created_at': createdAt.toIso8601String(),
       'title': title,
       'date': date.toIso8601String(),
-      'family_name': familyName,
+      'client_name': clientName,
       'email': email,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
       'first_payment': firstPayment,
-      'cash_payment': cashPayment,
+      'last_payment': lastPayment,
       'hours': hours,
       'currency': currency,
       'is_company': isCompany,
@@ -101,13 +101,13 @@ final String paymentMethod;
       'created_at': createdAt.toIso8601String(),
       'title': title,
       'date': date.toIso8601String(),
-      'family_name': familyName,
+      'client_name': clientName,
       'email': email,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
       'first_payment': firstPayment,
-      'cash_payment': cashPayment,
+      'last_payment': lastPayment,
       'hours': hours,
       'currency': currency,
       'is_company': isCompany,
@@ -125,13 +125,13 @@ final String paymentMethod;
         createdAt,
         title,
         date,
-        familyName,
+        clientName,
         email,
         location,
         hallName,
         totalAmount,
         firstPayment,
-        cashPayment,
+        lastPayment,
         hours,
         currency,
         isCompany,

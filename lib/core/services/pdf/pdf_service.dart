@@ -25,12 +25,13 @@ class PdfService {
 
     final fontRegular = pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontRegular));
     final fontBold = pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontBold));
+    // تحميل صورة الشعار
     final logoData = await rootBundle.load(AppAssets.fullLogo);
     final logo = pw.MemoryImage(logoData.buffer.asUint8List());
-    // تحميل صورة الختم (تأكد من وجود الصورة في المسار هذا)
+    // تحميل صورة الختم
     final stampData = await rootBundle.load(AppAssets.stamp);
     final stamp = pw.MemoryImage(stampData.buffer.asUint8List());
-    // تحميل صورة الختم (تأكد من وجود الصورة في المسار هذا)
+    // تحميل صورة التوقيع
     final signatureData = await rootBundle.load(AppAssets.signature);
     final signature = pw.MemoryImage(signatureData.buffer.asUint8List());
 

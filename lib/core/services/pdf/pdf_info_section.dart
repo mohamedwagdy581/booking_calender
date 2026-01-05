@@ -30,7 +30,7 @@ class PdfInfoSection {
               1: const pw.FlexColumnWidth(0.6),
             },
             children: [
-              _buildSplitRow("إلى", booking.familyName, accentColor, isHeader: true),
+              _buildSplitRow("إلى", booking.clientName, accentColor, isHeader: true),
               _buildSplitRow("العنوان", booking.location, accentColor),
               _buildSplitRow("الرقم الضريبي", "إن وجد", accentColor),
             ],

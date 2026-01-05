@@ -71,7 +71,7 @@ flutter:
         - asset: assets/fonts/notosans/NotoSansArabic-Regular.ttf
           weight: 400
         - asset: assets/fonts/notosans/NotoSansArabic-Bold.ttf
-          weight: 700
+          weight: 700 
 
     - family: DINNextLTArabic
       fonts:

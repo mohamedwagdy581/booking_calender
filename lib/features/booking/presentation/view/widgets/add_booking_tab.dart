@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,35 +17,34 @@ class AddBookingTab extends StatefulWidget {
 class _AddBookingTabState extends State<AddBookingTab> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
-  final _familyNameController = TextEditingController();
+  final _artistNameController = TextEditingController();
+  final _clientNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _locationController = TextEditingController();
   final _hallNameController = TextEditingController();
   final _totalAmountController = TextEditingController();
   final _firstPaymentController = TextEditingController();
-  final _cashPaymentController = TextEditingController();
+  final _lastPaymentController = TextEditingController();
   final _hoursController = TextEditingController();
-  final _artistNameController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   String _selectedCurrency = 'SAR';
   String _selectedPaymentMethod = 'دفعات';
-  bool _isCompany = false; // متغير لتحديد هل العميل شركة
-  String _selectedBank = 'الراجحي'; // البنك الافتراضي
+  bool _isCompany = false;
+  String _selectedBank = 'الراجحي'; 
 
   @override
   void dispose() {
     _titleController.dispose();
-    _familyNameController.dispose();
+    _clientNameController.dispose();
     _emailController.dispose();
     _locationController.dispose();
     _hallNameController.dispose();
     _totalAmountController.dispose();
     _firstPaymentController.dispose();
-    _cashPaymentController.dispose();
+    _lastPaymentController.dispose();
     _hoursController.dispose();
-    _artistNameController.dispose();
     super.dispose();
   }
 
@@ -80,8 +77,24 @@ class _AddBookingTabState extends State<AddBookingTab> {
   // 1. دالة لتوليد الرقم المرجعي
   String _generateRefNumber() {
     final now = DateTime.now();
-    final random = math.Random();
-    return "${random.nextInt(900) + 100} / ${now.month.toString().padLeft(2, '0')} / د م";
+    int nextNumber = 300; // البداية من 300
+
+    final state = context.read<BookingCubit>().state;
+    if (state is BookingLoaded) {
+      int maxRef = 0;
+      for (var booking in state.bookings) {
+        if (booking.refNumber != null) {
+          final parts = booking.refNumber!.split('/');
+          if (parts.isNotEmpty) {
+            final ref = int.tryParse(parts[0].trim()) ?? 0;
+            if (ref > maxRef) maxRef = ref;
+          }
+        }
+      }
+      if (maxRef >= 400) nextNumber = maxRef + 1;
+    }
+
+    return "$nextNumber / ${now.month.toString().padLeft(2, '0')} / د م";
   }
 
   // 2. دالة لإنشاء موديل الحجز من المدخلات
@@ -97,16 +110,16 @@ class _AddBookingTabState extends State<AddBookingTab> {
     return Booking(
       title: _titleController.text,
       createdAt: DateTime.now(),
+      artistName: _artistNameController.text,
       date: combinedDateTime,
-      familyName: _familyNameController.text,
+      clientName: _clientNameController.text,
       email: _emailController.text,
       location: _locationController.text,
       hallName: _hallNameController.text,
       totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
       firstPayment: double.tryParse(_firstPaymentController.text) ?? 0.0,
-      cashPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
+      lastPayment: double.tryParse(_lastPaymentController.text) ?? 0.0,
       hours: int.tryParse(_hoursController.text) ?? 0,
-      artistName: _artistNameController.text,
       currency: _selectedCurrency,
       paymentMethod: _selectedPaymentMethod,
       refNumber: _generateRefNumber(),
@@ -120,15 +133,15 @@ class _AddBookingTabState extends State<AddBookingTab> {
   void _resetForm() {
     _formKey.currentState!.reset();
     _titleController.clear();
-    _familyNameController.clear();
+    _artistNameController.clear();
+    _clientNameController.clear();
     _emailController.clear();
     _locationController.clear();
     _hallNameController.clear();
     _totalAmountController.clear();
     _firstPaymentController.clear();
-    _cashPaymentController.clear();
+    _lastPaymentController.clear();
     _hoursController.clear();
-    _artistNameController.clear();
     setState(() {
       _selectedCurrency = 'SAR';
       _selectedPaymentMethod = 'دفعات';
@@ -139,9 +152,48 @@ class _AddBookingTabState extends State<AddBookingTab> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final newBooking = _createBookingModel();
-      // هنا بننده الـ Cubit وهو يتصرف في الباقي (إيميل، داتابيز، الخ)
-      context.read<BookingCubit>().addBooking(newBooking);
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('تأكيد بيانات الحجز', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'هل قمت بمراجعة البيانات بدقة؟',
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: Colors.amber),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text('سيتم حفظ العرض برقم مرجعي تسلسلي ثابت لا يمكن تغييره لاحقاً.', style: TextStyle(fontSize: 13)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('تعديل', style: TextStyle(color: Colors.grey))),
+            ElevatedButton(onPressed: () {
+              Navigator.pop(ctx);
+              final newBooking = _createBookingModel();
+              context.read<BookingCubit>().addBooking(newBooking);
+            }, child: const Text('تأكيد وحفظ')),
+          ],
+        ),
+      );
     }
   }
 
@@ -173,7 +225,9 @@ class _AddBookingTabState extends State<AddBookingTab> {
                   
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      // قسم اختيار التاريخ والوقت
                       BookingDateTimeSection(
                         selectedDate: _selectedDate,
                         selectedTime: _selectedTime,
@@ -222,7 +276,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
   Widget _buildFinancialSection(bool isDesktop) {
     final children = [
       _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'], (v) => setState(() => _selectedCurrency = v!)),
-      _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['نقداً', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
+      _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['إجمالي القيمة', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
       _buildDropdown('البنك', _selectedBank, ['الراجحي', 'الجزيرة'], (v) => setState(() => _selectedBank = v!)),
       SwitchListTile(
         title: const Text('عميل شركة؟'),
@@ -246,16 +300,19 @@ class _AddBookingTabState extends State<AddBookingTab> {
     // قائمة الحقول مرتبة
     final fields = [
       _buildTextField(_titleController, 'عنوان الحجز'),
-      _buildTextField(_familyNameController, 'اسم العائلة'),
+      _buildTextField(_clientNameController, 'اسم العميل'),
       _buildTextField(_emailController, 'البريد الإلكتروني', isEmail: true),
       _buildTextField(_locationController, 'الموقع'),
       _buildTextField(_hallNameController, 'اسم القاعة'),
       _buildTextField(_artistNameController, 'اسم الفنان'),
       _buildTextField(_hoursController, 'عدد الساعات', isNumber: true),
       _buildTextField(_totalAmountController, 'المبلغ الإجمالي', isNumber: true),
-      _buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true),
-      _buildTextField(_cashPaymentController, 'الدفع النقدي', isNumber: true),
     ];
+
+    if (_selectedPaymentMethod == 'دفعات') {
+      fields.add(_buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true));
+      fields.add(_buildTextField(_lastPaymentController, 'الدفعة الاخيرة', isNumber: true));
+    }
 
     if (isDesktop) {
       // في الديسكتوب نعرض كل حقلين بجانب بعض (Grid)
@@ -278,7 +335,13 @@ class _AddBookingTabState extends State<AddBookingTab> {
   Widget _buildTextField(TextEditingController controller, String label, {bool isNumber = false, bool isEmail = false}) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      textAlign: TextAlign.right,
+      textDirection: TextDirection.rtl,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        alignLabelWithHint: true,
+      ),
       keyboardType: isNumber ? TextInputType.number : (isEmail ? TextInputType.emailAddress : TextInputType.text),
       validator: (val) => val == null || val.isEmpty ? 'مطلوب' : null,
     );

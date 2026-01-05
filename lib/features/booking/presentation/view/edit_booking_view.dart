@@ -18,7 +18,7 @@ class EditBookingView extends StatefulWidget {
 class _EditBookingViewState extends State<EditBookingView> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
-  late final TextEditingController _familyNameController;
+  late final TextEditingController _clientNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _locationController;
   late final TextEditingController _hallNameController;
@@ -40,13 +40,13 @@ class _EditBookingViewState extends State<EditBookingView> {
     super.initState();
     final booking = widget.booking;
     _titleController = TextEditingController(text: booking.title);
-    _familyNameController = TextEditingController(text: booking.familyName);
+    _clientNameController = TextEditingController(text: booking.clientName);
     _emailController = TextEditingController(text: booking.email);
     _locationController = TextEditingController(text: booking.location);
     _hallNameController = TextEditingController(text: booking.hallName);
     _totalAmountController = TextEditingController(text: booking.totalAmount.toString());
     _firstPaymentController = TextEditingController(text: booking.firstPayment.toString());
-    _cashPaymentController = TextEditingController(text: booking.cashPayment.toString());
+    _cashPaymentController = TextEditingController(text: booking.lastPayment.toString());
     _hoursController = TextEditingController(text: booking.hours.toString());
     _artistNameController = TextEditingController(text: booking.artistName);
     _selectedDate = booking.date;
@@ -60,7 +60,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   @override
   void dispose() {
     _titleController.dispose();
-    _familyNameController.dispose();
+    _clientNameController.dispose();
     _emailController.dispose();
     _locationController.dispose();
     _hallNameController.dispose();
@@ -114,13 +114,13 @@ class _EditBookingViewState extends State<EditBookingView> {
       createdAt: widget.booking.createdAt,
       title: _titleController.text,
       date: combinedDateTime,
-      familyName: _familyNameController.text,
+      clientName: _clientNameController.text,
       email: _emailController.text,
       location: _locationController.text,
       hallName: _hallNameController.text,
       totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
       firstPayment: double.tryParse(_firstPaymentController.text) ?? 0.0,
-      cashPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
+      lastPayment: double.tryParse(_cashPaymentController.text) ?? 0.0,
       hours: int.tryParse(_hoursController.text) ?? 0,
       currency: _selectedCurrency,
       paymentMethod: _selectedPaymentMethod,
@@ -196,7 +196,7 @@ class _EditBookingViewState extends State<EditBookingView> {
                       ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                        child: const Text('Save Changes'),
+                        child: const Text('حفظ التغييرات'),
                       ),
                     ],
                   );
@@ -212,8 +212,8 @@ class _EditBookingViewState extends State<EditBookingView> {
   Widget _buildFinancialSection(bool isDesktop) {
     final children = [
       _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'], (v) => setState(() => _selectedCurrency = v!)),
-      _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['Cash', 'Installments'], (v) => setState(() => _selectedPaymentMethod = v!)),
-      _buildDropdown('البنك', _selectedBank, ['Rajhi', 'AlJazira'], (v) => setState(() => _selectedBank = v!)),
+      _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['إجمالي القيمة', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
+      _buildDropdown('البنك', _selectedBank, ['الراجحي', 'الجزيرة'], (v) => setState(() => _selectedBank = v!)),
       SwitchListTile(
         title: const Text('عميل شركة؟'),
         value: _isCompany,
@@ -234,7 +234,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   Widget _buildFormFields(bool isDesktop) {
     final fields = [
       _buildTextField(_titleController, 'عنوان الحجز'),
-      _buildTextField(_familyNameController, 'اسم العائلة'),
+      _buildTextField(_clientNameController, 'اسم العائلة'),
       _buildTextField(_emailController, 'البريد الإلكتروني', isEmail: true),
       _buildTextField(_locationController, 'الموقع'),
       _buildTextField(_hallNameController, 'اسم القاعة'),
@@ -258,7 +258,13 @@ class _EditBookingViewState extends State<EditBookingView> {
   Widget _buildTextField(TextEditingController controller, String label, {bool isNumber = false, bool isEmail = false}) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      textAlign: TextAlign.right,
+      textDirection: TextDirection.rtl,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        alignLabelWithHint: true, // This is the key property to align the label to the right.
+      ),
       keyboardType: isNumber ? TextInputType.number : (isEmail ? TextInputType.emailAddress : TextInputType.text),
       validator: (val) => val == null || val.isEmpty ? 'مطلوب' : null,
     );

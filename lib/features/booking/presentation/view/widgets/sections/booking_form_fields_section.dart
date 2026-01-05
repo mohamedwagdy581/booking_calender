@@ -6,29 +6,29 @@ import '../../../../../../core/widgets/custom_text_form_field.dart';
 
 class BookingFormFieldsSection extends StatelessWidget {
   final TextEditingController titleController;
-  final TextEditingController familyNameController;
+  final TextEditingController clientNameController;
   final TextEditingController emailController;
   final TextEditingController locationController;
   final TextEditingController hallNameController;
+  final TextEditingController artistNameController;
   final TextEditingController totalAmountController;
   final TextEditingController firstPaymentController;
-  final TextEditingController cashPaymentController;
+  final TextEditingController lastPaymentController;
   final TextEditingController hoursController;
-  final TextEditingController artistNameController;
   final String paymentMethod; // إضافة متغير طريقة الدفع
 
   const BookingFormFieldsSection({
     super.key,
     required this.titleController,
-    required this.familyNameController,
+    required this.clientNameController,
     required this.emailController,
     required this.locationController,
     required this.hallNameController,
+    required this.artistNameController,
     required this.totalAmountController,
     required this.firstPaymentController,
-    required this.cashPaymentController,
+    required this.lastPaymentController,
     required this.hoursController,
-    required this.artistNameController,
     this.paymentMethod = 'Installments', // قيمة افتراضية
   });
 
@@ -76,9 +76,9 @@ class BookingFormFieldsSection extends StatelessWidget {
         SizedBox(height: AppSpacing.kSpaceM),
         _buildResponsiveRow(
           CustomTextFormField(
-            controller: familyNameController,
-            labelText: 'اسم العائلة',
-            validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العائلة' : null,
+            controller: clientNameController,
+            labelText: 'اسم العميل',
+            validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العميل' : null,
           ),
           CustomTextFormField(
             controller: emailController,
@@ -89,13 +89,12 @@ class BookingFormFieldsSection extends StatelessWidget {
         SizedBox(height: AppSpacing.kSpaceM),
         _buildResponsiveRow(
           CustomTextFormField(
-            controller: artistNameController,
-            labelText: 'اسم الفنان',
-            validator: (value) => value!.isEmpty ? 'برجاء ادخال اسم الفنان' : null,
-          ),
-          CustomTextFormField(
             controller: hallNameController,
             labelText: 'اسم القاعة',
+          ),
+          CustomTextFormField(
+            controller: artistNameController,
+            labelText: 'اسم الفنان',
           ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
@@ -123,7 +122,7 @@ class BookingFormFieldsSection extends StatelessWidget {
             keyboardType: TextInputType.number,
           ),
           CustomTextFormField(
-            controller: cashPaymentController,
+            controller: lastPaymentController,
             labelText: "الدفعة الاخيرة",
             keyboardType: TextInputType.number,
           ),
