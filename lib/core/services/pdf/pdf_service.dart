@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:pdf/pdf.dart';
@@ -18,7 +19,9 @@ import 'pdf_welcome_section.dart';
 class PdfService {
   static Future<Uint8List> generateQuotation(Booking booking) async {
     // تهيئة بيانات اللغة العربية لتنسيق التواريخ
+    await initializeDateFormatting('en', null); // تحميل بيانات الإنجليزي
     await initializeDateFormatting('ar', null);
+    Intl.defaultLocale = 'en_US'; // جعل الأرقام الميلادية إنجليزية افتراضياً
     HijriCalendar.setLocal('ar'); // ضبط التاريخ الهجري للعربية
 
     final pdf = pw.Document();

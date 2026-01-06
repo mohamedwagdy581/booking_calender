@@ -19,21 +19,23 @@ class PdfTableSection {
     List<pw.Widget> rowCells;
 
     if (isCompany) {
-      headers = ["الرقم", "الفنان / الفنانة", "التاريخ", "المكان", "الكمية", "القيمة $currencyLabel", "VAT 15%", "الإجمالي"];
+      headers = ["الرقم", "الفنان / الفنانة", "عدد ساعات الحضور", "التاريخ", "المكان", "الكمية", "القيمة $currencyLabel", "VAT 15%", "الإجمالي"];
       columnWidths = {
-        7: const pw.FixedColumnWidth(35),
-        6: const pw.FlexColumnWidth(2),
-        5: const pw.FlexColumnWidth(1.0),
-        4: const pw.FlexColumnWidth(1.0),
-        3: const pw.FlexColumnWidth(0.7),
-        2: const pw.FlexColumnWidth(1.0),
-        1: const pw.FlexColumnWidth(1.0),
-        0: const pw.FlexColumnWidth(1.0),
+        8: const pw.FixedColumnWidth(35),      // الرقم
+        7: const pw.FlexColumnWidth(2),        // الفنان
+        6: const pw.FlexColumnWidth(1.0),      // عدد ساعات الحضور (الجديد)
+        5: const pw.FlexColumnWidth(1.0),      // التاريخ
+        4: const pw.FlexColumnWidth(1.0),      // المكان
+        3: const pw.FlexColumnWidth(0.7),      // الكمية
+        2: const pw.FlexColumnWidth(1.0),      // القيمة
+        1: const pw.FlexColumnWidth(1.0),      // VAT
+        0: const pw.FlexColumnWidth(1.0),      // الإجمالي
       };
       rowCells = [
         _cell("1"),
         _cell(booking.artistName),
-        _cell(DateFormat('dd/MM/yyyy').format(booking.date)),
+        _cell(booking.hours.toString()),
+        _cell(DateFormat('dd/MM/yyyy', 'en').format(booking.date)),
         _cell(booking.location),
         _cell("1"),
         _cell(formatMoney(booking.totalAmount)),
@@ -41,19 +43,21 @@ class PdfTableSection {
         _cell(formatMoney(total)),
       ];
     } else {
-      headers = ["الرقم", "الفنان / الفنانة", "التاريخ", "المكان", "الكمية", "القيمة $currencyLabel"];
+      headers = ["الرقم", "الفنان / الفنانة", "عدد ساعات الحضور", "التاريخ", "المكان", "الكمية", "القيمة $currencyLabel"];
       columnWidths = {
-        5: const pw.FixedColumnWidth(35),
-        4: const pw.FlexColumnWidth(2),
-        3: const pw.FlexColumnWidth(1.0),
-        2: const pw.FlexColumnWidth(1.0),
-        1: const pw.FlexColumnWidth(0.7),
-        0: const pw.FlexColumnWidth(1.0),
+        6: const pw.FixedColumnWidth(35),      // الرقم
+        5: const pw.FlexColumnWidth(2),        // الفنان
+        4: const pw.FlexColumnWidth(1.0),      // عدد ساعات الحضور (الجديد)
+        3: const pw.FlexColumnWidth(1.0),      // التاريخ
+        2: const pw.FlexColumnWidth(1.0),      // المكان
+        1: const pw.FlexColumnWidth(0.7),      // الكمية
+        0: const pw.FlexColumnWidth(1.0),      // القيمة
       };
       rowCells = [
         _cell("1"),
         _cell(booking.artistName),
-        _cell(DateFormat('dd/MM/yyyy').format(booking.date)),
+        _cell(booking.hours.toString()),
+        _cell(DateFormat('dd/MM/yyyy', 'en').format(booking.date)),
         _cell(booking.location),
         _cell("1"),
         _cell(formatMoney(booking.totalAmount)),

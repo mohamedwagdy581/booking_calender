@@ -14,7 +14,7 @@ class PdfHeaderSection {
     final date = booking.createdAt;
     final hijriDateObj = HijriCalendar.fromDate(date);
     final hijriDate = "${hijriDateObj.hDay} ${hijriDateObj.longMonthName} ${hijriDateObj.hYear}هـ";
-    final gregorianDate = "${DateFormat('dd MMMM yyyy', 'ar').format(date)}م";
+    final gregorianDate = "${DateFormat('dd', 'en').format(date)} ${DateFormat('MMMM', 'ar').format(date)} ${DateFormat('yyyy', 'en').format(date)}م";
 
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,

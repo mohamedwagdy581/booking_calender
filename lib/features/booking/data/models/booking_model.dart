@@ -118,6 +118,50 @@ final String paymentMethod;
     };
   }
 
+  Booking copyWith({
+    String? id,
+    String? refNumber,
+    DateTime? createdAt,
+    String? title,
+    DateTime? date,
+    String? clientName,
+    String? email,
+    String? location,
+    String? hallName,
+    double? totalAmount,
+    double? firstPayment,
+    double? lastPayment,
+    int? hours,
+    String? currency,
+    bool? isCompany,
+    String? paymentMethod,
+    String? artistName,
+    String? bankName,
+    List<String>? images,
+  }) {
+    return Booking(
+      id: id ?? this.id,
+      refNumber: refNumber ?? this.refNumber,
+      createdAt: createdAt ?? this.createdAt,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      clientName: clientName ?? this.clientName,
+      email: email ?? this.email,
+      location: location ?? this.location,
+      hallName: hallName ?? this.hallName,
+      totalAmount: totalAmount ?? this.totalAmount,
+      firstPayment: firstPayment ?? this.firstPayment,
+      lastPayment: lastPayment ?? this.lastPayment,
+      hours: hours ?? this.hours,
+      currency: currency ?? this.currency,
+      isCompany: isCompany ?? this.isCompany,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      artistName: artistName ?? this.artistName,
+      bankName: bankName ?? this.bankName,
+      images: images ?? this.images,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

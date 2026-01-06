@@ -91,7 +91,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
           }
         }
       }
-      if (maxRef >= 400) nextNumber = maxRef + 1;
+      if (maxRef >= 300) nextNumber = maxRef + 1;
     }
 
     return "$nextNumber / ${now.month.toString().padLeft(2, '0')} / د م";

@@ -13,20 +13,10 @@ class PdfWelcomeSection {
           style: const pw.TextStyle(fontSize: 11),
         ),
         pw.SizedBox(height: 4),
-        pw.RichText(
-            textDirection: pw.TextDirection.rtl,
-            text: pw.TextSpan(style: const pw.TextStyle(fontSize: 11), children: [
-              const pw.TextSpan(text: "• تكاليف وأجور الفنان/الفنانة،"),
-              const pw.TextSpan(text: "والفرقة الموسيقية السعودية، وتكاليف السفر والإقامة والمواصلات، والحضور لمدة ("),
-              pw.TextSpan(
-                text: ' ${booking.hours} ',
-                style: pw.TextStyle(
-                  color: accentColor,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              const pw.TextSpan(text: ") ساعات فقط. (بدون تجهيزات صوتية)."),
-            ])),
+        pw.Text(
+          "• تكاليف وأجور الفنان/الفنانة، والفرقة الموسيقية السعودية، وتكاليف السفر والإقامة والمواصلات (بدون تجهيزات صوتية).",
+          style: const pw.TextStyle(fontSize: 11),
+        ),
       ],
     );
   }
