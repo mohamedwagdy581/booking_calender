@@ -10,6 +10,7 @@ class PdfHeaderSection {
     required pw.ImageProvider logo,
     required PdfColor accentColor,
     required Booking booking,
+    required pw.Font fontBold,
   }) {
     final date = booking.createdAt;
     final hijriDateObj = HijriCalendar.fromDate(date);
@@ -63,7 +64,7 @@ class PdfHeaderSection {
           padding: pw.EdgeInsets.zero,
           child: pw.Text(
             text,
-            style: const pw.TextStyle(fontSize: 10),
+            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
             textAlign: pw.TextAlign.right,
           ),
         ),

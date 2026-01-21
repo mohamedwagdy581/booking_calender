@@ -7,7 +7,7 @@ import '../../../../../../core/widgets/custom_text_form_field.dart';
 class BookingFormFieldsSection extends StatelessWidget {
   final TextEditingController titleController;
   final TextEditingController clientNameController;
-  final TextEditingController emailController;
+  final TextEditingController phoneController;
   final TextEditingController locationController;
   final TextEditingController hallNameController;
   final TextEditingController artistNameController;
@@ -21,7 +21,7 @@ class BookingFormFieldsSection extends StatelessWidget {
     super.key,
     required this.titleController,
     required this.clientNameController,
-    required this.emailController,
+    required this.phoneController,
     required this.locationController,
     required this.hallNameController,
     required this.artistNameController,
@@ -64,7 +64,7 @@ class BookingFormFieldsSection extends StatelessWidget {
         _buildResponsiveRow(
           CustomTextFormField(
             controller: titleController,
-            labelText: 'عنوان الحجز',
+            labelText: 'وصف الحجز',
             validator: (value) => value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
           ),
           CustomTextFormField(
@@ -81,9 +81,9 @@ class BookingFormFieldsSection extends StatelessWidget {
             validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العميل' : null,
           ),
           CustomTextFormField(
-            controller: emailController,
-            labelText: 'الايميل',
-            validator: (value) => value!.isEmpty ? 'برجاء ادخال ايميل صحيح' : null,
+            controller: phoneController,
+            labelText: 'رقم الجوال',
+            validator: (value) => value!.isEmpty ? 'برجاء ادخال رقم الجوال' : null,
           ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
@@ -123,7 +123,7 @@ class BookingFormFieldsSection extends StatelessWidget {
           ),
           CustomTextFormField(
             controller: lastPaymentController,
-            labelText: "الدفعة الاخيرة",
+            labelText: "الدفعة الأخيرة",
             keyboardType: TextInputType.number,
           ),
         ),

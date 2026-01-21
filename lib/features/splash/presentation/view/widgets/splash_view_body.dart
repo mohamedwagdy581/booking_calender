@@ -58,7 +58,7 @@ class _SplashViewBodyState extends State<SplashViewBody> with SingleTickerProvid
           FadeTransition(
             opacity: _fadeAnimation,
             child: Image.asset(
-              AppAssets.logo,
+              AppAssets.fullLogo,
               height: 150,
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(

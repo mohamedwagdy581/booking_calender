@@ -4,7 +4,7 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../../../features/booking/data/models/booking_model.dart';
 
 class PdfInfoSection {
-  static pw.Widget build(Booking booking, PdfColor accentColor) {
+  static pw.Widget build(Booking booking, PdfColor accentColor, pw.Font fontBold) {
     return pw.Row(
       children: [
         pw.Expanded(
@@ -53,7 +53,7 @@ class PdfInfoSection {
           padding: const pw.EdgeInsets.all(5),
           color: accent,
           alignment: pw.Alignment.centerLeft,
-          child: pw.Text(label, style: const pw.TextStyle(color: PdfColors.white, fontSize: 9)),
+          child: pw.Text(label, style: pw.TextStyle(color: PdfColors.white, fontSize: 11, fontWeight: pw.FontWeight.bold)),
         ),
       ],
     );

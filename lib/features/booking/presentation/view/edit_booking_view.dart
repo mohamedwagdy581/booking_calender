@@ -27,6 +27,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   late final TextEditingController _cashPaymentController;
   late final TextEditingController _hoursController;
   late final TextEditingController _artistNameController;
+  late final TextEditingController _notesController;
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
@@ -41,7 +42,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     final booking = widget.booking;
     _titleController = TextEditingController(text: booking.title);
     _clientNameController = TextEditingController(text: booking.clientName);
-    _emailController = TextEditingController(text: booking.email);
+    _emailController = TextEditingController(text: booking.phoneNumber);
     _locationController = TextEditingController(text: booking.location);
     _hallNameController = TextEditingController(text: booking.hallName);
     _totalAmountController = TextEditingController(text: booking.totalAmount.toString());
@@ -49,12 +50,18 @@ class _EditBookingViewState extends State<EditBookingView> {
     _cashPaymentController = TextEditingController(text: booking.lastPayment.toString());
     _hoursController = TextEditingController(text: booking.hours.toString());
     _artistNameController = TextEditingController(text: booking.artistName);
+    _notesController = TextEditingController(text: booking.notes);
     _selectedDate = booking.date;
     _selectedTime = TimeOfDay.fromDateTime(booking.date);
     _selectedCurrency = booking.currency;
     _selectedPaymentMethod = booking.paymentMethod;
     _isCompany = booking.isCompany; // استرجاع القيمة المحفوظة
-    _selectedBank = booking.bankName;
+    
+    // التحقق من أن البنك المحفوظ موجود في القائمة الحالية لتجنب خطأ DropdownButton
+    // إذا كانت القيمة قديمة (مثل "الراجحي")، نختار القيمة الافتراضية "الجزيرة"
+    _selectedBank = ['الجزيرة', 'أميمة'].contains(booking.bankName) 
+        ? booking.bankName 
+        : 'الجزيرة';
   }
 
   @override
@@ -69,6 +76,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     _cashPaymentController.dispose();
     _hoursController.dispose();
     _artistNameController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -115,7 +123,7 @@ class _EditBookingViewState extends State<EditBookingView> {
       title: _titleController.text,
       date: combinedDateTime,
       clientName: _clientNameController.text,
-      email: _emailController.text,
+      phoneNumber: _emailController.text,
       location: _locationController.text,
       hallName: _hallNameController.text,
       totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
@@ -128,6 +136,7 @@ class _EditBookingViewState extends State<EditBookingView> {
       images: widget.booking.images,
       isCompany: _isCompany,
       bankName: _selectedBank,
+      notes: _notesController.text,
     );
   }
 
@@ -193,6 +202,24 @@ class _EditBookingViewState extends State<EditBookingView> {
                       _buildFormFields(isDesktop),
                       
                       SizedBox(height: AppSpacing.kSpaceL),
+
+                      // حقل الملاحظات
+                      TextFormField(
+                        controller: _notesController,
+                        textAlign: TextAlign.right,
+                        textDirection: TextDirection.rtl,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'ملاحظات (اختياري)',
+                          hintText: 'أضف أي ملاحظات إضافية تراها مهمة...',
+                          hintTextDirection: TextDirection.rtl,
+                          border: OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                        keyboardType: TextInputType.multiline,
+                      ),
+                      
+                      SizedBox(height: AppSpacing.kSpaceL),
                       ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
@@ -213,7 +240,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     final children = [
       _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'], (v) => setState(() => _selectedCurrency = v!)),
       _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['إجمالي القيمة', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
-      _buildDropdown('البنك', _selectedBank, ['الراجحي', 'الجزيرة'], (v) => setState(() => _selectedBank = v!)),
+      _buildDropdown('البنك', _selectedBank, ['الجزيرة', 'أميمة'], (v) => setState(() => _selectedBank = v!)),
       SwitchListTile(
         title: const Text('عميل شركة؟'),
         value: _isCompany,
@@ -233,17 +260,20 @@ class _EditBookingViewState extends State<EditBookingView> {
 
   Widget _buildFormFields(bool isDesktop) {
     final fields = [
-      _buildTextField(_titleController, 'عنوان الحجز'),
-      _buildTextField(_clientNameController, 'اسم العائلة'),
-      _buildTextField(_emailController, 'البريد الإلكتروني', isEmail: true),
+      _buildTextField(_titleController, 'وصف الحجز'),
+      _buildTextField(_clientNameController, 'اسم العميل'),
       _buildTextField(_locationController, 'الموقع'),
+      _buildTextField(_emailController, 'رقم الجوال', isNumber: true),
       _buildTextField(_hallNameController, 'اسم القاعة'),
       _buildTextField(_artistNameController, 'اسم الفنان'),
       _buildTextField(_hoursController, 'عدد الساعات', isNumber: true),
       _buildTextField(_totalAmountController, 'المبلغ الإجمالي', isNumber: true),
-      _buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true),
-      _buildTextField(_cashPaymentController, 'الدفع النقدي', isNumber: true),
     ];
+
+    if (_selectedPaymentMethod == 'دفعات') {
+      fields.add(_buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true));
+      fields.add(_buildTextField(_cashPaymentController, 'الدفعة الأخيرة', isNumber: true));
+    }
 
     if (isDesktop) {
       return Wrap(

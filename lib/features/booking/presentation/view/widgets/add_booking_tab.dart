@@ -19,32 +19,34 @@ class _AddBookingTabState extends State<AddBookingTab> {
   final _titleController = TextEditingController();
   final _artistNameController = TextEditingController();
   final _clientNameController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   final _hallNameController = TextEditingController();
   final _totalAmountController = TextEditingController();
   final _firstPaymentController = TextEditingController();
   final _lastPaymentController = TextEditingController();
   final _hoursController = TextEditingController();
+  final _notesController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
   String _selectedCurrency = 'SAR';
   String _selectedPaymentMethod = 'دفعات';
   bool _isCompany = false;
-  String _selectedBank = 'الراجحي'; 
+  String _selectedBank = 'الجزيرة'; 
 
   @override
   void dispose() {
     _titleController.dispose();
     _clientNameController.dispose();
-    _emailController.dispose();
+    _phoneController.dispose();
     _locationController.dispose();
     _hallNameController.dispose();
     _totalAmountController.dispose();
     _firstPaymentController.dispose();
     _lastPaymentController.dispose();
     _hoursController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -113,7 +115,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
       artistName: _artistNameController.text,
       date: combinedDateTime,
       clientName: _clientNameController.text,
-      email: _emailController.text,
+      phoneNumber: _phoneController.text,
       location: _locationController.text,
       hallName: _hallNameController.text,
       totalAmount: double.tryParse(_totalAmountController.text) ?? 0.0,
@@ -125,6 +127,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
       refNumber: _generateRefNumber(),
       isCompany: _isCompany,
       bankName: _selectedBank,
+      notes: _notesController.text,
       images: const [],
     );
   }
@@ -135,18 +138,19 @@ class _AddBookingTabState extends State<AddBookingTab> {
     _titleController.clear();
     _artistNameController.clear();
     _clientNameController.clear();
-    _emailController.clear();
+    _phoneController.clear();
     _locationController.clear();
     _hallNameController.clear();
     _totalAmountController.clear();
     _firstPaymentController.clear();
     _lastPaymentController.clear();
     _hoursController.clear();
+    _notesController.clear();
     setState(() {
       _selectedCurrency = 'SAR';
       _selectedPaymentMethod = 'دفعات';
       _isCompany = false;
-      _selectedBank = 'الراجحي';
+      _selectedBank = 'الجزيرة';
     });
   }
 
@@ -168,9 +172,9 @@ class _AddBookingTabState extends State<AddBookingTab> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.15),
+                  color: Colors.amber.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                  border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
                 ),
                 child: const Row(
                   children: [
@@ -245,6 +249,24 @@ class _AddBookingTabState extends State<AddBookingTab> {
                       _buildFormFields(isDesktop),
                       
                       SizedBox(height: AppSpacing.kSpaceL),
+
+                      // حقل الملاحظات
+                      TextFormField(
+                        controller: _notesController,
+                        textAlign: TextAlign.right,
+                        textDirection: TextDirection.rtl,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'ملاحظات (اختياري)',
+                          hintText: 'أضف أي ملاحظات إضافية تراها مهمة...',
+                          hintTextDirection: TextDirection.rtl,
+                          border: OutlineInputBorder(),
+                          alignLabelWithHint: true,
+                        ),
+                        keyboardType: TextInputType.multiline,
+                      ),
+                      
+                      SizedBox(height: AppSpacing.kSpaceL),
                       
                       // زر الإضافة
                       BlocBuilder<BookingCubit, BookingState>(
@@ -277,7 +299,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
     final children = [
       _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'], (v) => setState(() => _selectedCurrency = v!)),
       _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['إجمالي القيمة', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
-      _buildDropdown('البنك', _selectedBank, ['الراجحي', 'الجزيرة'], (v) => setState(() => _selectedBank = v!)),
+      _buildDropdown('البنك', _selectedBank, ['الجزيرة', 'أميمة'], (v) => setState(() => _selectedBank = v!)),
       SwitchListTile(
         title: const Text('عميل شركة؟'),
         value: _isCompany,
@@ -299,10 +321,10 @@ class _AddBookingTabState extends State<AddBookingTab> {
   Widget _buildFormFields(bool isDesktop) {
     // قائمة الحقول مرتبة
     final fields = [
-      _buildTextField(_titleController, 'عنوان الحجز'),
+      _buildTextField(_titleController, 'وصف الحجز'),
       _buildTextField(_clientNameController, 'اسم العميل'),
-      _buildTextField(_emailController, 'البريد الإلكتروني', isEmail: true),
       _buildTextField(_locationController, 'الموقع'),
+      _buildTextField(_phoneController, 'رقم الجوال', isNumber: true),
       _buildTextField(_hallNameController, 'اسم القاعة'),
       _buildTextField(_artistNameController, 'اسم الفنان'),
       _buildTextField(_hoursController, 'عدد الساعات', isNumber: true),
@@ -311,7 +333,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
 
     if (_selectedPaymentMethod == 'دفعات') {
       fields.add(_buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true));
-      fields.add(_buildTextField(_lastPaymentController, 'الدفعة الاخيرة', isNumber: true));
+      fields.add(_buildTextField(_lastPaymentController, 'الدفعة الأخيرة', isNumber: true));
     }
 
     if (isDesktop) {

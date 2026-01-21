@@ -37,6 +37,9 @@ class PdfService {
     // تحميل صورة التوقيع
     final signatureData = await rootBundle.load(AppAssets.signature);
     final signature = pw.MemoryImage(signatureData.buffer.asUint8List());
+    // تحميل صورة رمز الريال
+    final sarSymbolData = await rootBundle.load(AppAssets.sarSymbol);
+    final sarSymbol = pw.MemoryImage(sarSymbolData.buffer.asUint8List());
 
     final accentColor = PdfColor.fromHex("#009873");
 
@@ -50,11 +53,11 @@ class PdfService {
             // نضيف Padding يدوي للعناصر اللي محتاجة هوامش
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 30),
-              child: PdfHeaderSection.build(logo: logo, accentColor: accentColor, booking: booking),
+              child: PdfHeaderSection.build(logo: logo, accentColor: accentColor, booking: booking, fontBold: fontBold),
             ),
             pw.SizedBox(height: 20), // تقليل المسافة
             
-            PdfInfoSection.build(booking, accentColor),
+            PdfInfoSection.build(booking, accentColor, fontBold),
             
             pw.SizedBox(height: 10), // تقليل المسافة
             
@@ -65,14 +68,14 @@ class PdfService {
             pw.SizedBox(height: 5), // تقليل المسافة
             
             // 4. الجدول الرئيسي (بدون Padding عشان ياخد العرض كامل)
-            PdfTableSection.build(booking, accentColor),
-            pw.SizedBox(height: 10), // تقليل المسافة
+            PdfTableSection.build(booking, accentColor, sarSymbol, fontBold),
+            pw.SizedBox(height: 8), // مسافة صغيرة جداً
             
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 30),
               child: PdfBankSection.build(booking),
             ),
-            pw.SizedBox(height: 15), // تقليل المسافة قبل التوقيع لضمان ظهوره في نفس الصفحة
+            pw.SizedBox(height: 8), // مسافة صغيرة قبل التوقيع
             
             pw.Padding(
               padding: const pw.EdgeInsets.symmetric(horizontal: 30),

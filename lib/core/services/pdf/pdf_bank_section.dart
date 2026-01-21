@@ -4,10 +4,10 @@ import '../../../../../features/booking/data/models/booking_model.dart';
 class PdfBankSection {
   static pw.Widget build(Booking booking) {
     String bankDetails = "";
-    if (booking.bankName == 'Rajhi') {
-      bankDetails = "• مؤسسة ديمة الفنية التجارية.\n"
-          "• حساب مصرف الراجحي / جدة.\n"
-          "• رقم الآيبان: SA 31 8000 0577 6080 1003 8837";
+    if (booking.bankName == 'أميمة') {
+      bankDetails = "• OUMAAIMA FARAHAT TALEB\n"
+          "• حساب بنك الجزيرة / فرع السلامة / جدة.\n"
+          "• رقم الآيبان: SA72 6000 0000 1372 1948 0001";
     } else {
       bankDetails = "• مؤسسة ديمة الفنية التجارية.\n"
           "• حساب مصرف الجزيرة / فرع السلامة / جدة.\n"

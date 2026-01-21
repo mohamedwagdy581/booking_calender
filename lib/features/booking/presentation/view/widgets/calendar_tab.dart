@@ -56,7 +56,14 @@ class _CalendarView extends StatelessWidget {
                 final events = groupedEvents[DateTime(selectedDay.year, selectedDay.month, selectedDay.day)] ?? [];
                 if (events.isNotEmpty) {
                   if (events.length == 1) {
-                    showDialog(context: uiContext, builder: (_) => BookingDetailsDialog(booking: events.first));
+                    // نمرر الـ Cubit للدايلوج عشان يقدر يعمل حذف أو تعديل
+                    showDialog(
+                      context: uiContext,
+                      builder: (_) => BlocProvider.value(
+                        value: uiContext.read<BookingCubit>(),
+                        child: BookingDetailsDialog(booking: events.first),
+                      ),
+                    );
                     
                   } else {
                     showDialog(context: uiContext, builder: (_) => DayEventsDialog(day: selectedDay, events: events));

@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class Booking extends Equatable {
@@ -8,18 +7,19 @@ class Booking extends Equatable {
   final String title;
   final DateTime date;
   final String clientName;
-  final String email;
+  final String phoneNumber;
   final String location;
   final String hallName;
   final double totalAmount;
   final double firstPayment;
   final double lastPayment;
   final int hours;
-final String currency;
-final bool isCompany;
-final String paymentMethod;
+  final String currency;
+  final bool isCompany;
+  final String paymentMethod;
   final String artistName;
   final String bankName; // حقل جديد لاسم البنك
+  final String notes; // ملاحظات الحجز
   final List<String> images;
 
   const Booking({
@@ -29,7 +29,7 @@ final String paymentMethod;
     required this.title,
     required this.date,
     required this.clientName,
-    required this.email,
+    required this.phoneNumber,
     required this.location,
     required this.hallName,
     required this.totalAmount,
@@ -41,6 +41,7 @@ final String paymentMethod;
     required this.paymentMethod,
     required this.artistName,
     required this.bankName,
+    required this.notes,
     required this.images, 
   });
 
@@ -55,7 +56,7 @@ final String paymentMethod;
       title: json['title'] as String? ?? 'Untitled',
       date: DateTime.parse(json['date'] as String),  
       clientName: json['client_name'] as String? ?? '',
-      email: json['email'] as String? ?? '',
+      phoneNumber: json['phone_number'] as String? ?? '',
       location: json['location'] as String? ?? '',
       hallName: json['hall_name'] as String? ?? '',
       totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
@@ -67,6 +68,7 @@ final String paymentMethod;
       paymentMethod: json['payment_method'] as String? ?? 'Cash',
       artistName: json['artist_name'] as String? ?? '',
       bankName: json['bank_name'] as String? ?? 'Rajhi', // القيمة الافتراضية
+      notes: json['notes'] as String? ?? '',
       images: (json['images'] as List<dynamic>? ?? []).map((e) => e as String).toList(),
     );
   }
@@ -79,7 +81,7 @@ final String paymentMethod;
       'title': title,
       'date': date.toIso8601String(),
       'client_name': clientName,
-      'email': email,
+      'phone_number': phoneNumber,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
@@ -91,6 +93,7 @@ final String paymentMethod;
       'payment_method': paymentMethod,
       'artist_name': artistName,
       'bank_name': bankName,
+      'notes': notes,
       'images': images,
     };
   }
@@ -102,7 +105,7 @@ final String paymentMethod;
       'title': title,
       'date': date.toIso8601String(),
       'client_name': clientName,
-      'email': email,
+      'phone_number': phoneNumber,
       'location': location,
       'hall_name': hallName,
       'total_amount': totalAmount,
@@ -114,6 +117,7 @@ final String paymentMethod;
       'payment_method': paymentMethod,
       'artist_name': artistName,
       'bank_name': bankName,
+      'notes': notes,
       'images': images,
     };
   }
@@ -125,7 +129,7 @@ final String paymentMethod;
     String? title,
     DateTime? date,
     String? clientName,
-    String? email,
+    String? phoneNumber,
     String? location,
     String? hallName,
     double? totalAmount,
@@ -137,6 +141,7 @@ final String paymentMethod;
     String? paymentMethod,
     String? artistName,
     String? bankName,
+    String? notes,
     List<String>? images,
   }) {
     return Booking(
@@ -146,7 +151,7 @@ final String paymentMethod;
       title: title ?? this.title,
       date: date ?? this.date,
       clientName: clientName ?? this.clientName,
-      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       location: location ?? this.location,
       hallName: hallName ?? this.hallName,
       totalAmount: totalAmount ?? this.totalAmount,
@@ -157,8 +162,7 @@ final String paymentMethod;
       isCompany: isCompany ?? this.isCompany,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       artistName: artistName ?? this.artistName,
-      bankName: bankName ?? this.bankName,
-      images: images ?? this.images,
+      bankName: bankName ?? this.bankName,      notes: notes ?? this.notes,      images: images ?? this.images,
     );
   }
 
@@ -170,7 +174,7 @@ final String paymentMethod;
         title,
         date,
         clientName,
-        email,
+        phoneNumber,
         location,
         hallName,
         totalAmount,
@@ -182,6 +186,7 @@ final String paymentMethod;
         paymentMethod,
         artistName,
         bankName,
+        notes,
         images,
       ];
 }
