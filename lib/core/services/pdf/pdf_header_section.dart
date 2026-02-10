@@ -14,8 +14,10 @@ class PdfHeaderSection {
   }) {
     final date = booking.createdAt;
     final hijriDateObj = HijriCalendar.fromDate(date);
-    final hijriDate = "${hijriDateObj.hDay} ${hijriDateObj.longMonthName} ${hijriDateObj.hYear}هـ";
-    final gregorianDate = "${DateFormat('dd', 'en').format(date)} ${DateFormat('MMMM', 'ar').format(date)} ${DateFormat('yyyy', 'en').format(date)}م";
+    final hijriDate =
+        "${hijriDateObj.hDay} ${hijriDateObj.longMonthName} ${hijriDateObj.hYear}هـ";
+    final gregorianDate =
+        "${DateFormat('dd', 'en').format(date)} ${DateFormat('MMMM', 'ar').format(date)} ${DateFormat('yyyy', 'en').format(date)}م";
 
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -26,6 +28,7 @@ class PdfHeaderSection {
           child: pw.Table(
             columnWidths: {0: const pw.FlexColumnWidth()},
             children: [
+              _buildSpaceRow(" "),
               _buildNoSpaceRow("الرقم ${booking.refNumber ?? 'N/A'}"),
               _buildNoSpaceRow("التاريخ $hijriDate"),
               _buildNoSpaceRow("الموافق $gregorianDate"),
@@ -48,9 +51,30 @@ class PdfHeaderSection {
               ),
             ),
             alignment: pw.Alignment.center,
-            child: pw.Text("عرض\nسعر",
-                style: pw.TextStyle(color: PdfColors.white, fontSize: 16, fontWeight: pw.FontWeight.bold),
-                textAlign: pw.TextAlign.center),
+            child: pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              mainAxisSize: pw.MainAxisSize.min,
+              children: [
+                pw.Text(
+                  "عرض",
+                  style: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    font: fontBold,
+                  ),
+                ),
+                pw.Text(
+                  "سعر",
+                  style: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    font: fontBold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -68,6 +92,14 @@ class PdfHeaderSection {
             textAlign: pw.TextAlign.right,
           ),
         ),
+      ],
+    );
+  }
+
+  static pw.TableRow _buildSpaceRow(String text) {
+    return pw.TableRow(
+      children: [
+        pw.SizedBox(height: 20),
       ],
     );
   }

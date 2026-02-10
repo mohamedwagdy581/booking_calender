@@ -38,7 +38,8 @@ class BookingCubit extends Cubit<BookingState> {
       try {
         final pdfBytes = await PdfService.generateQuotation(updatedBooking);
         final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf');
+        final file = File(
+            '${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf');
         await file.writeAsBytes(pdfBytes);
 
         /* تم إيقاف الإيميل لاستبداله برقم الجوال
@@ -54,7 +55,8 @@ class BookingCubit extends Cubit<BookingState> {
       }
 
       // 4. إشعار النجاح وتحديث القائمة
-      emit(const BookingOperationSuccess('تم إضافة الحجز وإرسال الإيميل بنجاح!'));
+      emit(const BookingOperationSuccess(
+          'تم إضافة الحجز وإرسال الإيميل بنجاح!'));
       getBookings(); // إعادة تحميل القائمة
     } catch (e) {
       emit(BookingError('Failed to add booking: $e'));
@@ -65,10 +67,10 @@ class BookingCubit extends Cubit<BookingState> {
     try {
       // جلب كل الحجوزات لمعرفة أعلى رقم
       final bookings = await _bookingRepository.getBookings();
-      
+
       // استخراج أعلى رقم من ref_number
-      int maxNumber = 399; // البداية من 399 عشان التالي هيكون 400
-      
+      int maxNumber = 999; // البداية من 999 عشان التالي هيكون 1000
+
       for (final booking in bookings) {
         if (booking.refNumber != null && booking.refNumber!.isNotEmpty) {
           try {
@@ -90,11 +92,11 @@ class BookingCubit extends Cubit<BookingState> {
       // توليد الرقم الجديد
       final nextNumber = maxNumber + 1;
       final currentMonth = DateTime.now().month.toString().padLeft(2, '0');
-      
+
       return '$nextNumber / $currentMonth / د م';
     } catch (e) {
-      // في حالة الخطأ، استخدم رقم عشوائي
-      return '${DateTime.now().millisecondsSinceEpoch ~/ 1000} / ${DateTime.now().month.toString().padLeft(2, '0')} / د م';
+      // في حالة الخطأ، استخدم 1000 كـ بداية افتراضية
+      return '1000 / ${DateTime.now().month.toString().padLeft(2, '0')} / د م';
     }
   }
 
@@ -103,7 +105,7 @@ class BookingCubit extends Cubit<BookingState> {
     try {
       await _bookingRepository.updateBooking(booking);
       emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
-      getBookings(); 
+      getBookings();
     } catch (e) {
       emit(BookingError('Failed to update booking: $e'));
     }

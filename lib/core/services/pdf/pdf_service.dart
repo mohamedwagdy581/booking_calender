@@ -26,7 +26,8 @@ class PdfService {
 
     final pdf = pw.Document();
 
-    final fontRegular = pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontRegular));
+    final fontRegular =
+        pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontRegular));
     final fontBold = pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontBold));
     // تحميل صورة الشعار
     final logoData = await rootBundle.load(AppAssets.fullLogo);
@@ -46,41 +47,48 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4.landscape,
-        margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 0), // تقليل الهوامش العلوية والسفلية
+        margin: const pw.EdgeInsets.symmetric(
+            vertical: 20, horizontal: 0), // تقليل الهوامش العلوية والسفلية
         theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold),
         textDirection: pw.TextDirection.rtl,
         build: (ctx) => [
-            // نضيف Padding يدوي للعناصر اللي محتاجة هوامش
-            pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
-              child: PdfHeaderSection.build(logo: logo, accentColor: accentColor, booking: booking, fontBold: fontBold),
+          // نضيف Padding يدوي للعناصر اللي محتاجة هوامش
+          pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(
+              horizontal: 30,
             ),
-            pw.SizedBox(height: 20), // تقليل المسافة
-            
-            PdfInfoSection.build(booking, accentColor, fontBold),
-            
-            pw.SizedBox(height: 10), // تقليل المسافة
-            
-            pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
-              child: PdfWelcomeSection.build(booking, accentColor),
-            ),
-            pw.SizedBox(height: 5), // تقليل المسافة
-            
-            // 4. الجدول الرئيسي (بدون Padding عشان ياخد العرض كامل)
-            PdfTableSection.build(booking, accentColor, sarSymbol, fontBold),
-            pw.SizedBox(height: 8), // مسافة صغيرة جداً
-            
-            pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
-              child: PdfBankSection.build(booking),
-            ),
-            pw.SizedBox(height: 8), // مسافة صغيرة قبل التوقيع
-            
-            pw.Padding(
-              padding: const pw.EdgeInsets.symmetric(horizontal: 30),
-              child: PdfSignatureSection.build(logo: signature, stamp: stamp),
-            ),
+            child: PdfHeaderSection.build(
+                logo: logo,
+                accentColor: accentColor,
+                booking: booking,
+                fontBold: fontBold),
+          ),
+          pw.SizedBox(height: 20), // تقليل المسافة
+
+          PdfInfoSection.build(booking, accentColor, fontBold),
+
+          pw.SizedBox(height: 10), // تقليل المسافة
+
+          pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+            child: PdfWelcomeSection.build(booking, accentColor),
+          ),
+          pw.SizedBox(height: 5), // تقليل المسافة
+
+          // 4. الجدول الرئيسي (بدون Padding عشان ياخد العرض كامل)
+          PdfTableSection.build(booking, accentColor, sarSymbol, fontBold),
+          pw.SizedBox(height: 8), // مسافة صغيرة جداً
+
+          pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+            child: PdfBankSection.build(booking),
+          ),
+          pw.SizedBox(height: 8), // مسافة صغيرة قبل التوقيع
+
+          pw.Padding(
+            padding: const pw.EdgeInsets.symmetric(horizontal: 30),
+            child: PdfSignatureSection.build(logo: signature, stamp: stamp),
+          ),
         ],
         footer: (ctx) => PdfFooterSection.build(),
       ),

@@ -66,7 +66,13 @@ class _CalendarView extends StatelessWidget {
                     );
                     
                   } else {
-                    showDialog(context: uiContext, builder: (_) => DayEventsDialog(day: selectedDay, events: events));
+                    showDialog(
+                      context: uiContext,
+                      builder: (_) => BlocProvider.value(
+                        value: uiContext.read<BookingCubit>(),
+                        child: DayEventsDialog(day: selectedDay, events: events),
+                      ),
+                    );
                   }
                 }
               },

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../data/models/booking_model.dart';
+import '../../manager/booking_cubit/booking_cubit.dart';
 import 'booking_details_dialog.dart';
 
 class DayEventsDialog extends StatelessWidget {
@@ -25,10 +27,14 @@ class DayEventsDialog extends StatelessWidget {
               title: Text(booking.title), // Use booking.title here
               subtitle: Text('${DateFormat.jm().format(booking.date)} - ${booking.hallName}'),
               onTap: () {
-                Navigator.of(context).pop(); // Close this dialog
+                final parentContext = context;
+                Navigator.of(parentContext).pop(); // Close this dialog
                 showDialog(
-                  context: context,
-                  builder: (context) => BookingDetailsDialog(booking: booking),
+                  context: parentContext,
+                  builder: (_) => BlocProvider.value(
+                    value: parentContext.read<BookingCubit>(),
+                    child: BookingDetailsDialog(booking: booking),
+                  ),
                 ); // Show the detailed one
               },
             );

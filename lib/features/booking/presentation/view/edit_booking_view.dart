@@ -45,9 +45,12 @@ class _EditBookingViewState extends State<EditBookingView> {
     _emailController = TextEditingController(text: booking.phoneNumber);
     _locationController = TextEditingController(text: booking.location);
     _hallNameController = TextEditingController(text: booking.hallName);
-    _totalAmountController = TextEditingController(text: booking.totalAmount.toString());
-    _firstPaymentController = TextEditingController(text: booking.firstPayment.toString());
-    _cashPaymentController = TextEditingController(text: booking.lastPayment.toString());
+    _totalAmountController =
+        TextEditingController(text: booking.totalAmount.toString());
+    _firstPaymentController =
+        TextEditingController(text: booking.firstPayment.toString());
+    _cashPaymentController =
+        TextEditingController(text: booking.lastPayment.toString());
     _hoursController = TextEditingController(text: booking.hours.toString());
     _artistNameController = TextEditingController(text: booking.artistName);
     _notesController = TextEditingController(text: booking.notes);
@@ -56,11 +59,11 @@ class _EditBookingViewState extends State<EditBookingView> {
     _selectedCurrency = booking.currency;
     _selectedPaymentMethod = booking.paymentMethod;
     _isCompany = booking.isCompany; // استرجاع القيمة المحفوظة
-    
+
     // التحقق من أن البنك المحفوظ موجود في القائمة الحالية لتجنب خطأ DropdownButton
     // إذا كانت القيمة قديمة (مثل "الراجحي")، نختار القيمة الافتراضية "الجزيرة"
-    _selectedBank = ['الجزيرة', 'أميمة'].contains(booking.bankName) 
-        ? booking.bankName 
+    _selectedBank = ['الجزيرة', 'أميمة'].contains(booking.bankName)
+        ? booking.bankName
         : 'الجزيرة';
   }
 
@@ -166,69 +169,70 @@ class _EditBookingViewState extends State<EditBookingView> {
             constraints: const BoxConstraints(maxWidth: 1000), // توسيع العرض
             child: SingleChildScrollView(
               padding: EdgeInsets.all(AppSpacing.kHorizontalPadding),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isDesktop = constraints.maxWidth > 600;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Display the reference number (read-only)
-                      if (widget.booking.refNumber != null) ...[
-                        Padding(
-                          padding: EdgeInsets.only(bottom: AppSpacing.kSpaceM),
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'الرقم المرجعي',
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.black12,
-                            ),
-                            child: Text(widget.booking.refNumber!, style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: LayoutBuilder(builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 600;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Display the reference number (read-only)
+                    if (widget.booking.refNumber != null) ...[
+                      Padding(
+                        padding: EdgeInsets.only(bottom: AppSpacing.kSpaceM),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'الرقم المرجعي',
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.black12,
                           ),
+                          child: Text(widget.booking.refNumber!,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                      ],
-                      BookingDateTimeSection(
-                        selectedDate: _selectedDate,
-                        selectedTime: _selectedTime,
-                        onDateTap: _pickDate,
-                        onTimeTap: _pickTime,
-                      ),
-                      SizedBox(height: AppSpacing.kSpaceM),
-                      
-                      _buildFinancialSection(isDesktop),
-                      
-                      SizedBox(height: AppSpacing.kSpaceM),
-                      
-                      _buildFormFields(isDesktop),
-                      
-                      SizedBox(height: AppSpacing.kSpaceL),
-
-                      // حقل الملاحظات
-                      TextFormField(
-                        controller: _notesController,
-                        textAlign: TextAlign.right,
-                        textDirection: TextDirection.rtl,
-                        maxLines: 5,
-                        decoration: const InputDecoration(
-                          labelText: 'ملاحظات (اختياري)',
-                          hintText: 'أضف أي ملاحظات إضافية تراها مهمة...',
-                          hintTextDirection: TextDirection.rtl,
-                          border: OutlineInputBorder(),
-                          alignLabelWithHint: true,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                      ),
-                      
-                      SizedBox(height: AppSpacing.kSpaceL),
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                        child: const Text('حفظ التغييرات'),
                       ),
                     ],
-                  );
-                }
-              ),
+                    BookingDateTimeSection(
+                      selectedDate: _selectedDate,
+                      selectedTime: _selectedTime,
+                      onDateTap: _pickDate,
+                      onTimeTap: _pickTime,
+                    ),
+                    SizedBox(height: AppSpacing.kSpaceM),
+
+                    _buildFinancialSection(isDesktop),
+
+                    SizedBox(height: AppSpacing.kSpaceM),
+
+                    _buildFormFields(isDesktop),
+
+                    SizedBox(height: AppSpacing.kSpaceL),
+
+                    // حقل الملاحظات
+                    TextFormField(
+                      controller: _notesController,
+                      textAlign: TextAlign.right,
+                      textDirection: TextDirection.rtl,
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        labelText: 'ملاحظات (اختياري)',
+                        hintText: 'أضف أي ملاحظات إضافية تراها مهمة...',
+                        hintTextDirection: TextDirection.rtl,
+                        border: OutlineInputBorder(),
+                        alignLabelWithHint: true,
+                      ),
+                      keyboardType: TextInputType.multiline,
+                    ),
+
+                    SizedBox(height: AppSpacing.kSpaceL),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16)),
+                      child: const Text('حفظ التغييرات'),
+                    ),
+                  ],
+                );
+              }),
             ),
           ),
         ),
@@ -238,9 +242,15 @@ class _EditBookingViewState extends State<EditBookingView> {
 
   Widget _buildFinancialSection(bool isDesktop) {
     final children = [
-      _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'], (v) => setState(() => _selectedCurrency = v!)),
-      _buildDropdown('طريقة الدفع', _selectedPaymentMethod, ['إجمالي القيمة', 'دفعات'], (v) => setState(() => _selectedPaymentMethod = v!)),
-      _buildDropdown('البنك', _selectedBank, ['الجزيرة', 'أميمة'], (v) => setState(() => _selectedBank = v!)),
+      _buildDropdown('العملة', _selectedCurrency, ['SAR', 'USD'],
+          (v) => setState(() => _selectedCurrency = v!)),
+      _buildDropdown(
+          'طريقة الدفع',
+          _selectedPaymentMethod,
+          ['إجمالي القيمة', 'دفعات'],
+          (v) => setState(() => _selectedPaymentMethod = v!)),
+      _buildDropdown('البنك', _selectedBank, ['الجزيرة', 'أميمة'],
+          (v) => setState(() => _selectedBank = v!)),
       SwitchListTile(
         title: const Text('عميل شركة؟'),
         value: _isCompany,
@@ -252,10 +262,19 @@ class _EditBookingViewState extends State<EditBookingView> {
     if (isDesktop) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: children.map((c) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: c))).toList(),
+        children: children
+            .map((c) => Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: c)))
+            .toList(),
       );
     }
-    return Column(children: children.map((c) => Padding(padding: const EdgeInsets.only(bottom: 12), child: c)).toList());
+    return Column(
+        children: children
+            .map((c) =>
+                Padding(padding: const EdgeInsets.only(bottom: 12), child: c))
+            .toList());
   }
 
   Widget _buildFormFields(bool isDesktop) {
@@ -263,29 +282,42 @@ class _EditBookingViewState extends State<EditBookingView> {
       _buildTextField(_titleController, 'وصف الحجز'),
       _buildTextField(_clientNameController, 'اسم العميل'),
       _buildTextField(_locationController, 'الموقع'),
-      _buildTextField(_emailController, 'رقم الجوال', isNumber: true),
+      _buildTextField(_emailController, 'رقم الشعار', isNumber: true),
       _buildTextField(_hallNameController, 'اسم القاعة'),
       _buildTextField(_artistNameController, 'اسم الفنان'),
       _buildTextField(_hoursController, 'عدد الساعات', isNumber: true),
-      _buildTextField(_totalAmountController, 'المبلغ الإجمالي', isNumber: true),
+      _buildTextField(_totalAmountController, 'المبلغ الإجمالي',
+          isNumber: true),
     ];
 
     if (_selectedPaymentMethod == 'دفعات') {
-      fields.add(_buildTextField(_firstPaymentController, 'الدفعة الأولى', isNumber: true));
-      fields.add(_buildTextField(_cashPaymentController, 'الدفعة الأخيرة', isNumber: true));
+      fields.add(_buildTextField(_firstPaymentController, 'الدفعة الأولى',
+          isNumber: true));
+      fields.add(_buildTextField(_cashPaymentController, 'الدفعة الأخيرة',
+          isNumber: true));
     }
 
     if (isDesktop) {
       return Wrap(
         spacing: 16,
         runSpacing: 16,
-        children: fields.map((field) => SizedBox(width: (1000 - (AppSpacing.kHorizontalPadding * 2) - 16) / 2 - 1, child: field)).toList(),
+        children: fields
+            .map((field) => SizedBox(
+                width:
+                    (1000 - (AppSpacing.kHorizontalPadding * 2) - 16) / 2 - 1,
+                child: field))
+            .toList(),
       );
     }
-    return Column(children: fields.map((f) => Padding(padding: const EdgeInsets.only(bottom: 12), child: f)).toList());
+    return Column(
+        children: fields
+            .map((f) =>
+                Padding(padding: const EdgeInsets.only(bottom: 12), child: f))
+            .toList());
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {bool isNumber = false, bool isEmail = false}) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {bool isNumber = false, bool isEmail = false}) {
     return TextFormField(
       controller: controller,
       textAlign: TextAlign.right,
@@ -293,17 +325,32 @@ class _EditBookingViewState extends State<EditBookingView> {
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
-        alignLabelWithHint: true, // This is the key property to align the label to the right.
+        alignLabelWithHint:
+            true, // This is the key property to align the label to the right.
       ),
-      keyboardType: isNumber ? TextInputType.number : (isEmail ? TextInputType.emailAddress : TextInputType.text),
+      keyboardType: isNumber
+          ? TextInputType.number
+          : (isEmail ? TextInputType.emailAddress : TextInputType.text),
       validator: (val) => val == null || val.isEmpty ? 'مطلوب' : null,
     );
   }
 
-  Widget _buildDropdown(String label, String value, List<String> items, ValueChanged<String?> onChanged) {
+  Widget _buildDropdown(String label, String value, List<String> items,
+      ValueChanged<String?> onChanged) {
     return InputDecorator(
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4)),
-      child: DropdownButtonHideUnderline(child: DropdownButton<String>(value: value, isExpanded: true, items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(), onChanged: onChanged)),
+      decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 4)),
+      child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              items: items
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: onChanged)),
     );
   }
 }
