@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,93 +11,50 @@ import '../../../domain/repositories/booking_repository.dart';
 part 'booking_state.dart';
 
 class BookingCubit extends Cubit<BookingState> {
-  final BookingRepository _bookingRepository;
-
   BookingCubit(this._bookingRepository) : super(BookingInitial());
 
-  Future<void> getBookings() async {
+  final BookingRepository _bookingRepository;
+  BookingViewFilter _currentFilter = BookingViewFilter.active;
+
+  Future<void> getBookings(
+      {BookingViewFilter filter = BookingViewFilter.active}) async {
+    _currentFilter = filter;
     emit(BookingLoading());
     try {
-      final bookings = await _bookingRepository.getBookings();
-      emit(BookingLoaded(bookings));
+      final bookings = await _bookingRepository.getBookings(
+          scope: _mapFilterToScope(filter));
+      emit(BookingLoaded(bookings, filter: filter));
     } catch (e) {
       emit(BookingError('Failed to fetch bookings: $e'));
     }
   }
 
+  Future<void> getActiveBookings() =>
+      getBookings(filter: BookingViewFilter.active);
+
+  Future<void> getArchivedBookings() =>
+      getBookings(filter: BookingViewFilter.archived);
+
   Future<void> addBooking(Booking booking) async {
     emit(BookingLoading());
     try {
-      // 1. توليد ref_number تلقائياً
       final newRefNumber = await _generateRefNumber();
       final updatedBooking = booking.copyWith(refNumber: newRefNumber);
-
-      // 2. إضافة الحجز للداتابيز
       await _bookingRepository.addBooking(updatedBooking);
 
-      // 3. منطق الإيميل والـ PDF (تم نقله هنا لتنظيف الـ UI)
       try {
         final pdfBytes = await PdfService.generateQuotation(updatedBooking);
         final tempDir = await getTemporaryDirectory();
         final file = File(
-            '${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf');
-        await file.writeAsBytes(pdfBytes);
-
-        /* تم إيقاف الإيميل لاستبداله برقم الجوال
-        await EmailService.sendBookingConfirmation(
-          recipientEmail: booking.phoneNumber, // Email removed
-          clientName: booking.clientName,
-          pdfFile: file,
+          '${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf',
         );
-        */
-      } catch (e) {
-        // لو فشل الإيميل، مش هنوقف العملية، بس ممكن نطبعه في اللوج
-        // print("Email warning: $e");
-      }
+        await file.writeAsBytes(pdfBytes);
+      } catch (_) {}
 
-      // 4. إشعار النجاح وتحديث القائمة
-      emit(const BookingOperationSuccess(
-          'تم إضافة الحجز وإرسال الإيميل بنجاح!'));
-      getBookings(); // إعادة تحميل القائمة
+      emit(const BookingOperationSuccess('تم إضافة الحجز بنجاح!'));
+      await getActiveBookings();
     } catch (e) {
       emit(BookingError('Failed to add booking: $e'));
-    }
-  }
-
-  Future<String> _generateRefNumber() async {
-    try {
-      // جلب كل الحجوزات لمعرفة أعلى رقم
-      final bookings = await _bookingRepository.getBookings();
-
-      // استخراج أعلى رقم من ref_number
-      int maxNumber = 999; // البداية من 999 عشان التالي هيكون 1000
-
-      for (final booking in bookings) {
-        if (booking.refNumber != null && booking.refNumber!.isNotEmpty) {
-          try {
-            // الصيغة: "رقم / شهر / د م"
-            final parts = booking.refNumber!.split('/');
-            if (parts.isNotEmpty) {
-              final number = int.tryParse(parts[0].trim());
-              if (number != null && number > maxNumber) {
-                maxNumber = number;
-              }
-            }
-          } catch (e) {
-            // تخطي أي أرقام مش صحيحة
-            continue;
-          }
-        }
-      }
-
-      // توليد الرقم الجديد
-      final nextNumber = maxNumber + 1;
-      final currentMonth = DateTime.now().month.toString().padLeft(2, '0');
-
-      return '$nextNumber / $currentMonth / د م';
-    } catch (e) {
-      // في حالة الخطأ، استخدم 1000 كـ بداية افتراضية
-      return '1000 / ${DateTime.now().month.toString().padLeft(2, '0')} / د م';
     }
   }
 
@@ -105,19 +63,69 @@ class BookingCubit extends Cubit<BookingState> {
     try {
       await _bookingRepository.updateBooking(booking);
       emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
-      getBookings();
+      await _reloadCurrentFilter();
     } catch (e) {
       emit(BookingError('Failed to update booking: $e'));
     }
   }
 
-  Future<void> deleteBooking(String id) async {
+  Future<void> archiveBooking(String id) async {
     emit(BookingLoading());
     try {
-      await _bookingRepository.deleteBooking(id);
-      getBookings(); // Refresh the list after deleting
+      await _bookingRepository.archiveBooking(id);
+      emit(const BookingOperationSuccess('تمت أرشفة العرض بنجاح!'));
+      await _reloadCurrentFilter();
     } catch (e) {
-      emit(BookingError('Failed to delete booking: $e'));
+      emit(BookingError('Failed to archive booking: $e'));
+    }
+  }
+
+  Future<void> restoreBooking(String id) async {
+    emit(BookingLoading());
+    try {
+      await _bookingRepository.restoreBooking(id);
+      emit(const BookingOperationSuccess('تم استرجاع العرض من الأرشيف بنجاح!'));
+      await _reloadCurrentFilter();
+    } catch (e) {
+      emit(BookingError('Failed to restore booking: $e'));
+    }
+  }
+
+  Future<String> _generateRefNumber() async {
+    try {
+      final bookings =
+          await _bookingRepository.getBookings(scope: BookingFetchScope.all);
+      var maxNumber = 999;
+
+      for (final booking in bookings) {
+        final ref = booking.refNumber;
+        if (ref == null || ref.isEmpty) continue;
+        final parts = ref.split('/');
+        if (parts.isEmpty) continue;
+        final number = int.tryParse(parts.first.trim());
+        if (number != null && number > maxNumber) {
+          maxNumber = number;
+        }
+      }
+
+      final nextNumber = maxNumber + 1;
+      final currentMonth = DateTime.now().month.toString().padLeft(2, '0');
+      return '$nextNumber / $currentMonth / د م';
+    } catch (_) {
+      return '1000 / ${DateTime.now().month.toString().padLeft(2, '0')} / د م';
+    }
+  }
+
+  Future<void> _reloadCurrentFilter() => getBookings(filter: _currentFilter);
+
+  BookingFetchScope _mapFilterToScope(BookingViewFilter filter) {
+    switch (filter) {
+      case BookingViewFilter.active:
+        return BookingFetchScope.active;
+      case BookingViewFilter.archived:
+        return BookingFetchScope.archived;
+      case BookingViewFilter.all:
+        return BookingFetchScope.all;
     }
   }
 }

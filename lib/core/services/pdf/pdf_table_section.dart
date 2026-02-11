@@ -12,8 +12,10 @@ class PdfTableSection {
     final total = booking.totalAmount + vat;
 
     const numberLabel = '\u0627\u0644\u0631\u0642\u0645';
-    const artistLabel = '\u0627\u0644\u0641\u0646\u0627\u0646 / \u0627\u0644\u0641\u0646\u0627\u0646\u0629';
-    const hoursLabel = '\u0639\u062f\u062f \u0633\u0627\u0639\u0627\u062a \u0627\u0644\u062d\u0636\u0648\u0631';
+    const artistLabel =
+        '\u0627\u0644\u0641\u0646\u0627\u0646 / \u0627\u0644\u0641\u0646\u0627\u0646\u0629';
+    const hoursLabel =
+        '\u0639\u062f\u062f \u0633\u0627\u0639\u0627\u062a \u0627\u0644\u062d\u0636\u0648\u0631';
     const dateLabel = '\u0627\u0644\u062a\u0627\u0631\u064a\u062e';
     const hallLabel = '\u0627\u0644\u0642\u0627\u0639\u0629';
     const valueLabel = '\u0627\u0644\u0642\u064a\u0645\u0629';
@@ -25,8 +27,10 @@ class PdfTableSection {
         '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649';
     const lastPaymentLabel =
         '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u062e\u064a\u0631\u0629';
-    final hasInstallments = booking.paymentMethod == installmentsAr ||
-        booking.paymentMethod == 'Installments';
+    final normalizedPaymentMethod = booking.paymentMethod.trim().toLowerCase();
+    final hasInstallments = normalizedPaymentMethod == installmentsAr ||
+        normalizedPaymentMethod == 'installments' ||
+        normalizedPaymentMethod.contains(installmentsAr);
 
     final formatter = NumberFormat('#,###', 'en_US');
 
@@ -123,30 +127,66 @@ class PdfTableSection {
         ];
       }
     } else {
-      headers = [
-        numberLabel,
-        artistLabel,
-        hoursLabel,
-        dateLabel,
-        hallLabel,
-        valueLabel,
-      ];
-      columnWidths = {
-        5: const pw.FixedColumnWidth(35), // number
-        4: const pw.FlexColumnWidth(1.6), // artist
-        3: const pw.FlexColumnWidth(1.2), // hours
-        2: const pw.FlexColumnWidth(1.0), // date
-        1: const pw.FlexColumnWidth(1.0), // hall
-        0: const pw.FlexColumnWidth(1.0), // value
-      };
-      rowCells = [
-        _cell('1'),
-        _cell(booking.artistName),
-        _cell(booking.hours.toString()),
-        _cell(DateFormat('dd/MM/yyyy', 'en').format(booking.date)),
-        _cell(booking.hallName),
-        _cell(formatMoney(booking.totalAmount)),
-      ];
+      if (hasInstallments) {
+        headers = [
+          numberLabel,
+          artistLabel,
+          hoursLabel,
+          dateLabel,
+          hallLabel,
+          valueLabel,
+          totalLabel,
+          firstPaymentLabel,
+          lastPaymentLabel,
+        ];
+        columnWidths = {
+          8: const pw.FixedColumnWidth(35), // number
+          7: const pw.FlexColumnWidth(1.6), // artist
+          6: const pw.FlexColumnWidth(1.2), // hours
+          5: const pw.FlexColumnWidth(1.0), // date
+          4: const pw.FlexColumnWidth(1.0), // hall
+          3: const pw.FlexColumnWidth(1.0), // value
+          2: const pw.FlexColumnWidth(1.0), // total
+          1: const pw.FlexColumnWidth(1.0), // first payment
+          0: const pw.FlexColumnWidth(1.0), // last payment
+        };
+        rowCells = [
+          _cell('1'),
+          _cell(booking.artistName),
+          _cell(booking.hours.toString()),
+          _cell(DateFormat('dd/MM/yyyy', 'en').format(booking.date)),
+          _cell(booking.hallName),
+          _cell(formatMoney(booking.totalAmount)),
+          _cell(formatMoney(total)),
+          _cell(formatMoney(booking.firstPayment)),
+          _cell(formatMoney(booking.lastPayment)),
+        ];
+      } else {
+        headers = [
+          numberLabel,
+          artistLabel,
+          hoursLabel,
+          dateLabel,
+          hallLabel,
+          valueLabel,
+        ];
+        columnWidths = {
+          5: const pw.FixedColumnWidth(35), // number
+          4: const pw.FlexColumnWidth(1.6), // artist
+          3: const pw.FlexColumnWidth(1.2), // hours
+          2: const pw.FlexColumnWidth(1.0), // date
+          1: const pw.FlexColumnWidth(1.0), // hall
+          0: const pw.FlexColumnWidth(1.0), // value
+        };
+        rowCells = [
+          _cell('1'),
+          _cell(booking.artistName),
+          _cell(booking.hours.toString()),
+          _cell(DateFormat('dd/MM/yyyy', 'en').format(booking.date)),
+          _cell(booking.hallName),
+          _cell(formatMoney(booking.totalAmount)),
+        ];
+      }
     }
 
     final reversedHeaders = headers.reversed.toList();

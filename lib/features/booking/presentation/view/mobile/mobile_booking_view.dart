@@ -22,11 +22,13 @@ class _MobileBookingViewState extends State<MobileBookingView> {
   static const List<Widget> _widgetOptions = <Widget>[
     AddBookingTab(),
     CalendarTab(),
+    CalendarTab(showArchived: true),
   ];
 
   static const List<String> _widgetTitles = <String>[
     'Add Booking',
     'Calendar',
+    'Archive',
   ];
 
   void _onItemTapped(int index) {
@@ -71,6 +73,10 @@ class _MobileBookingViewState extends State<MobileBookingView> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Calendar',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.archive_outlined),
+            label: 'Archive',
           ),
         ],
         currentIndex: _selectedIndex,

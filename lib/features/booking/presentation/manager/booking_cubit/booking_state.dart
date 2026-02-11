@@ -1,5 +1,7 @@
 part of 'booking_cubit.dart';
 
+enum BookingViewFilter { active, archived, all }
+
 abstract class BookingState extends Equatable {
   const BookingState();
 
@@ -13,11 +15,12 @@ class BookingLoading extends BookingState {}
 
 class BookingLoaded extends BookingState {
   final List<Booking> bookings;
+  final BookingViewFilter filter;
 
-  const BookingLoaded(this.bookings);
+  const BookingLoaded(this.bookings, {this.filter = BookingViewFilter.active});
 
   @override
-  List<Object> get props => [bookings];
+  List<Object> get props => [bookings, filter];
 }
 
 // حالة جديدة لنجاح العمليات (إضافة/تعديل/حذف)

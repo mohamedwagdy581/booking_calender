@@ -19,9 +19,8 @@ class DesktopBookingView extends StatelessWidget {
 
   final List<Widget> _pages = const [
     AddBookingTab(),
-    // Blank1(),
     CalendarTab(),
-    // We will add the Export page here later
+    CalendarTab(showArchived: true),
   ];
 
   @override
@@ -66,6 +65,11 @@ class DesktopBookingView extends StatelessWidget {
                       icon: Icon(Icons.calendar_today_outlined),
                       selectedIcon: Icon(Icons.calendar_today),
                       label: Text('Calendar'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.archive_outlined),
+                      selectedIcon: Icon(Icons.archive),
+                      label: Text('Archive'),
                     ),
                   ],
                 ),

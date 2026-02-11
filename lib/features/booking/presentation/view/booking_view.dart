@@ -18,7 +18,7 @@ class BookingView extends StatelessWidget {
         builder: (context, state) {
           // If we are in the initial state, trigger the first data fetch.
           if (state is BookingInitial) {
-            context.read<BookingCubit>().getBookings();
+            context.read<BookingCubit>().getActiveBookings();
           }
 
           return const ResponsiveLayout(

@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class Booking extends Equatable {
   final String? id;
   final String? refNumber;
-  final DateTime createdAt; // تاريخ إنشاء عرض السعر
+  final DateTime createdAt;
   final String title;
   final DateTime date;
   final String clientName;
@@ -18,9 +18,12 @@ class Booking extends Equatable {
   final bool isCompany;
   final String paymentMethod;
   final String artistName;
-  final String bankName; // حقل جديد لاسم البنك
-  final String notes; // ملاحظات الحجز
+  final String bankName;
+  final String notes;
   final List<String> images;
+  final bool isArchived;
+  final DateTime? archivedAt;
+  final String? archivedBy;
 
   const Booking({
     this.id,
@@ -35,26 +38,28 @@ class Booking extends Equatable {
     required this.totalAmount,
     required this.firstPayment,
     required this.lastPayment,
-    required this.hours, 
-    required this.currency, 
+    required this.hours,
+    required this.currency,
     required this.isCompany,
     required this.paymentMethod,
     required this.artistName,
     required this.bankName,
     required this.notes,
-    required this.images, 
+    required this.images,
+    this.isArchived = false,
+    this.archivedAt,
+    this.archivedBy,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['id'] as String?,
       refNumber: json['ref_number'] as String?,
-      // محاولة قراءة تاريخ الإنشاء، وفي حالة عدم وجوده (للحجوزات القديمة) نستخدم التاريخ الحالي أو تاريخ الحجز
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at'] as String) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
       title: json['title'] as String? ?? 'Untitled',
-      date: DateTime.parse(json['date'] as String),  
+      date: DateTime.parse(json['date'] as String),
       clientName: json['client_name'] as String? ?? '',
       phoneNumber: json['phone_number'] as String? ?? '',
       location: json['location'] as String? ?? '',
@@ -67,9 +72,16 @@ class Booking extends Equatable {
       isCompany: json['is_company'] as bool? ?? false,
       paymentMethod: json['payment_method'] as String? ?? 'Cash',
       artistName: json['artist_name'] as String? ?? '',
-      bankName: json['bank_name'] as String? ?? 'Rajhi', // القيمة الافتراضية
+      bankName: json['bank_name'] as String? ?? 'Rajhi',
       notes: json['notes'] as String? ?? '',
-      images: (json['images'] as List<dynamic>? ?? []).map((e) => e as String).toList(),
+      images: (json['images'] as List<dynamic>? ?? [])
+          .map((e) => e as String)
+          .toList(),
+      isArchived: json['is_archived'] as bool? ?? false,
+      archivedAt: json['archived_at'] != null
+          ? DateTime.parse(json['archived_at'] as String)
+          : null,
+      archivedBy: json['archived_by']?.toString(),
     );
   }
 
@@ -95,6 +107,9 @@ class Booking extends Equatable {
       'bank_name': bankName,
       'notes': notes,
       'images': images,
+      'is_archived': isArchived,
+      'archived_at': archivedAt?.toIso8601String(),
+      'archived_by': archivedBy,
     };
   }
 
@@ -119,6 +134,9 @@ class Booking extends Equatable {
       'bank_name': bankName,
       'notes': notes,
       'images': images,
+      'is_archived': isArchived,
+      'archived_at': archivedAt?.toIso8601String(),
+      'archived_by': archivedBy,
     };
   }
 
@@ -143,6 +161,9 @@ class Booking extends Equatable {
     String? bankName,
     String? notes,
     List<String>? images,
+    bool? isArchived,
+    DateTime? archivedAt,
+    String? archivedBy,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -162,7 +183,12 @@ class Booking extends Equatable {
       isCompany: isCompany ?? this.isCompany,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       artistName: artistName ?? this.artistName,
-      bankName: bankName ?? this.bankName,      notes: notes ?? this.notes,      images: images ?? this.images,
+      bankName: bankName ?? this.bankName,
+      notes: notes ?? this.notes,
+      images: images ?? this.images,
+      isArchived: isArchived ?? this.isArchived,
+      archivedAt: archivedAt ?? this.archivedAt,
+      archivedBy: archivedBy ?? this.archivedBy,
     );
   }
 
@@ -188,5 +214,8 @@ class Booking extends Equatable {
         bankName,
         notes,
         images,
+        isArchived,
+        archivedAt,
+        archivedBy,
       ];
 }

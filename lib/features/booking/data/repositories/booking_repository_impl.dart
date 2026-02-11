@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -10,12 +9,19 @@ class BookingRepositoryImpl implements BookingRepository {
   final SupabaseClient _supabaseClient;
   final SupabaseService _supabaseService;
 
-  BookingRepositoryImpl({required SupabaseClient supabaseClient, required SupabaseService supabaseService}) : _supabaseClient = supabaseClient, _supabaseService = supabaseService;
+  BookingRepositoryImpl(
+      {required SupabaseClient supabaseClient,
+      required SupabaseService supabaseService})
+      : _supabaseClient = supabaseClient,
+        _supabaseService = supabaseService;
 
   @override
   Future<Booking> addBooking(Booking booking) async {
     try {
-      final response = await _supabaseClient.from('bookings').insert(booking.toJsonWithoutId()).select();
+      final response = await _supabaseClient
+          .from('bookings')
+          .insert(booking.toJsonWithoutId())
+          .select();
       if (response.isEmpty) {
         throw Exception('Failed to add booking');
       }
@@ -29,15 +35,33 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<void> deleteBooking(String id) {
-    throw UnimplementedError();
+  Future<void> archiveBooking(String id) async {
+    try {
+      await _supabaseClient.from('bookings').update({
+        'is_archived': true,
+        'archived_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to archive booking: $e');
+      }
+      rethrow;
+    }
   }
 
   @override
-  Future<List<Booking>> getBookings() async {
+  Future<List<Booking>> getBookings(
+      {BookingFetchScope scope = BookingFetchScope.active}) async {
     try {
-      final response = await _supabaseClient.from('bookings').select();
-      final bookings = (response as List).map((booking) => Booking.fromJson(booking)).toList();
+      final query = _supabaseClient.from('bookings').select();
+      final response = switch (scope) {
+        BookingFetchScope.active => await query.eq('is_archived', false),
+        BookingFetchScope.archived => await query.eq('is_archived', true),
+        BookingFetchScope.all => await query,
+      };
+      final bookings = (response as List)
+          .map((booking) => Booking.fromJson(booking))
+          .toList();
       return bookings;
     } catch (e) {
       if (kDebugMode) {
@@ -53,7 +77,36 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<void> updateBooking(Booking booking) {
-    throw UnimplementedError();
+  Future<void> updateBooking(Booking booking) async {
+    try {
+      if (booking.id == null) {
+        throw Exception('Booking id is required for update');
+      }
+      await _supabaseClient
+          .from('bookings')
+          .update(booking.toJsonWithoutId())
+          .eq('id', booking.id!);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to update booking: $e');
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> restoreBooking(String id) async {
+    try {
+      await _supabaseClient.from('bookings').update({
+        'is_archived': false,
+        'archived_at': null,
+        'archived_by': null,
+      }).eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to restore booking: $e');
+      }
+      rethrow;
+    }
   }
 }
