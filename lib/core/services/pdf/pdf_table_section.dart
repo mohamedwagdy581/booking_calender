@@ -191,6 +191,8 @@ class PdfTableSection {
 
     final reversedHeaders = headers.reversed.toList();
 
+    const artistColumnFlex = 1.6;
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.stretch,
       children: [
@@ -222,8 +224,8 @@ class PdfTableSection {
           pw.Table(
             border: pw.TableBorder.all(color: PdfColors.black, width: 0.5),
             columnWidths: {
-              0: const pw.FlexColumnWidth(3),
-              1: const pw.FlexColumnWidth(1.5),
+              0: const pw.FlexColumnWidth(5.8),
+              1: const pw.FlexColumnWidth(artistColumnFlex),
             },
             children: [
               pw.TableRow(

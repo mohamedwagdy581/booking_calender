@@ -45,9 +45,12 @@ class _EditBookingViewState extends State<EditBookingView> {
     _phoneController = TextEditingController(text: booking.phoneNumber);
     _locationController = TextEditingController(text: booking.location);
     _hallNameController = TextEditingController(text: booking.hallName);
-    _totalAmountController = TextEditingController(text: booking.totalAmount.toString());
-    _firstPaymentController = TextEditingController(text: booking.firstPayment.toString());
-    _lastPaymentController = TextEditingController(text: booking.lastPayment.toString());
+    _totalAmountController =
+        TextEditingController(text: booking.totalAmount.toString());
+    _firstPaymentController =
+        TextEditingController(text: booking.firstPayment.toString());
+    _lastPaymentController =
+        TextEditingController(text: booking.lastPayment.toString());
     _hoursController = TextEditingController(text: booking.hours.toString());
     _artistNameController = TextEditingController(text: booking.artistName);
     _notesController = TextEditingController(text: booking.notes);
@@ -57,7 +60,10 @@ class _EditBookingViewState extends State<EditBookingView> {
     _selectedCurrency = booking.currency;
     _selectedPaymentMethod = booking.paymentMethod;
     _isCompany = booking.isCompany;
-    _selectedBank = const ['\u0627\u0644\u062c\u0632\u064a\u0631\u0629', '\u0623\u0645\u064a\u0645\u0629'].contains(booking.bankName)
+    _selectedBank = const [
+      '\u0627\u0644\u062c\u0632\u064a\u0631\u0629',
+      '\u0623\u0645\u064a\u0645\u0629'
+    ].contains(booking.bankName)
         ? booking.bankName
         : '\u0627\u0644\u062c\u0632\u064a\u0631\u0629';
   }
@@ -124,43 +130,55 @@ class _EditBookingViewState extends State<EditBookingView> {
     );
 
     context.read<BookingCubit>().updateBooking(updatedBooking);
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Booking Updated!')),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Edit Booking')),
-      body: EditBookingViewBody(
-        formKey: _formKey,
-        booking: widget.booking,
-        selectedDate: _selectedDate,
-        selectedTime: _selectedTime,
-        selectedCurrency: _selectedCurrency,
-        selectedPaymentMethod: _selectedPaymentMethod,
-        selectedBank: _selectedBank,
-        isCompany: _isCompany,
-        titleController: _titleController,
-        artistNameController: _artistNameController,
-        clientNameController: _clientNameController,
-        phoneController: _phoneController,
-        locationController: _locationController,
-        hallNameController: _hallNameController,
-        totalAmountController: _totalAmountController,
-        firstPaymentController: _firstPaymentController,
-        lastPaymentController: _lastPaymentController,
-        hoursController: _hoursController,
-        notesController: _notesController,
-        onDateTap: _pickDate,
-        onTimeTap: _pickTime,
-        onCurrencyChanged: (v) => setState(() => _selectedCurrency = v!),
-        onPaymentMethodChanged: (v) => setState(() => _selectedPaymentMethod = v!),
-        onBankChanged: (v) => setState(() => _selectedBank = v!),
-        onIsCompanyChanged: (v) => setState(() => _isCompany = v),
-        onSubmit: _submitForm,
+    return BlocListener<BookingCubit, BookingState>(
+      listener: (context, state) {
+        if (state is BookingOperationSuccess) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+          Navigator.of(context).pop();
+        } else if (state is BookingError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Edit Booking')),
+        body: EditBookingViewBody(
+          formKey: _formKey,
+          booking: widget.booking,
+          selectedDate: _selectedDate,
+          selectedTime: _selectedTime,
+          selectedCurrency: _selectedCurrency,
+          selectedPaymentMethod: _selectedPaymentMethod,
+          selectedBank: _selectedBank,
+          isCompany: _isCompany,
+          titleController: _titleController,
+          artistNameController: _artistNameController,
+          clientNameController: _clientNameController,
+          phoneController: _phoneController,
+          locationController: _locationController,
+          hallNameController: _hallNameController,
+          totalAmountController: _totalAmountController,
+          firstPaymentController: _firstPaymentController,
+          lastPaymentController: _lastPaymentController,
+          hoursController: _hoursController,
+          notesController: _notesController,
+          onDateTap: _pickDate,
+          onTimeTap: _pickTime,
+          onCurrencyChanged: (v) => setState(() => _selectedCurrency = v!),
+          onPaymentMethodChanged: (v) =>
+              setState(() => _selectedPaymentMethod = v!),
+          onBankChanged: (v) => setState(() => _selectedBank = v!),
+          onIsCompanyChanged: (v) => setState(() => _isCompany = v),
+          onSubmit: _submitForm,
+        ),
       ),
     );
   }

@@ -18,6 +18,22 @@ class BookingDetailsDialog extends StatelessWidget {
 
   final Booking booking;
 
+  String _safePart(String value) {
+    final cleaned = value
+        .trim()
+        .replaceAll(RegExp(r'[<>:"/\\|?*]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ');
+    return cleaned.isEmpty ? 'quotation' : cleaned;
+  }
+
+  String _buildQuotationTitle() {
+    final clientName = _safePart(booking.clientName);
+    final artistName = _safePart(booking.artistName);
+    final location = _safePart(booking.location);
+    final dateText = DateFormat('d MMMM y', 'ar').format(booking.date);
+    return 'عرض سعر $clientName حفلة $artistName $dateText $location';
+  }
+
   Future<void> _generateAndSavePdf(BuildContext context) async {
     showDialog(
       context: context,
@@ -27,8 +43,7 @@ class BookingDetailsDialog extends StatelessWidget {
 
     try {
       final pdfData = await PdfService.generateQuotation(booking);
-      final fileName =
-          'Quotation-${booking.clientName.replaceAll(' ', '_')}-${DateFormat('yyyy-MM-dd').format(booking.date)}.pdf';
+      final fileName = '${_buildQuotationTitle()}.pdf';
 
       final filePath = await FileSaver.instance.saveFile(
         name: fileName,

@@ -37,10 +37,18 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<void> archiveBooking(String id) async {
     try {
-      await _supabaseClient.from('bookings').update({
-        'is_archived': true,
-        'archived_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', id);
+      final response = await _supabaseClient
+          .from('bookings')
+          .update({
+            'is_archived': true,
+            'archived_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', id)
+          .select('id');
+      if (response.isEmpty) {
+        throw Exception(
+            'Archive failed: no rows affected (check booking id or RLS update policy).');
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Failed to archive booking: $e');
@@ -82,10 +90,15 @@ class BookingRepositoryImpl implements BookingRepository {
       if (booking.id == null) {
         throw Exception('Booking id is required for update');
       }
-      await _supabaseClient
+      final response = await _supabaseClient
           .from('bookings')
           .update(booking.toJsonWithoutId())
-          .eq('id', booking.id!);
+          .eq('id', booking.id!)
+          .select('id');
+      if (response.isEmpty) {
+        throw Exception(
+            'Update failed: no rows affected (check booking id or RLS update policy).');
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Failed to update booking: $e');
@@ -97,11 +110,19 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<void> restoreBooking(String id) async {
     try {
-      await _supabaseClient.from('bookings').update({
-        'is_archived': false,
-        'archived_at': null,
-        'archived_by': null,
-      }).eq('id', id);
+      final response = await _supabaseClient
+          .from('bookings')
+          .update({
+            'is_archived': false,
+            'archived_at': null,
+            'archived_by': null,
+          })
+          .eq('id', id)
+          .select('id');
+      if (response.isEmpty) {
+        throw Exception(
+            'Restore failed: no rows affected (check booking id or RLS update policy).');
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Failed to restore booking: $e');

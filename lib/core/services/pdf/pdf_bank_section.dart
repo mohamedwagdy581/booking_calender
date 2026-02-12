@@ -1,9 +1,15 @@
 import 'package:pdf/widgets.dart' as pw;
+
 import '../../../../../features/booking/data/models/booking_model.dart';
 
 class PdfBankSection {
   static pw.Widget build(Booking booking) {
-    String bankDetails = "";
+    final normalizedPaymentMethod = booking.paymentMethod.trim().toLowerCase();
+    final hasInstallments = normalizedPaymentMethod == 'installments' ||
+        normalizedPaymentMethod.contains('دفعات');
+    final amountLabel = hasInstallments ? 'الدفعة المالية' : 'القيمة المالية';
+
+    String bankDetails;
     if (booking.bankName == 'أميمة') {
       bankDetails = "• OUMAAIMA FARAHAT TALEB\n"
           "• حساب بنك الجزيرة / فرع السلامة / جدة.\n"
@@ -15,7 +21,7 @@ class PdfBankSection {
     }
 
     return pw.Text(
-      "يرجى تعميدنا في حالة موافقتكم على العرض أعلاه، والتفضل بتحويل القيمة المالية المذكورة إلى الحساب البنكي الخاص بالمؤسسة بموجب المعلومات المصرفية التالية:\n$bankDetails",
+      "يرجى تعميدنا في حالة موافقتكم على العرض أعلاه، والتفضل بتحويل $amountLabel المذكورة إلى الحساب البنكي الخاص بالمؤسسة بموجب المعلومات المصرفية التالية:\n$bankDetails",
       style: const pw.TextStyle(fontSize: 11),
     );
   }

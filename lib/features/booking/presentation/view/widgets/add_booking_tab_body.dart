@@ -123,7 +123,7 @@ class AddBookingTabBody extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Text('????? ???'),
+                        child: const Text('إضافة حجز'),
                       ),
                   ],
                 );
