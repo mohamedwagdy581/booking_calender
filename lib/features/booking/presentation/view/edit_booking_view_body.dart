@@ -18,6 +18,7 @@ class EditBookingViewBody extends StatelessWidget {
     required this.selectedPaymentMethod,
     required this.selectedBank,
     required this.isCompany,
+    required this.vatInclusiveTotal,
     required this.titleController,
     required this.artistNameController,
     required this.clientNameController,
@@ -46,6 +47,7 @@ class EditBookingViewBody extends StatelessWidget {
   final String selectedPaymentMethod;
   final String selectedBank;
   final bool isCompany;
+  final String vatInclusiveTotal;
   final TextEditingController titleController;
   final TextEditingController artistNameController;
   final TextEditingController clientNameController;
@@ -119,6 +121,8 @@ class EditBookingViewBody extends StatelessWidget {
                     BookingFormFieldsGridSection(
                       isDesktop: isDesktop,
                       selectedPaymentMethod: selectedPaymentMethod,
+                      isCompany: isCompany,
+                      vatInclusiveTotal: vatInclusiveTotal,
                       titleController: titleController,
                       clientNameController: clientNameController,
                       locationController: locationController,

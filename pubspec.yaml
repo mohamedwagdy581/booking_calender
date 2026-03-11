@@ -42,6 +42,9 @@ dependencies:
   mailer: ^6.0.0
   path_provider: ^2.1.2
   flutter_dotenv: ^5.1.0
+  flutter_local_notifications: ^17.2.4
+  firebase_core: ^3.8.0
+  firebase_messaging: ^15.1.5
 
 dev_dependencies:
   flutter_test:
@@ -53,8 +56,8 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"
-  adaptive_icon_foreground: "assets/images/logo.png"
+  image_path: "assets/images/app_icon_main.png"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
   adaptive_icon_background: "#FFFFFF"
   remove_alpha_ios: true
   min_sdk_android: 21

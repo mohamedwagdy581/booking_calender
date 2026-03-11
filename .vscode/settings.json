@@ -1,7 +1,15 @@
 {
+    "deno.enable": true,
+    "deno.enablePaths": [
+        "supabase/functions"
+    ],
+    "deno.unstable": true,
     "cSpell.words": [
+        "BTPMY",
         "cupertino",
         "Dimah",
+        "firebaseapp",
+        "firebasestorage",
         "OUMAAIMA",
         "Rajhi",
         "Schyler",

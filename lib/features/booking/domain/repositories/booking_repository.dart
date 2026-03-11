@@ -10,4 +10,8 @@ abstract class BookingRepository {
   Future<void> archiveBooking(String id);
   Future<void> restoreBooking(String id);
   Future<void> sendBookingConfirmationEmail(Booking booking);
+  Future<void> sendBookingPushNotification({
+    required String type,
+    required Booking booking,
+  });
 }

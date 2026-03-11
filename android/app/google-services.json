@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789582469873",
+    "project_id": "booking-dimah",
+    "storage_bucket": "booking-dimah.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789582469873:android:b7ba3283b1eda5f4342750",
+        "android_client_info": {
+          "package_name": "com.example.booking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIP2K02cL849AeimdkKS_X3BsKEuhLsxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

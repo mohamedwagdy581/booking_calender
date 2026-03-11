@@ -67,9 +67,10 @@ class BookingRepositoryImpl implements BookingRepository {
         BookingFetchScope.archived => await query.eq('is_archived', true),
         BookingFetchScope.all => await query,
       };
-      final bookings = (response as List)
-          .map((booking) => Booking.fromJson(booking))
-          .toList();
+
+      final rows = (response as List?) ?? <dynamic>[];
+      final bookings =
+          rows.map((booking) => Booking.fromJson(booking)).toList();
       return bookings;
     } catch (e) {
       if (kDebugMode) {
@@ -82,6 +83,17 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<void> sendBookingConfirmationEmail(Booking booking) async {
     return await _supabaseService.sendBookingConfirmationEmail(booking);
+  }
+
+  @override
+  Future<void> sendBookingPushNotification({
+    required String type,
+    required Booking booking,
+  }) async {
+    await _supabaseService.sendBookingPushNotification(
+      type: type,
+      booking: booking,
+    );
   }
 
   @override

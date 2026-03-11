@@ -8,6 +8,7 @@ import '../../features/auth/login/presentation/manager/auth_cubit/auth_cubit.dar
 import '../../features/booking/data/repositories/booking_repository_impl.dart';
 import '../../features/booking/domain/repositories/booking_repository.dart';
 import '../../features/booking/presentation/manager/booking_cubit/booking_cubit.dart';
+import 'booking_notification_service.dart';
 import 'supabase_service.dart';
 
 final sl = GetIt.instance;
@@ -18,6 +19,9 @@ void setupServiceLocator() {
 
   // Services
   sl.registerLazySingleton<SupabaseService>(() => SupabaseService(sl()));
+  sl.registerLazySingleton<BookingNotificationService>(
+    () => BookingNotificationService(sl()),
+  );
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(

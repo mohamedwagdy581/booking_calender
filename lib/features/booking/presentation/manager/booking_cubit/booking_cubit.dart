@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -41,6 +42,10 @@ class BookingCubit extends Cubit<BookingState> {
       final newRefNumber = await _generateRefNumber();
       final updatedBooking = booking.copyWith(refNumber: newRefNumber);
       await _bookingRepository.addBooking(updatedBooking);
+      await _safeSendPush(
+        type: 'insert',
+        booking: updatedBooking,
+      );
 
       try {
         final pdfBytes = await PdfService.generateQuotation(updatedBooking);
@@ -62,6 +67,10 @@ class BookingCubit extends Cubit<BookingState> {
     emit(BookingLoading());
     try {
       await _bookingRepository.updateBooking(booking);
+      await _safeSendPush(
+        type: 'update',
+        booking: booking,
+      );
       emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
@@ -69,10 +78,17 @@ class BookingCubit extends Cubit<BookingState> {
     }
   }
 
-  Future<void> archiveBooking(String id) async {
+  Future<void> archiveBooking(Booking booking) async {
     emit(BookingLoading());
     try {
-      await _bookingRepository.archiveBooking(id);
+      if (booking.id == null) {
+        throw Exception('Booking id is required for archive');
+      }
+      await _bookingRepository.archiveBooking(booking.id!);
+      await _safeSendPush(
+        type: 'archive',
+        booking: booking,
+      );
       emit(const BookingOperationSuccess('تمت أرشفة العرض بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
@@ -80,10 +96,17 @@ class BookingCubit extends Cubit<BookingState> {
     }
   }
 
-  Future<void> restoreBooking(String id) async {
+  Future<void> restoreBooking(Booking booking) async {
     emit(BookingLoading());
     try {
-      await _bookingRepository.restoreBooking(id);
+      if (booking.id == null) {
+        throw Exception('Booking id is required for restore');
+      }
+      await _bookingRepository.restoreBooking(booking.id!);
+      await _safeSendPush(
+        type: 'restore',
+        booking: booking,
+      );
       emit(const BookingOperationSuccess('تم استرجاع العرض من الأرشيف بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
@@ -117,6 +140,22 @@ class BookingCubit extends Cubit<BookingState> {
   }
 
   Future<void> _reloadCurrentFilter() => getBookings(filter: _currentFilter);
+
+  Future<void> _safeSendPush({
+    required String type,
+    required Booking booking,
+  }) async {
+    try {
+      await _bookingRepository.sendBookingPushNotification(
+        type: type,
+        booking: booking,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Push notification dispatch failed: $e');
+      }
+    }
+  }
 
   BookingFetchScope _mapFilterToScope(BookingViewFilter filter) {
     switch (filter) {

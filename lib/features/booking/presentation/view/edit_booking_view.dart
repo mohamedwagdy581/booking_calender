@@ -16,6 +16,7 @@ class EditBookingView extends StatefulWidget {
 }
 
 class _EditBookingViewState extends State<EditBookingView> {
+  static const double _vatRate = 0.15;
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _clientNameController;
@@ -66,10 +67,16 @@ class _EditBookingViewState extends State<EditBookingView> {
     ].contains(booking.bankName)
         ? booking.bankName
         : '\u0627\u0644\u062c\u0632\u064a\u0631\u0629';
+
+    _totalAmountController.addListener(_handleFinancialInputChange);
+    _firstPaymentController.addListener(_handleFinancialInputChange);
+    _handleFinancialInputChange();
   }
 
   @override
   void dispose() {
+    _totalAmountController.removeListener(_handleFinancialInputChange);
+    _firstPaymentController.removeListener(_handleFinancialInputChange);
     _titleController.dispose();
     _clientNameController.dispose();
     _phoneController.dispose();
@@ -82,6 +89,60 @@ class _EditBookingViewState extends State<EditBookingView> {
     _artistNameController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  double? _tryParseAmount(String value) {
+    return double.tryParse(value.trim());
+  }
+
+  String _formatAmount(double value) {
+    final normalized = value < 0 ? 0 : value;
+    if (normalized == normalized.roundToDouble()) {
+      return normalized.toInt().toString();
+    }
+    return normalized.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
+  double? _calculateVatInclusiveTotal() {
+    final total = _tryParseAmount(_totalAmountController.text);
+    if (total == null) return null;
+    return _isCompany ? total * (1 + _vatRate) : total;
+  }
+
+  String get _vatInclusiveTotalText {
+    final total = _calculateVatInclusiveTotal();
+    if (total == null) return '';
+    return _formatAmount(total);
+  }
+
+  void _setControllerText(TextEditingController controller, String value) {
+    if (controller.text == value) return;
+    controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
+
+  void _syncLastPayment() {
+    if (_selectedPaymentMethod != '\u062f\u0641\u0639\u0627\u062a') return;
+
+    final total = _calculateVatInclusiveTotal();
+    final first = _tryParseAmount(_firstPaymentController.text);
+
+    if (total == null || first == null) {
+      _setControllerText(_lastPaymentController, '');
+      return;
+    }
+
+    final lastPayment = total - first;
+    _setControllerText(_lastPaymentController, _formatAmount(lastPayment));
+  }
+
+  void _handleFinancialInputChange() {
+    _syncLastPayment();
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _pickDate() async {
@@ -159,6 +220,7 @@ class _EditBookingViewState extends State<EditBookingView> {
           selectedPaymentMethod: _selectedPaymentMethod,
           selectedBank: _selectedBank,
           isCompany: _isCompany,
+          vatInclusiveTotal: _vatInclusiveTotalText,
           titleController: _titleController,
           artistNameController: _artistNameController,
           clientNameController: _clientNameController,
@@ -173,10 +235,20 @@ class _EditBookingViewState extends State<EditBookingView> {
           onDateTap: _pickDate,
           onTimeTap: _pickTime,
           onCurrencyChanged: (v) => setState(() => _selectedCurrency = v!),
-          onPaymentMethodChanged: (v) =>
-              setState(() => _selectedPaymentMethod = v!),
+          onPaymentMethodChanged: (v) {
+            if (v == null) return;
+            setState(() => _selectedPaymentMethod = v);
+            if (v == '\u062f\u0641\u0639\u0627\u062a') {
+              _syncLastPayment();
+            } else {
+              _setControllerText(_lastPaymentController, '');
+            }
+          },
           onBankChanged: (v) => setState(() => _selectedBank = v!),
-          onIsCompanyChanged: (v) => setState(() => _isCompany = v),
+          onIsCompanyChanged: (v) {
+            setState(() => _isCompany = v);
+            _syncLastPayment();
+          },
           onSubmit: _submitForm,
         ),
       ),

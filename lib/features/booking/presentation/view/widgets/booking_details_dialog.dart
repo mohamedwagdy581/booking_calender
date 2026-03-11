@@ -92,9 +92,9 @@ class BookingDetailsDialog extends StatelessWidget {
             onPressed: () {
               if (booking.id != null) {
                 if (isArchived) {
-                  context.read<BookingCubit>().restoreBooking(booking.id!);
+                  context.read<BookingCubit>().restoreBooking(booking);
                 } else {
-                  context.read<BookingCubit>().archiveBooking(booking.id!);
+                  context.read<BookingCubit>().archiveBooking(booking);
                 }
               }
               Navigator.pop(ctx);

@@ -7,17 +7,24 @@ class BookingTextField extends StatelessWidget {
     required this.label,
     this.isNumber = false,
     this.requiredField = true,
+    this.readOnly = false,
+    this.onChanged,
+    this.validator,
   });
 
   final TextEditingController controller;
   final String label;
   final bool isNumber;
   final bool requiredField;
+  final bool readOnly;
+  final ValueChanged<String>? onChanged;
+  final FormFieldValidator<String>? validator;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
       textAlign: TextAlign.right,
       textDirection: TextDirection.rtl,
       decoration: InputDecoration(
@@ -26,9 +33,11 @@ class BookingTextField extends StatelessWidget {
         alignLabelWithHint: true,
       ),
       keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      validator: requiredField
-          ? (val) => val == null || val.isEmpty ? '\u0645\u0637\u0644\u0648\u0628' : null
-          : null,
+      onChanged: onChanged,
+      validator: validator ??
+          (requiredField
+              ? (val) => val == null || val.isEmpty ? '\u0645\u0637\u0644\u0648\u0628' : null
+              : null),
     );
   }
 }
@@ -49,6 +58,9 @@ class BookingDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalizedItems = items.toSet().toList();
+    final hasSelectedValue = normalizedItems.contains(value);
+
     return InputDecorator(
       decoration: InputDecoration(
         labelText: label,
@@ -57,12 +69,42 @@ class BookingDropdownField extends StatelessWidget {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: value,
+          value: hasSelectedValue ? value : null,
           isExpanded: true,
-          items: items
+          items: normalizedItems
               .map((e) => DropdownMenuItem<String>(value: e, child: Text(e)))
               .toList(),
           onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+}
+
+class BookingDisplayField extends StatelessWidget {
+  const BookingDisplayField({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        alignLabelWithHint: true,
+      ),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Text(
+          value,
+          textAlign: TextAlign.right,
+          textDirection: TextDirection.rtl,
         ),
       ),
     );
