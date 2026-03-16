@@ -1,6 +1,6 @@
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../../../../features/booking/data/models/booking_model.dart';
+import '../../../features/booking/data/models/booking_model.dart';
 
 class PdfBankSection {
   static pw.Widget build(Booking booking) {
@@ -17,7 +17,7 @@ class PdfBankSection {
     } else {
       bankDetails = "• مؤسسة ديمة الفنية التجارية.\n"
           "• حساب مصرف الجزيرة / فرع السلامة / جدة.\n"
-          "• رقم الآيبان: SA70 6000 000 1125 6600 0001";
+          "• رقم الآيبان: SA70 6000 0000 1125 6600 0001";
     }
 
     return pw.Text(

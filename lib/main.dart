@@ -28,6 +28,11 @@ void main() async {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     debugPrint("⚠️ Error loading .env file: $e");
+    try {
+      await dotenv.load(fileName: ".env.example");
+    } catch (e) {
+      debugPrint("⚠️ Error loading .env.example file: $e");
+    }
   }
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

@@ -69,7 +69,7 @@ flutter:
     - assets/images/
     - assets/fonts/notosans/
     - assets/fonts/diin/
-    - .env # <-- أضف هذا السطر لتعريف الملف
+    - .env.example # <-- يستخدم في البناء/CI عندما لا يوجد .env
 
   fonts:
     - family: NotoSansArabic
