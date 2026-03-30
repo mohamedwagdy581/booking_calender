@@ -3,7 +3,7 @@ import 'package:pdf/widgets.dart' as pw;
 
 class PdfFooterSection {
   static pw.Widget build() {
-    final accentColor = PdfColor.fromHex("#49A4B3");
+    final accentColor = PdfColor.fromHex("#009873");
     return pw.Center(
       child: pw.Container(
         width: 450,

@@ -42,7 +42,7 @@ class PdfHeaderSection {
           padding: const pw.EdgeInsets.only(left: 35),
           child: pw.Container(
             width: 60,
-            height: 100,
+            height: 85,
             decoration: pw.BoxDecoration(
               color: accentColor,
               borderRadius: const pw.BorderRadius.only(
