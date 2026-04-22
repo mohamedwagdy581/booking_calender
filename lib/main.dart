@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/services/service_locator.dart';
 import 'core/services/booking_notification_service.dart';
@@ -43,6 +44,10 @@ void main() async {
     url: dotenv.env['SUPABASE_URL'] ?? '',
     anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
+
+  // تهيئة بيانات التنسيق للغة العربية ليتمكن DateFormat من العمل
+  await initializeDateFormatting('ar', null);
+
   setupServiceLocator(); // Initialize the service locator
   await sl<BookingNotificationService>().initialize();
   await CacheHelper.init();

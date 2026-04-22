@@ -36,6 +36,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   late String _selectedPaymentMethod;
   late bool _isCompany;
   late String _selectedBank;
+  late bool _isConfirmed; // إضافة متغير الحالة هنا
 
   @override
   void initState() {
@@ -68,6 +69,7 @@ class _EditBookingViewState extends State<EditBookingView> {
         ? booking.bankName
         : '\u0627\u0644\u062c\u0632\u064a\u0631\u0629';
 
+    _isConfirmed = booking.isConfirmed;
     _totalAmountController.addListener(_handleFinancialInputChange);
     _firstPaymentController.addListener(_handleFinancialInputChange);
     _handleFinancialInputChange();
@@ -188,6 +190,7 @@ class _EditBookingViewState extends State<EditBookingView> {
       isCompany: _isCompany,
       bankName: _selectedBank,
       notes: _notesController.text,
+      isConfirmed: _isConfirmed,
     );
 
     context.read<BookingCubit>().updateBooking(updatedBooking);
@@ -232,6 +235,9 @@ class _EditBookingViewState extends State<EditBookingView> {
           lastPaymentController: _lastPaymentController,
           hoursController: _hoursController,
           notesController: _notesController,
+          isConfirmed: _isConfirmed, // نمرر القيمة للـ Body
+          onConfirmedChanged: (v) =>
+              setState(() => _isConfirmed = v), // تحديث الحالة
           onDateTap: _pickDate,
           onTimeTap: _pickTime,
           onCurrencyChanged: (v) => setState(() => _selectedCurrency = v!),

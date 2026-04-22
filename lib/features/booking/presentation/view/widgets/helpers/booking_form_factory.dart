@@ -96,6 +96,7 @@ class BookingFormFactory {
     required bool isCompany,
     required String bankName,
     required String notes,
+    required bool isConfirmed, // إضافة البراميتر هنا
   }) {
     final date = DateTime(
       selectedDate.year,
@@ -126,6 +127,7 @@ class BookingFormFactory {
       isCompany: isCompany,
       bankName: bankName,
       notes: notes,
+      isConfirmed: isConfirmed, // تمرير البراميتر للموديل
     );
   }
 }

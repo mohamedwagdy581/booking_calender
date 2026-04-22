@@ -24,6 +24,7 @@ class Booking extends Equatable {
   final bool isArchived;
   final DateTime? archivedAt;
   final String? archivedBy;
+  final bool isConfirmed; // إضافة خاصية تأكيد الحجز
 
   const Booking({
     this.id,
@@ -49,6 +50,7 @@ class Booking extends Equatable {
     this.isArchived = false,
     this.archivedAt,
     this.archivedBy,
+    this.isConfirmed = false, // القيمة الافتراضية
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -82,6 +84,7 @@ class Booking extends Equatable {
           ? DateTime.parse(json['archived_at'] as String)
           : null,
       archivedBy: json['archived_by']?.toString(),
+      isConfirmed: json['is_confirmed'] as bool? ?? false, // قراءة من الـ JSON
     );
   }
 
@@ -110,6 +113,7 @@ class Booking extends Equatable {
       'is_archived': isArchived,
       'archived_at': archivedAt?.toIso8601String(),
       'archived_by': archivedBy,
+      'is_confirmed': isConfirmed, // كتابة في الـ JSON
     };
   }
 
@@ -137,6 +141,7 @@ class Booking extends Equatable {
       'is_archived': isArchived,
       'archived_at': archivedAt?.toIso8601String(),
       'archived_by': archivedBy,
+      'is_confirmed': isConfirmed, // كتابة في الـ JSON
     };
   }
 
@@ -164,6 +169,7 @@ class Booking extends Equatable {
     bool? isArchived,
     DateTime? archivedAt,
     String? archivedBy,
+    bool? isConfirmed, // إضافة للـ copyWith
   }) {
     return Booking(
       id: id ?? this.id,
@@ -189,6 +195,7 @@ class Booking extends Equatable {
       isArchived: isArchived ?? this.isArchived,
       archivedAt: archivedAt ?? this.archivedAt,
       archivedBy: archivedBy ?? this.archivedBy,
+      isConfirmed: isConfirmed ?? this.isConfirmed, // استخدام في الـ copyWith
     );
   }
 
@@ -217,5 +224,6 @@ class Booking extends Equatable {
         isArchived,
         archivedAt,
         archivedBy,
+        isConfirmed,
       ];
 }

@@ -34,6 +34,7 @@ dependencies:
   supabase_flutter: ^2.5.5
   # PDF
   pdf: ^3.11.0
+  printing: ^5.11.0
   open_filex: ^4.4.0
   file_saver: ^0.3.1
   hijri_calendar: ^1.0.7+7

@@ -4,7 +4,7 @@ project(booking LANGUAGES CXX)
 
 # CMake 4.x dropped implicit compatibility for policies older than 3.5.
 # firebase_cpp_sdk's CMake scripts still declare very old minimum policy levels.
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.

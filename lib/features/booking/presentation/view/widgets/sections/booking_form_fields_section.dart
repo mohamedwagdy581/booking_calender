@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../../../../../core/constants/spacing/app_spacing.dart';
@@ -29,14 +28,16 @@ class BookingFormFieldsSection extends StatelessWidget {
     required this.firstPaymentController,
     required this.lastPaymentController,
     required this.hoursController,
-    this.paymentMethod = 'Installments', // قيمة افتراضية
+    this.paymentMethod =
+        'Installments', // قيمة افتراضية لتجنب الأخطاء في الصفحات الأخرى
   });
 
   // دالة مساعدة لإنشاء صف متجاوب (يتحول لعمود في الشاشات الصغيرة)
   Widget _buildResponsiveRow(Widget child1, Widget child2) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < 500) { // لو العرض أقل من 500 (موبايل)
+        if (constraints.maxWidth < 500) {
+          // لو العرض أقل من 500 (موبايل)
           return Column(
             children: [
               child1,
@@ -61,11 +62,13 @@ class BookingFormFieldsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Divider(height: AppSpacing.kSpaceL),
         _buildResponsiveRow(
           CustomTextFormField(
             controller: titleController,
             labelText: 'وصف الحجز',
-            validator: (value) => value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
+            validator: (value) =>
+                value!.isEmpty ? 'برجاء اضافة عنوان الحجز' : null,
           ),
           CustomTextFormField(
             controller: locationController,
@@ -78,12 +81,14 @@ class BookingFormFieldsSection extends StatelessWidget {
           CustomTextFormField(
             controller: clientNameController,
             labelText: 'اسم العميل',
-            validator: (value) => value!.isEmpty ? 'برجاء اضافة اسم العميل' : null,
+            validator: (value) =>
+                value!.isEmpty ? 'برجاء اضافة اسم العميل' : null,
           ),
           CustomTextFormField(
             controller: phoneController,
             labelText: 'رقم الجوال',
-            validator: (value) => value!.isEmpty ? 'برجاء ادخال رقم الجوال' : null,
+            validator: (value) =>
+                value!.isEmpty ? 'برجاء ادخال رقم الجوال' : null,
           ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
@@ -103,7 +108,8 @@ class BookingFormFieldsSection extends StatelessWidget {
             controller: totalAmountController,
             labelText: 'القيمة الكلية',
             keyboardType: TextInputType.number,
-            validator: (value) => value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
+            validator: (value) =>
+                value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
           ),
           // إخفاء الدفعة الأولى إذا كان الدفع إجمالي
           paymentMethod == 'Installments'

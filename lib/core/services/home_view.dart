@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/assets/app_assets.dart';
 import '../../../../core/constants/spacing/app_spacing.dart';
 import '../../features/booking/presentation/view/widgets/add_booking_tab.dart';
+import 'dashboard_view.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'supabase_service.dart';
 
 // افترضت وجود صفحة لعرض الحجوزات، لو عندك صفحة جاهزة استبدل هذا الـ Widget بها
 class BookingListPlaceholder extends StatelessWidget {
   const BookingListPlaceholder({super.key});
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('هنا قائمة الحجوزات (Calendar View)', style: TextStyle(fontSize: 20)));
+    return const Center(
+        child: Text('هنا قائمة الحجوزات العامة لجميع الموظفين',
+            style: TextStyle(fontSize: 20)));
   }
 }
 
@@ -21,15 +26,48 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
+  String _userRole = 'staff'; // القيمة الافتراضية
+  bool _isLoadingRole = true;
 
-  // قائمة الصفحات (التابات)
-  final List<Widget> _pages = [
-    const BookingListPlaceholder(), // الصفحة الأولى: عرض الحجوزات
-    const AddBookingTab(),          // الصفحة الثانية: إضافة حجز
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _checkUserRole();
+  }
+
+  Future<void> _checkUserRole() async {
+    final service = SupabaseService(Supabase.instance.client);
+    final role = await service.getCurrentUserRole();
+    debugPrint('--- DEBUG: Role set in UI: $role ---');
+    if (mounted) {
+      setState(() {
+        _userRole = role;
+        _isLoadingRole = false;
+      });
+    }
+  }
+
+  // تحويل قائمة الصفحات لتكون ديناميكية بناءً على الدور
+  List<Widget> get _pages {
+    if (_userRole == 'admin') {
+      return [
+        const DashboardView(), // للأدمن: الداشبورد أولاً (Index 0)
+        const BookingListPlaceholder(),
+        const AddBookingTab(),
+      ];
+    }
+    return [
+      const BookingListPlaceholder(), // للموظف: الحجوزات أولاً (Index 0)
+      const AddBookingTab(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingRole) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     // LayoutBuilder هو المسؤول عن تحديد حجم الشاشة وتغيير التصميم
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -52,7 +90,8 @@ class _HomeViewState extends State<HomeView> {
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.kHorizontalPadding),
+          padding:
+              EdgeInsets.symmetric(horizontal: AppSpacing.kHorizontalPadding),
           child: Row(
             children: [
               Image.asset(AppAssets.logo, height: 35), // اللوجو
@@ -69,12 +108,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
-            onPressed: () {
-              // هنا كود تسجيل الخروج
-            },
-          ),
+          const CircleAvatar(
+              radius: 16, backgroundImage: AssetImage(AppAssets.logo)),
           SizedBox(width: AppSpacing.kHorizontalPadding),
         ],
       ),
@@ -82,12 +117,17 @@ class _HomeViewState extends State<HomeView> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          if (_userRole == 'admin')
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.analytics_outlined),
+              label: 'التقارير',
+            ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
             label: 'الحجوزات',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
             label: 'إضافة حجز',
           ),
@@ -103,18 +143,24 @@ class _HomeViewState extends State<HomeView> {
         children: [
           NavigationRail(
             selectedIndex: _selectedIndex,
-            onDestinationSelected: (index) => setState(() => _selectedIndex = index),
+            onDestinationSelected: (index) =>
+                setState(() => _selectedIndex = index),
             labelType: NavigationRailLabelType.all,
             leading: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: Image.asset(AppAssets.logo, height: 60),
             ),
-            destinations: const [
-              NavigationRailDestination(
+            destinations: [
+              if (_userRole == 'admin')
+                const NavigationRailDestination(
+                  icon: Icon(Icons.analytics_outlined),
+                  label: Text('التقارير'),
+                ),
+              const NavigationRailDestination(
                 icon: Icon(Icons.calendar_month),
                 label: Text('الحجوزات'),
               ),
-              NavigationRailDestination(
+              const NavigationRailDestination(
                 icon: Icon(Icons.add_circle_outline),
                 label: Text('إضافة حجز'),
               ),
