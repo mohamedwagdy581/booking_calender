@@ -106,7 +106,7 @@ class EditBookingViewBody extends StatelessWidget {
                           Switch(
                             value: isConfirmed,
                             onChanged: onConfirmedChanged,
-                            activeColor: Colors.green,
+                            activeThumbColor: Colors.green,
                           ),
                         ],
                       ),

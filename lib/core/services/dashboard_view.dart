@@ -495,7 +495,8 @@ class _DashboardViewState extends State<DashboardView> {
                               fontWeight: FontWeight.bold)),
                       Text(
                           "العمولة (${emp['confirmed_bookings_count']} حجز مؤكد)",
-                          style: TextStyle(fontSize: 10, color: Colors.grey)),
+                          style: const TextStyle(
+                              fontSize: 10, color: Colors.grey)),
                     ],
                   ),
                 ],

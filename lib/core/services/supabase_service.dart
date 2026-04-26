@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart'; // أضف هذا لو كنت بتستخدم debugPrint
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,11 +13,9 @@ class SupabaseService {
   Future<String> getCurrentUserRole() async {
     final user = _client.auth.currentUser;
     if (user == null) {
-      debugPrint('--- DEBUG: No user logged in ---');
       return 'staff';
     }
 
-    debugPrint('--- DEBUG: Fetching role for UID: ${user.id} ---');
     try {
       final response = await _client
           .from('profiles')
@@ -26,10 +23,8 @@ class SupabaseService {
           .eq('id', user.id)
           .maybeSingle();
 
-      debugPrint('--- DEBUG: Supabase Response: $response ---');
       return response?['role'] ?? 'staff';
     } catch (e) {
-      debugPrint('--- DEBUG: Error fetching role: $e ---');
       return 'staff';
     }
   }
@@ -66,7 +61,7 @@ class SupabaseService {
   Future<List<Map<String, dynamic>>> getAllEmployees() async {
     try {
       final response = await _client.from('profiles').select('id, email, role');
-      return response as List<Map<String, dynamic>>;
+      return response;
     } catch (e) {
       return [];
     }
@@ -88,7 +83,7 @@ class SupabaseService {
           .gte('date', firstDay)
           .lte('date', lastDay);
 
-      return response as List<Map<String, dynamic>>;
+      return response;
     } catch (e) {
       if (kDebugMode) print('Error fetching stats: $e');
       return [];

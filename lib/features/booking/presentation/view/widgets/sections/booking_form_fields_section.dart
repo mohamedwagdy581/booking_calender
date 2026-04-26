@@ -14,7 +14,7 @@ class BookingFormFieldsSection extends StatelessWidget {
   final TextEditingController firstPaymentController;
   final TextEditingController lastPaymentController;
   final TextEditingController hoursController;
-  final String paymentMethod; // إضافة متغير طريقة الدفع
+  final String paymentMethod;
 
   const BookingFormFieldsSection({
     super.key,
@@ -28,16 +28,14 @@ class BookingFormFieldsSection extends StatelessWidget {
     required this.firstPaymentController,
     required this.lastPaymentController,
     required this.hoursController,
-    this.paymentMethod =
-        'Installments', // قيمة افتراضية لتجنب الأخطاء في الصفحات الأخرى
+    this.paymentMethod = 'Installments',
   });
 
-  // دالة مساعدة لإنشاء صف متجاوب (يتحول لعمود في الشاشات الصغيرة)
+// Function to build a responsive row that switches between Row and Column based on screen width
   Widget _buildResponsiveRow(Widget child1, Widget child2) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 500) {
-          // لو العرض أقل من 500 (موبايل)
           return Column(
             children: [
               child1,
@@ -111,21 +109,21 @@ class BookingFormFieldsSection extends StatelessWidget {
             validator: (value) =>
                 value!.isEmpty ? 'برجاء ادخال القيمة المالية الكلية' : null,
           ),
-          // إخفاء الدفعة الأولى إذا كان الدفع إجمالي
+          // Hide the first payment field if the payment method is total
           paymentMethod == 'Installments'
               ? CustomTextFormField(
                   controller: firstPaymentController,
                   labelText: "الدفعة الاولى",
                   keyboardType: TextInputType.number,
                 )
-              : const SizedBox(), // عنصر فارغ للحفاظ على التنسيق
+              : const SizedBox(),
         ),
         SizedBox(height: AppSpacing.kSpaceM),
         _buildResponsiveRow(
           CustomTextFormField(
             controller: hoursController,
             labelText: "عدد الساعات",
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.text,
           ),
           CustomTextFormField(
             controller: lastPaymentController,

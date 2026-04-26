@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 
+import '../../../../core/services/pdf/pdf_service.dart';
 import '../../data/models/booking_model.dart';
 import '../manager/booking_cubit/booking_cubit.dart';
 import 'edit_booking_view_body.dart';
@@ -36,7 +40,8 @@ class _EditBookingViewState extends State<EditBookingView> {
   late String _selectedPaymentMethod;
   late bool _isCompany;
   late String _selectedBank;
-  late bool _isConfirmed; // إضافة متغير الحالة هنا
+  late bool _isConfirmed;
+  Booking? _currentDraft;
 
   @override
   void initState() {
@@ -53,7 +58,7 @@ class _EditBookingViewState extends State<EditBookingView> {
         TextEditingController(text: booking.firstPayment.toString());
     _lastPaymentController =
         TextEditingController(text: booking.lastPayment.toString());
-    _hoursController = TextEditingController(text: booking.hours.toString());
+    _hoursController = TextEditingController(text: booking.hours);
     _artistNameController = TextEditingController(text: booking.artistName);
     _notesController = TextEditingController(text: booking.notes);
 
@@ -147,6 +152,34 @@ class _EditBookingViewState extends State<EditBookingView> {
     }
   }
 
+  // Function to quickly generate and open the PDF from the snackbar
+  Future<void> _quickPrint(Booking booking) async {
+    try {
+      final pdfData = await PdfService.generateQuotation(booking);
+
+      // تنظيف اسم الملف
+      final clientName =
+          booking.clientName.trim().replaceAll(RegExp(r'[<>:"/\\|?*]'), ' ');
+      final dateText = DateFormat('yyyy-MM-dd').format(booking.date);
+      final fileName = 'عرض سعر - $clientName - $dateText.pdf';
+
+      final filePath = await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: pdfData,
+        mimeType: MimeType.pdf,
+      );
+
+      if (filePath.isNotEmpty) {
+        await OpenFilex.open(filePath);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في الطباعة: $e')),
+      );
+    }
+  }
+
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
@@ -170,7 +203,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
-    final updatedBooking = BookingFormFactory.createUpdatedBooking(
+    _currentDraft = BookingFormFactory.createUpdatedBooking(
       original: widget.booking,
       selectedDate: _selectedDate,
       selectedHour: _selectedTime.hour,
@@ -193,7 +226,7 @@ class _EditBookingViewState extends State<EditBookingView> {
       isConfirmed: _isConfirmed,
     );
 
-    context.read<BookingCubit>().updateBooking(updatedBooking);
+    context.read<BookingCubit>().updateBooking(_currentDraft!);
   }
 
   @override
@@ -202,8 +235,20 @@ class _EditBookingViewState extends State<EditBookingView> {
       listener: (context, state) {
         if (state is BookingOperationSuccess) {
           if (!mounted) return;
+
+          final bookingToPrint = _currentDraft ?? widget.booking;
+
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'طباعة العرض',
+                textColor: Colors.white,
+                onPressed: () => _quickPrint(bookingToPrint),
+              ),
+            ),
           );
           Navigator.of(context).pop();
         } else if (state is BookingError) {
@@ -235,9 +280,8 @@ class _EditBookingViewState extends State<EditBookingView> {
           lastPaymentController: _lastPaymentController,
           hoursController: _hoursController,
           notesController: _notesController,
-          isConfirmed: _isConfirmed, // نمرر القيمة للـ Body
-          onConfirmedChanged: (v) =>
-              setState(() => _isConfirmed = v), // تحديث الحالة
+          isConfirmed: _isConfirmed,
+          onConfirmedChanged: (v) => setState(() => _isConfirmed = v),
           onDateTap: _pickDate,
           onTimeTap: _pickTime,
           onCurrencyChanged: (v) => setState(() => _selectedCurrency = v!),

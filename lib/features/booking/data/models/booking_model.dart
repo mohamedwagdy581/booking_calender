@@ -13,7 +13,7 @@ class Booking extends Equatable {
   final double totalAmount;
   final double firstPayment;
   final double lastPayment;
-  final int hours;
+  final String hours;
   final String currency;
   final bool isCompany;
   final String paymentMethod;
@@ -24,7 +24,7 @@ class Booking extends Equatable {
   final bool isArchived;
   final DateTime? archivedAt;
   final String? archivedBy;
-  final bool isConfirmed; // إضافة خاصية تأكيد الحجز
+  final bool isConfirmed;
 
   const Booking({
     this.id,
@@ -50,7 +50,7 @@ class Booking extends Equatable {
     this.isArchived = false,
     this.archivedAt,
     this.archivedBy,
-    this.isConfirmed = false, // القيمة الافتراضية
+    this.isConfirmed = false,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -69,7 +69,7 @@ class Booking extends Equatable {
       totalAmount: (json['total_amount'] as num? ?? 0).toDouble(),
       firstPayment: (json['first_payment'] as num? ?? 0).toDouble(),
       lastPayment: (json['last_payment'] as num? ?? 0).toDouble(),
-      hours: (json['hours'] as num? ?? 0).toInt(),
+      hours: json['hours']?.toString() ?? '0',
       currency: json['currency'] as String? ?? 'SAR',
       isCompany: json['is_company'] as bool? ?? false,
       paymentMethod: json['payment_method'] as String? ?? 'Cash',
@@ -84,7 +84,7 @@ class Booking extends Equatable {
           ? DateTime.parse(json['archived_at'] as String)
           : null,
       archivedBy: json['archived_by']?.toString(),
-      isConfirmed: json['is_confirmed'] as bool? ?? false, // قراءة من الـ JSON
+      isConfirmed: json['is_confirmed'] as bool? ?? false,
     );
   }
 
@@ -141,7 +141,7 @@ class Booking extends Equatable {
       'is_archived': isArchived,
       'archived_at': archivedAt?.toIso8601String(),
       'archived_by': archivedBy,
-      'is_confirmed': isConfirmed, // كتابة في الـ JSON
+      'is_confirmed': isConfirmed,
     };
   }
 
@@ -158,7 +158,7 @@ class Booking extends Equatable {
     double? totalAmount,
     double? firstPayment,
     double? lastPayment,
-    int? hours,
+    String? hours,
     String? currency,
     bool? isCompany,
     String? paymentMethod,
@@ -169,7 +169,7 @@ class Booking extends Equatable {
     bool? isArchived,
     DateTime? archivedAt,
     String? archivedBy,
-    bool? isConfirmed, // إضافة للـ copyWith
+    bool? isConfirmed,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -195,7 +195,7 @@ class Booking extends Equatable {
       isArchived: isArchived ?? this.isArchived,
       archivedAt: archivedAt ?? this.archivedAt,
       archivedBy: archivedBy ?? this.archivedBy,
-      isConfirmed: isConfirmed ?? this.isConfirmed, // استخدام في الـ copyWith
+      isConfirmed: isConfirmed ?? this.isConfirmed,
     );
   }
 

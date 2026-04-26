@@ -65,7 +65,7 @@ class BookingFormFactory {
       totalAmount: double.tryParse(totalAmount) ?? 0.0,
       firstPayment: double.tryParse(firstPayment) ?? 0.0,
       lastPayment: double.tryParse(lastPayment) ?? 0.0,
-      hours: int.tryParse(hours) ?? 0,
+      hours: hours,
       currency: currency,
       paymentMethod: paymentMethod,
       refNumber: refNumber,
@@ -96,7 +96,7 @@ class BookingFormFactory {
     required bool isCompany,
     required String bankName,
     required String notes,
-    required bool isConfirmed, // إضافة البراميتر هنا
+    required bool isConfirmed,
   }) {
     final date = DateTime(
       selectedDate.year,
@@ -119,7 +119,7 @@ class BookingFormFactory {
       totalAmount: double.tryParse(totalAmount) ?? 0.0,
       firstPayment: double.tryParse(firstPayment) ?? 0.0,
       lastPayment: double.tryParse(lastPayment) ?? 0.0,
-      hours: int.tryParse(hours) ?? 0,
+      hours: hours,
       currency: currency,
       paymentMethod: paymentMethod,
       artistName: artistName,
@@ -127,7 +127,7 @@ class BookingFormFactory {
       isCompany: isCompany,
       bankName: bankName,
       notes: notes,
-      isConfirmed: isConfirmed, // تمرير البراميتر للموديل
+      isConfirmed: isConfirmed,
     );
   }
 }
