@@ -11,11 +11,11 @@ class PdfBankSection {
 
     String bankDetails;
     if (booking.bankName == 'أميمة') {
-      bankDetails = "• OUMAAIMA FARAHAT TALEB\n"
+      bankDetails = "• اسم المستفيد: OUMAAIMA FARAHAT TALEB\n"
           "• حساب بنك الجزيرة / فرع السلامة / جدة.\n"
           "• رقم الآيبان: SA72 6000 0000 1372 1948 0001";
     } else {
-      bankDetails = "• مؤسسة ديمة الفنية التجارية.\n"
+      bankDetails = "• اسم المستفيد: مؤسسة ديمة الفنية التجارية.\n"
           "• حساب مصرف الجزيرة / فرع السلامة / جدة.\n"
           "• رقم الآيبان: SA70 6000 0000 1125 6600 0001";
     }
