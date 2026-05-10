@@ -24,7 +24,7 @@ class PdfHeaderSection {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Container(
-          width: 150,
+          width: 140,
           child: pw.Table(
             columnWidths: {0: const pw.FlexColumnWidth()},
             children: [
@@ -88,7 +88,7 @@ class PdfHeaderSection {
           padding: pw.EdgeInsets.zero,
           child: pw.Text(
             text,
-            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+            style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
             textAlign: pw.TextAlign.right,
           ),
         ),
@@ -99,7 +99,7 @@ class PdfHeaderSection {
   static pw.TableRow _buildSpaceRow(String text) {
     return pw.TableRow(
       children: [
-        pw.SizedBox(height: 20),
+        pw.SizedBox(height: 12),
       ],
     );
   }
