@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/spacing/app_spacing.dart';
 import '../../data/models/booking_model.dart';
+import '../../../../core/widgets/custom_text_form_field.dart';
 import 'widgets/sections/booking_date_time_section.dart';
 import 'widgets/sections/booking_financial_controls_section.dart';
 import 'widgets/sections/booking_form_fields_grid_section.dart';
@@ -32,6 +33,7 @@ class EditBookingViewBody extends StatelessWidget {
     required this.lastPaymentController,
     required this.hoursController,
     required this.notesController,
+    required this.taxNumberController,
     required this.onDateTap,
     required this.onTimeTap,
     required this.onCurrencyChanged,
@@ -63,6 +65,7 @@ class EditBookingViewBody extends StatelessWidget {
   final TextEditingController lastPaymentController;
   final TextEditingController hoursController;
   final TextEditingController notesController;
+  final TextEditingController taxNumberController;
   final VoidCallback onDateTap;
   final VoidCallback onTimeTap;
   final ValueChanged<String?> onCurrencyChanged;
@@ -146,6 +149,7 @@ class EditBookingViewBody extends StatelessWidget {
                       onPaymentMethodChanged: onPaymentMethodChanged,
                       onBankChanged: onBankChanged,
                       onIsCompanyChanged: onIsCompanyChanged,
+                      taxNumberController: taxNumberController,
                     ),
                     SizedBox(height: AppSpacing.kSpaceM),
                     BookingFormFieldsGridSection(

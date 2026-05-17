@@ -44,6 +44,7 @@ class BookingFormFactory {
     required String bankName,
     required String notes,
     required String refNumber,
+    String? taxNumber,
   }) {
     final date = DateTime(
       selectedDate.year,
@@ -72,6 +73,7 @@ class BookingFormFactory {
       isCompany: isCompany,
       bankName: bankName,
       notes: notes,
+      taxNumber: taxNumber,
       images: const [],
     );
   }
@@ -97,6 +99,7 @@ class BookingFormFactory {
     required String bankName,
     required String notes,
     required bool isConfirmed,
+    String? taxNumber,
   }) {
     final date = DateTime(
       selectedDate.year,
@@ -128,6 +131,7 @@ class BookingFormFactory {
       bankName: bankName,
       notes: notes,
       isConfirmed: isConfirmed,
+      taxNumber: taxNumber,
     );
   }
 }

@@ -33,6 +33,7 @@ class _EditBookingViewState extends State<EditBookingView> {
   late final TextEditingController _hoursController;
   late final TextEditingController _artistNameController;
   late final TextEditingController _notesController;
+  late final TextEditingController _taxNumberController;
 
   late DateTime _selectedDate;
   late TimeOfDay _selectedTime;
@@ -61,6 +62,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     _hoursController = TextEditingController(text: booking.hours);
     _artistNameController = TextEditingController(text: booking.artistName);
     _notesController = TextEditingController(text: booking.notes);
+    _taxNumberController = TextEditingController(text: booking.taxNumber ?? '');
 
     _selectedDate = booking.date;
     _selectedTime = TimeOfDay.fromDateTime(booking.date);
@@ -94,6 +96,7 @@ class _EditBookingViewState extends State<EditBookingView> {
     _lastPaymentController.dispose();
     _hoursController.dispose();
     _artistNameController.dispose();
+    _taxNumberController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -224,6 +227,7 @@ class _EditBookingViewState extends State<EditBookingView> {
       bankName: _selectedBank,
       notes: _notesController.text,
       isConfirmed: _isConfirmed,
+      taxNumber: _isCompany ? _taxNumberController.text : null,
     );
 
     context.read<BookingCubit>().updateBooking(_currentDraft!);
@@ -280,6 +284,7 @@ class _EditBookingViewState extends State<EditBookingView> {
           lastPaymentController: _lastPaymentController,
           hoursController: _hoursController,
           notesController: _notesController,
+          taxNumberController: _taxNumberController,
           isConfirmed: _isConfirmed,
           onConfirmedChanged: (v) => setState(() => _isConfirmed = v),
           onDateTap: _pickDate,

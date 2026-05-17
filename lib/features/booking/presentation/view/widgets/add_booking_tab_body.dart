@@ -34,6 +34,7 @@ class AddBookingTabBody extends StatelessWidget {
     required this.onPaymentMethodChanged,
     required this.onBankChanged,
     required this.onIsCompanyChanged,
+    required this.taxNumberController,
     required this.onSubmit,
     required this.isLoading,
   });
@@ -63,6 +64,7 @@ class AddBookingTabBody extends StatelessWidget {
   final ValueChanged<String?> onPaymentMethodChanged;
   final ValueChanged<String?> onBankChanged;
   final ValueChanged<bool> onIsCompanyChanged;
+  final TextEditingController taxNumberController;
   final Future<void> Function() onSubmit;
   final bool isLoading;
 
@@ -98,6 +100,7 @@ class AddBookingTabBody extends StatelessWidget {
                       onPaymentMethodChanged: onPaymentMethodChanged,
                       onBankChanged: onBankChanged,
                       onIsCompanyChanged: onIsCompanyChanged,
+                      taxNumberController: taxNumberController,
                     ),
                     SizedBox(height: AppSpacing.kSpaceM),
                     BookingFormFieldsGridSection(

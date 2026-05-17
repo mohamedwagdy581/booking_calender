@@ -83,22 +83,43 @@ class BookingFormFieldsGridSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fields = <Widget>[
-      BookingTextField(controller: titleController, label: '\u0648\u0635\u0641 \u0627\u0644\u062d\u062c\u0632'),
-      BookingTextField(controller: clientNameController, label: '\u0627\u0633\u0645 \u0627\u0644\u0639\u0645\u064a\u0644'),
-      BookingTextField(controller: locationController, label: '\u0627\u0644\u0645\u0648\u0642\u0639'),
-      BookingTextField(controller: phoneController, label: phoneLabel, isNumber: true),
-      BookingTextField(controller: hallNameController, label: '\u0627\u0633\u0645 \u0627\u0644\u0642\u0627\u0639\u0629'),
-      BookingTextField(controller: artistNameController, label: '\u0627\u0633\u0645 \u0627\u0644\u0641\u0646\u0627\u0646'),
-      BookingTextField(controller: hoursController, label: '\u0639\u062f\u062f \u0627\u0644\u0633\u0627\u0639\u0627\u062a', isNumber: true),
+      BookingTextField(
+          controller: titleController,
+          label: '\u0648\u0635\u0641 \u0627\u0644\u062d\u062c\u0632'),
+      BookingTextField(
+          controller: clientNameController,
+          label: '\u0627\u0633\u0645 \u0627\u0644\u0639\u0645\u064a\u0644'),
+      BookingTextField(
+          controller: locationController,
+          label: '\u0627\u0644\u0645\u0648\u0642\u0639'),
+      BookingTextField(
+          controller: phoneController,
+          label: phoneLabel,
+          isNumber: true,
+          requiredField: false),
+      BookingTextField(
+          controller: hallNameController,
+          label: '\u0627\u0633\u0645 \u0627\u0644\u0642\u0627\u0639\u0629',
+          requiredField: false),
+      BookingTextField(
+          controller: artistNameController,
+          label: '\u0627\u0633\u0645 \u0627\u0644\u0641\u0646\u0627\u0646'),
+      BookingTextField(
+          controller: hoursController,
+          label:
+              '\u0639\u062f\u062f \u0627\u0644\u0633\u0627\u0639\u0627\u062a',
+          isNumber: true),
       BookingTextField(
         controller: totalAmountController,
-        label: '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a',
+        label:
+            '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a',
         isNumber: true,
         validator: _validateAmount,
       ),
       if (isCompany)
         BookingDisplayField(
-          label: '\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a \u0634\u0627\u0645\u0644 \u0627\u0644\u0636\u0631\u064a\u0628\u0629',
+          label:
+              '\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a \u0634\u0627\u0645\u0644 \u0627\u0644\u0636\u0631\u064a\u0628\u0629',
           value: vatInclusiveTotal,
         ),
       if (isCompany)
@@ -121,7 +142,8 @@ class BookingFormFieldsGridSection extends StatelessWidget {
       fields.add(
         BookingTextField(
           controller: firstPaymentController,
-          label: '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649',
+          label:
+              '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649',
           isNumber: true,
           validator: _validateFirstPayment,
         ),
@@ -129,7 +151,8 @@ class BookingFormFieldsGridSection extends StatelessWidget {
       fields.add(
         BookingTextField(
           controller: lastPaymentController,
-          label: '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u062e\u064a\u0631\u0629',
+          label:
+              '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u062e\u064a\u0631\u0629',
           isNumber: true,
           readOnly: true,
           requiredField: false,
@@ -144,7 +167,8 @@ class BookingFormFieldsGridSection extends StatelessWidget {
         children: fields
             .map(
               (field) => SizedBox(
-                width: (1000 - (AppSpacing.kHorizontalPadding * 2) - 16) / 2 - 1,
+                width:
+                    (1000 - (AppSpacing.kHorizontalPadding * 2) - 16) / 2 - 1,
                 child: field,
               ),
             )
@@ -154,7 +178,8 @@ class BookingFormFieldsGridSection extends StatelessWidget {
 
     return Column(
       children: fields
-          .map((f) => Padding(padding: const EdgeInsets.only(bottom: 12), child: f))
+          .map((f) =>
+              Padding(padding: const EdgeInsets.only(bottom: 12), child: f))
           .toList(),
     );
   }

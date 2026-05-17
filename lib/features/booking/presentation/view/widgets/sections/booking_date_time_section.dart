@@ -22,7 +22,7 @@ class BookingDateTimeSection extends StatelessWidget {
       onTap: onDateTap,
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'التاريخ',
+          labelText: 'تاريخ  إقامة الحفل',
           border: OutlineInputBorder(),
           suffixIcon: Icon(Icons.calendar_today),
         ),
@@ -30,30 +30,17 @@ class BookingDateTimeSection extends StatelessWidget {
       ),
     );
 
-    final timeWidget = InkWell(
-      onTap: onTimeTap,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'الوقت',
-          border: OutlineInputBorder(),
-          suffixIcon: Icon(Icons.access_time),
-        ),
-        child: Text(selectedTime.format(context)),
-      ),
-    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 500) {
           return Column(
-            children: [dateWidget, SizedBox(height: AppSpacing.kSpaceM), timeWidget],
+            children: [dateWidget, SizedBox(height: AppSpacing.kSpaceM)],
           );
         }
         return Row(
           children: [
             Expanded(child: dateWidget),
-            SizedBox(width: AppSpacing.kSpaceXXL),
-            Expanded(child: timeWidget),
           ],
         );
       },

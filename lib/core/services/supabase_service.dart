@@ -60,11 +60,58 @@ class SupabaseService {
   /// جلب قائمة بجميع الموظفين (profiles)
   Future<List<Map<String, dynamic>>> getAllEmployees() async {
     try {
-      final response = await _client.from('profiles').select('id, email, role');
-      return response;
+      try {
+        final response = await _client
+            .from('profiles')
+            .select('id, email, role, created_at')
+            .order('created_at', ascending: true);
+
+        return _normalizeEmployees(response);
+      } on PostgrestException catch (e) {
+        if (e.code != '42703') rethrow;
+
+        final fallbackResponse =
+            await _client.from('profiles').select('id, email, role');
+        return _normalizeEmployees(fallbackResponse);
+      }
     } catch (e) {
+      if (kDebugMode) print('Error fetching employees: $e');
       return [];
     }
+  }
+
+  List<Map<String, dynamic>> _normalizeEmployees(dynamic response) {
+    final rawEmployees = (response as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+
+    final employees = rawEmployees.asMap().entries.map((entry) {
+      final employee = Map<String, dynamic>.from(entry.value);
+      employee.putIfAbsent(
+        'created_at',
+        () => DateTime(2000, 1, 1).add(Duration(seconds: entry.key)).toIso8601String(),
+      );
+      return employee;
+    }).toList();
+
+    employees.sort((a, b) {
+      final dateA = DateTime.tryParse(a['created_at']?.toString() ?? '');
+      final dateB = DateTime.tryParse(b['created_at']?.toString() ?? '');
+
+      if (dateA != null && dateB != null) {
+        return dateA.compareTo(dateB);
+      }
+
+      if (dateA != null) return -1;
+      if (dateB != null) return 1;
+      return 0;
+    });
+
+    if (kDebugMode) {
+      print('Employees fetched: ${employees.map((e) => e['email']).toList()}');
+    }
+
+    return employees;
   }
 
   /// جلب إحصائيات الموظفين لشهر معين
@@ -83,7 +130,9 @@ class SupabaseService {
           .gte('date', firstDay)
           .lte('date', lastDay);
 
-      return response;
+      return (response as List)
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
     } catch (e) {
       if (kDebugMode) print('Error fetching stats: $e');
       return [];

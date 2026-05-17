@@ -21,6 +21,27 @@ class _DashboardViewState extends State<DashboardView> {
       20; // تم تعديل الهدف ليكون 20 حجزاً بدلاً من 50
   String? _selectedEmployeeId; // الموظف المختار للفلترة (null يعني الكل)
   List<Map<String, dynamic>> _allEmployees = [];
+  bool _isLoadingEmployees = true; // flag للتأكد من حالة تحميل الموظفين
+
+  // دالة مساعدة لجعل أول حرف في الاسم كبيراً
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
+
+  String _getEmployeeDisplayName(Map<String, dynamic> employee) {
+    final email = employee['email']?.toString().trim() ?? '';
+    if (email.isNotEmpty && email.contains('@')) {
+      return _capitalize(email.split('@')[0]);
+    }
+
+    final name = employee['name']?.toString().trim() ?? '';
+    if (name.isNotEmpty) {
+      return name;
+    }
+
+    return 'موظف';
+  }
 
   // دالة لمعالجة البيانات القادمة من Supabase
   Map<String, dynamic> _processStats(List<Map<String, dynamic>> data) {
@@ -30,11 +51,11 @@ class _DashboardViewState extends State<DashboardView> {
     const double commissionPerConfirmedBooking =
         500.0; // العمولة الثابتة لكل حجز مؤكد
 
-    // 1. نبدأ بملء القائمة بجميع الموظفين الموجودين في النظام بقيمة صفر
+    // 1. نبدأ بملء القائمة بجميع الموظفين المرتبين مسبقاً بالأقدم
     for (var emp in _allEmployees) {
-      employeeStats[emp['id']] = {
-        'id': emp['id'],
-        'name': emp['email'].split('@')[0],
+      employeeStats[emp['id'].toString()] = {
+        'id': emp['id'].toString(),
+        'name': _getEmployeeDisplayName(emp),
         'count': 0,
         'revenue': 0.0,
         'confirmed_bookings_count': 0, // عداد للحجوزات المؤكدة
@@ -42,49 +63,53 @@ class _DashboardViewState extends State<DashboardView> {
     }
 
     for (var booking in data) {
-      // إذا كان الموظف غير معروف (null)، ننسبه للأدمن (أول موظف admin في القائمة)
-      // ده بيخلي الـ 7 حجوزات تظهر عندك حتى لو الداتابيز فيها NULL
-      String userId = booking['created_by']?.toString() ??
-          _allEmployees.firstWhere((e) => e['role'] == 'admin',
-              orElse: () => {'id': 'unassigned'})['id'];
-
-      // لو الموظف مش موجود في القائمة (حجز قديم مثلاً)، ننشئ له سجل مؤقت عشان الأرقام تظهر
-      if (!employeeStats.containsKey(userId)) {
-        employeeStats[userId] = {
-          'id': userId,
-          'name': userId == 'unassigned' ? 'حجوزات عامة' : 'موظف سابق',
-          'count': 0,
-          'revenue': 0.0,
-          'confirmed_bookings_count': 0,
-        };
-      }
+      final String? userId = booking['created_by']?.toString();
 
       // إذا كان هناك موظف مختار، نتجاهل الباقي في حساب الإجمالي
       if (_selectedEmployeeId != null && userId != _selectedEmployeeId) {
         continue;
       }
 
-      // نأخذ القيمة من total_revenue أو total_amount لضمان دقة الأرقام الكبيرة
-      double revenue = (booking['total_revenue'] as num?)?.toDouble() ??
+      final double revenue = (booking['total_revenue'] as num?)?.toDouble() ??
           (booking['total_amount'] as num?)?.toDouble() ??
           0.0;
 
       totalRevenue += revenue;
       totalBookingsCount++;
 
-      // إذا كان الحجز مؤكداً، نزيد عداد الحجوزات المؤكدة
-      // نتحقق من القيمة سواء كانت boolean أو integer (1/0) لضمان الدقة
-      final isConfirmed = booking['is_confirmed'];
-      if (isConfirmed == true || isConfirmed == 1 || isConfirmed == 'true') {
-        employeeStats[userId]!['confirmed_bookings_count']++;
+      // تحديث إحصائيات الموظف فقط إذا كان موجوداً في قائمة الموظفين الأساسية
+      if (userId != null && !employeeStats.containsKey(userId)) {
+        final profile = booking['profiles'];
+        String fallbackName = 'موظف';
+        if (profile is Map<String, dynamic>) {
+          fallbackName = _getEmployeeDisplayName(profile);
+        } else if (profile is Map) {
+          fallbackName =
+              _getEmployeeDisplayName(Map<String, dynamic>.from(profile));
+        }
+
+        employeeStats[userId] = {
+          'id': userId,
+          'name': fallbackName,
+          'count': 0,
+          'revenue': 0.0,
+          'confirmed_bookings_count': 0,
+        };
       }
 
-      // تحديث البيانات
-      employeeStats[userId]!['count']++;
-      employeeStats[userId]!['revenue'] += revenue;
+      if (userId != null && employeeStats.containsKey(userId)) {
+        employeeStats[userId]!['count']++;
+        employeeStats[userId]!['revenue'] += revenue;
+
+        // التحقق من تأكيد الحجز
+        final isConfirmed = booking['is_confirmed'];
+        if (isConfirmed == true || isConfirmed == 1 || isConfirmed == 'true') {
+          employeeStats[userId]!['confirmed_bookings_count']++;
+        }
+      }
     }
 
-    // تحويل الـ Map إلى قائمة
+    // تحويل الـ Map إلى قائمة (الترتيب محفوظ لأننا بدأنا بملء الموظفين المرتبين)
     List<Map<String, dynamic>> employeesList = employeeStats.values.toList();
 
     // إذا كان هناك موظف مختار، نقوم بتصفية القائمة لتظهر بياناته هو فقط
@@ -161,20 +186,37 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Future<void> _loadEmployees() async {
-    final employees = await sl<SupabaseService>().getAllEmployees();
-    if (mounted) {
-      setState(() {
-        _allEmployees = employees;
+    try {
+      final employees = await sl<SupabaseService>().getAllEmployees();
+
+      // الترتيب الصارم بناءً على الأقدم (تاريخ إنشاء الحساب) لضمان الترتيب: Info -> Meaad -> Elham
+      employees.sort((a, b) {
+        final dateA = DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+            DateTime(2025);
+        final dateB = DateTime.tryParse(b['created_at']?.toString() ?? '') ??
+            DateTime(2025);
+        return dateA.compareTo(dateB); // من الأقدم للأحدث
       });
+
+      if (mounted) {
+        setState(() {
+          _allEmployees = employees;
+          _isLoadingEmployees = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingEmployees = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text("لوحة التحكم والإحصائيات",
+        title: const Text("تحليل أداء الموظفين",
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
         backgroundColor: Colors.transparent,
@@ -198,7 +240,9 @@ class _DashboardViewState extends State<DashboardView> {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: sl<SupabaseService>().getEmployeesPerformance(_selectedDate),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          // إظهار اللودينج فقط لو لسه بنحمل الموظفين أو بنجيب الداتا من السيرفر
+          if (_isLoadingEmployees ||
+              snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -236,8 +280,8 @@ class _DashboardViewState extends State<DashboardView> {
                                 const DropdownMenuItem(
                                     value: null, child: Text("كل الموظفين")),
                                 ..._allEmployees.map((e) => DropdownMenuItem(
-                                      value: e['id'],
-                                      child: Text(e['email'].split('@')[0]),
+                                      value: e['id'].toString(),
+                                      child: Text(_getEmployeeDisplayName(e)),
                                     )),
                               ],
                               onChanged: (val) =>

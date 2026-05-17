@@ -85,8 +85,6 @@ class BookingFormFieldsSection extends StatelessWidget {
           CustomTextFormField(
             controller: phoneController,
             labelText: 'رقم الجوال',
-            validator: (value) =>
-                value!.isEmpty ? 'برجاء ادخال رقم الجوال' : null,
           ),
         ),
         SizedBox(height: AppSpacing.kSpaceM),

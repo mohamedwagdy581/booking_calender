@@ -25,6 +25,7 @@ class Booking extends Equatable {
   final DateTime? archivedAt;
   final String? archivedBy;
   final bool isConfirmed;
+  final String? taxNumber;
 
   const Booking({
     this.id,
@@ -51,6 +52,7 @@ class Booking extends Equatable {
     this.archivedAt,
     this.archivedBy,
     this.isConfirmed = false,
+    this.taxNumber,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -85,6 +87,7 @@ class Booking extends Equatable {
           : null,
       archivedBy: json['archived_by']?.toString(),
       isConfirmed: json['is_confirmed'] as bool? ?? false,
+      taxNumber: json['tax_number'] as String?,
     );
   }
 
@@ -114,6 +117,7 @@ class Booking extends Equatable {
       'archived_at': archivedAt?.toIso8601String(),
       'archived_by': archivedBy,
       'is_confirmed': isConfirmed, // كتابة في الـ JSON
+      'tax_number': taxNumber,
     };
   }
 
@@ -142,6 +146,7 @@ class Booking extends Equatable {
       'archived_at': archivedAt?.toIso8601String(),
       'archived_by': archivedBy,
       'is_confirmed': isConfirmed,
+      'tax_number': taxNumber,
     };
   }
 
@@ -196,6 +201,7 @@ class Booking extends Equatable {
       archivedAt: archivedAt ?? this.archivedAt,
       archivedBy: archivedBy ?? this.archivedBy,
       isConfirmed: isConfirmed ?? this.isConfirmed,
+      taxNumber: taxNumber ?? this.taxNumber,
     );
   }
 
@@ -225,5 +231,6 @@ class Booking extends Equatable {
         archivedAt,
         archivedBy,
         isConfirmed,
+        taxNumber,
       ];
 }

@@ -4,7 +4,8 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../../../features/booking/data/models/booking_model.dart';
 
 class PdfInfoSection {
-  static pw.Widget build(Booking booking, PdfColor accentColor, pw.Font fontBold) {
+  static pw.Widget build(
+      Booking booking, PdfColor accentColor, pw.Font fontBold) {
     return pw.Row(
       children: [
         pw.Expanded(
@@ -15,8 +16,12 @@ class PdfInfoSection {
               1: const pw.FlexColumnWidth(0.6),
             },
             children: [
-              _buildSplitRow("من", "مؤسسة ديمة الفنية التجارية", accentColor, isHeader: true),
-              _buildSplitRow("العنوان", "المملكة العربية السعودية - جدة - حي البساتين - طريق الملك - برج النخلة", accentColor),
+              _buildSplitRow("من", "مؤسسة ديمة الفنية التجارية", accentColor,
+                  isHeader: true),
+              _buildSplitRow(
+                  "العنوان",
+                  "المملكة العربية السعودية - جدة - حي البساتين - طريق الملك - برج النخلة",
+                  accentColor),
               _buildSplitRow("الرقم الضريبي", "310092693700003", accentColor),
             ],
           ),
@@ -30,9 +35,11 @@ class PdfInfoSection {
               1: const pw.FlexColumnWidth(0.6),
             },
             children: [
-              _buildSplitRow("إلى", booking.clientName, accentColor, isHeader: true),
+              _buildSplitRow("إلى", booking.clientName, accentColor,
+                  isHeader: true),
               _buildSplitRow("العنوان", booking.location, accentColor),
-              _buildSplitRow("الرقم الضريبي", "إن وجد", accentColor),
+              _buildSplitRow(
+                  "الرقم الضريبي", booking.taxNumber ?? 'N/A', accentColor),
             ],
           ),
         ),
@@ -40,20 +47,29 @@ class PdfInfoSection {
     );
   }
 
-  static pw.TableRow _buildSplitRow(String label, String value, PdfColor accent, {bool isHeader = false}) {
+  static pw.TableRow _buildSplitRow(String label, String value, PdfColor accent,
+      {bool isHeader = false}) {
     return pw.TableRow(
       children: [
         pw.Container(
           padding: const pw.EdgeInsets.all(5),
           color: PdfColors.grey200,
           alignment: pw.Alignment.centerRight,
-          child: pw.Text(value, style: pw.TextStyle(fontSize: 10, fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal)),
+          child: pw.Text(value,
+              style: pw.TextStyle(
+                  fontSize: 10,
+                  fontWeight:
+                      isHeader ? pw.FontWeight.bold : pw.FontWeight.normal)),
         ),
         pw.Container(
           padding: const pw.EdgeInsets.all(5),
           color: accent,
           alignment: pw.Alignment.centerLeft,
-          child: pw.Text(label, style: pw.TextStyle(color: PdfColors.white, fontSize: 11, fontWeight: pw.FontWeight.bold)),
+          child: pw.Text(label,
+              style: pw.TextStyle(
+                  color: PdfColors.white,
+                  fontSize: 11,
+                  fontWeight: pw.FontWeight.bold)),
         ),
       ],
     );

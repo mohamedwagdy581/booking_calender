@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:open_filex/open_filex.dart';
 
-import '../../../../../core/utils/ui_utils.dart';
+import '../../../../../core/services/pdf/pdf_service.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 import 'add_booking_tab_body.dart';
 import 'dialogs/add_booking_confirmation_dialog.dart';
+import '../../../data/models/booking_model.dart';
 import 'helpers/booking_form_factory.dart';
 
 class AddBookingTab extends StatefulWidget {
@@ -35,6 +39,8 @@ class _AddBookingTabState extends State<AddBookingTab> {
   String _selectedPaymentMethod = '\u062f\u0641\u0639\u0627\u062a';
   bool _isCompany = false;
   String _selectedBank = '\u0627\u0644\u062c\u0632\u064a\u0631\u0629';
+  final _taxNumberController = TextEditingController();
+  Booking? _lastCreatedBooking;
 
   @override
   void initState() {
@@ -54,6 +60,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
     _phoneController.dispose();
     _locationController.dispose();
     _hallNameController.dispose();
+    _taxNumberController.dispose();
     _totalAmountController.dispose();
     _firstPaymentController.dispose();
     _lastPaymentController.dispose();
@@ -116,6 +123,33 @@ class _AddBookingTabState extends State<AddBookingTab> {
     }
   }
 
+  // دالة للطباعة السريعة من الـ SnackBar
+  Future<void> _quickPrint(Booking booking) async {
+    try {
+      final pdfData = await PdfService.generateQuotation(booking);
+
+      final clientName =
+          booking.clientName.trim().replaceAll(RegExp(r'[<>:"/\\|?*]'), ' ');
+      final dateText = DateFormat('yyyy-MM-dd').format(booking.date);
+      final fileName = 'عرض سعر - $clientName - $dateText.pdf';
+
+      final filePath = await FileSaver.instance.saveFile(
+        name: fileName,
+        bytes: pdfData,
+        mimeType: MimeType.pdf,
+      );
+
+      if (filePath.isNotEmpty) {
+        await OpenFilex.open(filePath);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('خطأ في الطباعة: $e')),
+      );
+    }
+  }
+
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
@@ -149,6 +183,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
     _lastPaymentController.clear();
     _hoursController.clear();
     _notesController.clear();
+    _taxNumberController.clear();
     setState(() {
       _selectedCurrency = 'SAR';
       _selectedPaymentMethod = '\u062f\u0641\u0639\u0627\u062a';
@@ -170,7 +205,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
       now: DateTime.now(),
     );
 
-    final booking = BookingFormFactory.createNewBooking(
+    _lastCreatedBooking = BookingFormFactory.createNewBooking(
       selectedDate: _selectedDate,
       selectedHour: _selectedTime.hour,
       selectedMinute: _selectedTime.minute,
@@ -190,9 +225,10 @@ class _AddBookingTabState extends State<AddBookingTab> {
       bankName: _selectedBank,
       notes: _notesController.text,
       refNumber: refNumber,
+      taxNumber: _isCompany ? _taxNumberController.text : null,
     );
 
-    context.read<BookingCubit>().addBooking(booking);
+    context.read<BookingCubit>().addBooking(_lastCreatedBooking!);
   }
 
   @override
@@ -200,10 +236,25 @@ class _AddBookingTabState extends State<AddBookingTab> {
     return BlocListener<BookingCubit, BookingState>(
       listener: (_, state) {
         if (state is BookingOperationSuccess) {
-          UiUtils.showSuccess(context, state.message);
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 5), // التايمر المطلوب
+              action: SnackBarAction(
+                label: 'طباعة العرض',
+                textColor: Colors.white,
+                onPressed: () => _quickPrint(_lastCreatedBooking!),
+              ),
+            ),
+          );
           _resetForm();
         } else if (state is BookingError) {
-          UiUtils.showError(context, state.message);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+          );
         }
       },
       child: BlocBuilder<BookingCubit, BookingState>(
@@ -216,6 +267,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
             selectedPaymentMethod: _selectedPaymentMethod,
             selectedBank: _selectedBank,
             isCompany: _isCompany,
+            taxNumberController: _taxNumberController,
             vatInclusiveTotal: _vatInclusiveTotalText,
             titleController: _titleController,
             artistNameController: _artistNameController,
