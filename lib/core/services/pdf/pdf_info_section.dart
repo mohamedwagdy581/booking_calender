@@ -22,7 +22,7 @@ class PdfInfoSection {
                   "العنوان",
                   "المملكة العربية السعودية - جدة - حي البساتين - طريق الملك - برج النخلة",
                   accentColor),
-              _buildSplitRow("الرقم الضريبي", "310092693700003", accentColor),
+              _buildSplitRow("الرقم الضريبي", "300690491300003", accentColor),
             ],
           ),
         ),

@@ -16,12 +16,18 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
-  DateTime _selectedDate = DateTime.now();
-  final double _targetPerEmployee =
-      20; // تم تعديل الهدف ليكون 20 حجزاً بدلاً من 50
-  String? _selectedEmployeeId; // الموظف المختار للفلترة (null يعني الكل)
   List<Map<String, dynamic>> _allEmployees = [];
   bool _isLoadingEmployees = true; // flag للتأكد من حالة تحميل الموظفين
+  DateTime _selectedDate = DateTime.now();
+  String? _selectedEmployeeId; // الموظف المختار للفلترة (null يعني الكل)
+  final double _targetPerEmployee =
+      20; // تم تعديل الهدف ليكون 20 حجزاً بدلاً من 50
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmployees();
+  }
 
   // دالة مساعدة لجعل أول حرف في الاسم كبيراً
   String _capitalize(String s) {
@@ -179,12 +185,6 @@ class _DashboardViewState extends State<DashboardView> {
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadEmployees();
-  }
-
   Future<void> _loadEmployees() async {
     try {
       final employees = await sl<SupabaseService>().getAllEmployees();
@@ -209,191 +209,6 @@ class _DashboardViewState extends State<DashboardView> {
         setState(() => _isLoadingEmployees = false);
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: const Text("تحليل أداء الموظفين",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_month, color: AppColors.primary),
-            onPressed: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate,
-                firstDate: DateTime(2023),
-                lastDate: DateTime.now(),
-              );
-              if (date != null) setState(() => _selectedDate = date);
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: sl<SupabaseService>().getEmployeesPerformance(_selectedDate),
-        builder: (context, snapshot) {
-          // إظهار اللودينج فقط لو لسه بنحمل الموظفين أو بنجيب الداتا من السيرفر
-          if (_isLoadingEmployees ||
-              snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final stats = _processStats(snapshot.data ?? []);
-
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.kHorizontalPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeaderSection(stats['totalRevenue'], _selectedDate),
-                  const SizedBox(height: 20),
-
-                  // قسم الفلاتر (الشهور والموظفين)
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String?>(
-                              value: _selectedEmployeeId,
-                              hint: const Text("كل الموظفين"),
-                              isExpanded: true,
-                              items: [
-                                const DropdownMenuItem(
-                                    value: null, child: Text("كل الموظفين")),
-                                ..._allEmployees.map((e) => DropdownMenuItem(
-                                      value: e['id'].toString(),
-                                      child: Text(_getEmployeeDisplayName(e)),
-                                    )),
-                              ],
-                              onChanged: (val) =>
-                                  setState(() => _selectedEmployeeId = val),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        onPressed: () => setState(() {
-                          _selectedDate = DateTime(
-                              _selectedDate.year, _selectedDate.month - 1);
-                        }),
-                        icon: const Icon(Icons.arrow_back_ios, size: 18),
-                        style:
-                            IconButton.styleFrom(backgroundColor: Colors.white),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          DateFormat('MMMM yyyy', 'ar').format(_selectedDate),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          if (_selectedDate.month < DateTime.now().month ||
-                              _selectedDate.year < DateTime.now().year) {
-                            setState(() {
-                              _selectedDate = DateTime(
-                                  _selectedDate.year, _selectedDate.month + 1);
-                            });
-                          }
-                        },
-                        icon: const Icon(Icons.arrow_forward_ios, size: 18),
-                        style:
-                            IconButton.styleFrom(backgroundColor: Colors.white),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-
-                  // كروت الإحصائيات الرئيسية بتصميم جديد
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 4 : 2,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
-                    childAspectRatio: 1.3,
-                    children: [
-                      _buildModernStatCard(
-                          "الحجوزات",
-                          "${stats['totalBookings']}",
-                          Icons.calendar_today,
-                          Colors.blue),
-                      _buildModernStatCard(
-                          "الإيرادات",
-                          "${stats['totalRevenue']}",
-                          Icons.payments_outlined,
-                          Colors.green),
-                      _buildModernStatCard(
-                          "الموظفين",
-                          "${stats['employees'].length}",
-                          Icons.people_outline,
-                          Colors.orange),
-                      _buildModernStatCard(
-                          "النمو",
-                          (stats['totalBookings'] ?? 0) >= 5
-                              ? "مستقر"
-                              : "غير مستقر",
-                          Icons.trending_up,
-                          Colors.purple),
-                    ],
-                  ),
-
-                  const SizedBox(height: 35),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "تحليل أداء الموظفين",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryDark),
-                      ),
-                      TextButton(
-                          onPressed: () {}, child: const Text("عرض الكل")),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-
-                  // قائمة الموظفين بتصميم المؤشرات (Progress Indicators)
-                  _buildEmployeePerformanceList(
-                    stats['employees'],
-                    stats['commissionPerConfirmedBooking'] as double,
-                  ),
-
-                  const SizedBox(height: 40),
-                  _buildExportButton(stats),
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
   }
 
   Widget _buildHeaderSection(double totalRevenue, DateTime date) {
@@ -595,6 +410,191 @@ class _DashboardViewState extends State<DashboardView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: const Text("تحليل أداء الموظفين",
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: AppColors.primaryDark)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month, color: AppColors.primary),
+            onPressed: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime(2023),
+                lastDate: DateTime.now(),
+              );
+              if (date != null) setState(() => _selectedDate = date);
+            },
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: sl<SupabaseService>().getEmployeesPerformance(_selectedDate),
+        builder: (context, snapshot) {
+          // إظهار اللودينج فقط لو لسه بنحمل الموظفين أو بنجيب الداتا من السيرفر
+          if (_isLoadingEmployees ||
+              snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final stats = _processStats(snapshot.data ?? []);
+
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.kHorizontalPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderSection(stats['totalRevenue'], _selectedDate),
+                  const SizedBox(height: 20),
+
+                  // قسم الفلاتر (الشهور والموظفين)
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String?>(
+                              value: _selectedEmployeeId,
+                              hint: const Text("كل الموظفين"),
+                              isExpanded: true,
+                              items: [
+                                const DropdownMenuItem(
+                                    value: null, child: Text("كل الموظفين")),
+                                ..._allEmployees.map((e) => DropdownMenuItem(
+                                      value: e['id'].toString(),
+                                      child: Text(_getEmployeeDisplayName(e)),
+                                    )),
+                              ],
+                              onChanged: (val) =>
+                                  setState(() => _selectedEmployeeId = val),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        onPressed: () => setState(() {
+                          _selectedDate = DateTime(
+                              _selectedDate.year, _selectedDate.month - 1);
+                        }),
+                        icon: const Icon(Icons.arrow_back_ios, size: 18),
+                        style:
+                            IconButton.styleFrom(backgroundColor: Colors.white),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          DateFormat('MMMM yyyy', 'ar').format(_selectedDate),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          if (_selectedDate.month < DateTime.now().month ||
+                              _selectedDate.year < DateTime.now().year) {
+                            setState(() {
+                              _selectedDate = DateTime(
+                                  _selectedDate.year, _selectedDate.month + 1);
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.arrow_forward_ios, size: 18),
+                        style:
+                            IconButton.styleFrom(backgroundColor: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 25),
+
+                  // كروت الإحصائيات الرئيسية بتصميم جديد
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                    childAspectRatio: 1.3,
+                    children: [
+                      _buildModernStatCard(
+                          "الحجوزات",
+                          "${stats['totalBookings']}",
+                          Icons.calendar_today,
+                          Colors.blue),
+                      _buildModernStatCard(
+                          "الإيرادات",
+                          "${stats['totalRevenue']}",
+                          Icons.payments_outlined,
+                          Colors.green),
+                      _buildModernStatCard(
+                          "الموظفين",
+                          "${stats['employees'].length}",
+                          Icons.people_outline,
+                          Colors.orange),
+                      _buildModernStatCard(
+                          "النمو",
+                          (stats['totalBookings'] ?? 0) >= 5
+                              ? "مستقر"
+                              : "غير مستقر",
+                          Icons.trending_up,
+                          Colors.purple),
+                    ],
+                  ),
+
+                  const SizedBox(height: 35),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "تحليل أداء الموظفين",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryDark),
+                      ),
+                      TextButton(
+                          onPressed: () {}, child: const Text("عرض الكل")),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+
+                  // قائمة الموظفين بتصميم المؤشرات (Progress Indicators)
+                  _buildEmployeePerformanceList(
+                    stats['employees'],
+                    stats['commissionPerConfirmedBooking'] as double,
+                  ),
+
+                  const SizedBox(height: 40),
+                  _buildExportButton(stats),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
