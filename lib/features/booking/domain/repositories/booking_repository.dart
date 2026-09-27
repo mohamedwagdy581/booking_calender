@@ -14,4 +14,5 @@ abstract class BookingRepository {
     required String type,
     required Booking booking,
   });
+  Future<List<Booking>> searchBookings(String query);
 }

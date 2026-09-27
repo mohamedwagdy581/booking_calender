@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/login/presentation/view/forgot_password_view.dart';
 import '../../features/auth/login/presentation/view/login_view.dart';
 import '../../features/booking/presentation/view/booking_view.dart';
+import '../../features/booking/presentation/view/search_view.dart';
 import '../../features/splash/presentation/view/splash_view.dart';
 
 abstract class AppRoutes {
@@ -10,6 +11,7 @@ abstract class AppRoutes {
   static const login = '/login';
   static const forgotPassword = '/forgot-password';
   static const home = '/home';
+  static const search = '/search';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -34,6 +36,11 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.home,
       name: AppRoutes.home,
       builder: (context, state) => const BookingView(),
+    ),
+    GoRoute(
+      path: AppRoutes.search,
+      name: AppRoutes.search,
+      builder: (context, state) => const SearchView(),
     ),
   ],
 );

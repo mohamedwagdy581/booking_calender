@@ -11,8 +11,8 @@ import '../../../../../core/services/supabase_service.dart';
 import '../../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 import '../widgets/add_booking_tab.dart';
 import '../widgets/calendar_tab.dart';
+import '../search_view.dart';
 
-// A small, private Cubit defined in the same file to manage the navigation index.
 class _NavigationCubit extends Cubit<int> {
   _NavigationCubit() : super(0);
   void changeIndex(int index) => emit(index);
@@ -46,78 +46,33 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
     }
   }
 
-  List<Widget> _getPages() {
-    return [
-      if (_role == 'admin') const DashboardView(),
-      const AddBookingTab(),
-      const CalendarTab(),
-      const CalendarTab(showArchived: true),
-    ];
-  }
-
-  void _showProfileDialog(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.background,
-              backgroundImage: AssetImage(AppAssets.logo),
-            ),
-            const SizedBox(height: 15),
-            Text(user?.email ?? 'User',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const Text("موظف معتمد",
-                style: TextStyle(color: Colors.grey, fontSize: 14)),
-            const Divider(height: 30),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text("تعديل الاسم"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline),
-              title: const Text("تغيير كلمة المرور"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("تسجيل الخروج",
-                  style: TextStyle(color: Colors.red)),
-              onTap: () {
-                context.read<AuthCubit>().signOut();
-                context.go(AppRoutes.login);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final pages = _getPages();
+    // هنا رتبنا الصفحات بشكل ثابت ومطابق تماماً للـ NavigationRail Destinations
+    final List<Widget> pages = [
+      if (_role == 'admin') const DashboardView(),
+      const AddBookingTab(),
+      const CalendarTab(),
+      const SearchView(),
+      const CalendarTab(showArchived: true),
+    ];
 
     return BlocProvider(
       create: (_) => _NavigationCubit(),
       child: BlocBuilder<_NavigationCubit, int>(
         builder: (context, selectedIndex) {
+          // للتأكد من عدم حدوث Overflow أو Index out of range
+          final currentIndex = selectedIndex >= pages.length ? 0 : selectedIndex;
+
           return Scaffold(
             body: Row(
               children: [
                 NavigationRail(
-                  selectedIndex: selectedIndex,
+                  selectedIndex: currentIndex,
                   onDestinationSelected: (int index) {
                     context.read<_NavigationCubit>().changeIndex(index);
                   },
@@ -176,6 +131,11 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
                       label: Text('Calendar'),
                     ),
                     const NavigationRailDestination(
+                      icon: Icon(Icons.search_outlined),
+                      selectedIcon: Icon(Icons.search),
+                      label: Text('Search'),
+                    ),
+                    const NavigationRailDestination(
                       icon: Icon(Icons.archive_outlined),
                       selectedIcon: Icon(Icons.archive),
                       label: Text('Archive'),
@@ -184,12 +144,58 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(
-                  child: pages[selectedIndex],
+                  child: pages[currentIndex],
                 ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showProfileDialog(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 40,
+              backgroundColor: AppColors.background,
+              backgroundImage: AssetImage(AppAssets.logo),
+            ),
+            const SizedBox(height: 15),
+            Text(user?.email ?? 'User',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text("موظف معتمد",
+                style: TextStyle(color: Colors.grey, fontSize: 14)),
+            const Divider(height: 30),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text("تعديل الاسم"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text("تغيير كلمة المرور"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text("تسجيل الخروج",
+                  style: TextStyle(color: Colors.red)),
+              onTap: () {
+                context.read<AuthCubit>().signOut();
+                context.go(AppRoutes.login);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

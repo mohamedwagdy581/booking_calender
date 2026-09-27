@@ -142,4 +142,32 @@ class BookingRepositoryImpl implements BookingRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<Booking>> searchBookings(String query) async {
+    try {
+      if (query.trim().isEmpty) return [];
+      
+      final response = await _supabaseClient
+          .from('bookings')
+          .select()
+          .or(
+            'client_name.ilike.%$query%,'
+            'ref_number.ilike.%$query%,'
+            'title.ilike.%$query%,'
+            'phone_number.ilike.%$query%,'
+            'artist_name.ilike.%$query%,'
+            'hall_name.ilike.%$query%'
+          )
+          .order('date', ascending: false);
+
+      final rows = (response as List?) ?? <dynamic>[];
+      return rows.map((booking) => Booking.fromJson(booking)).toList();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to search bookings: $e');
+      }
+      rethrow;
+    }
+  }
 }

@@ -129,6 +129,12 @@ class _MobileBookingViewState extends State<MobileBookingView> {
           fit: BoxFit.contain,
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search, size: 28, color: AppColors.success),
+            onPressed: () {
+              context.push(AppRoutes.search);
+            },
+          ),
           GestureDetector(
             onTap: () => _showProfileSheet(context),
             child: Padding(
