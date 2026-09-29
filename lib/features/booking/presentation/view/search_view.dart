@@ -7,6 +7,7 @@ import '../../../../core/services/service_locator.dart';
 import '../../../../core/constants/colors/app_colors.dart';
 import '../../../../core/utils/app_router.dart';
 import '../../data/models/booking_model.dart';
+import '../manager/booking_cubit/booking_cubit.dart';
 import '../manager/search_cubit/search_cubit.dart';
 import 'widgets/booking_details_dialog.dart';
 
@@ -82,7 +83,7 @@ class _SearchViewState extends State<SearchView> {
                     },
                   ),
                   filled: true,
-                  fillColor: Colors.grey.withOpacity(0.1),
+                  fillColor: Colors.grey.withValues(alpha: 0.1),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide.none,
@@ -174,9 +175,13 @@ class _SearchViewState extends State<SearchView> {
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: () {
+          final bookingCubit = context.read<BookingCubit>();
           showDialog(
             context: context,
-            builder: (context) => BookingDetailsDialog(booking: booking),
+            builder: (_) => BlocProvider.value(
+              value: bookingCubit,
+              child: BookingDetailsDialog(booking: booking),
+            ),
           );
         },
         child: Padding(
@@ -191,8 +196,8 @@ class _SearchViewState extends State<SearchView> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: booking.isArchived
-                          ? Colors.orange.withOpacity(0.1)
-                          : AppColors.success.withOpacity(0.1),
+                          ? Colors.orange.withValues(alpha: 0.1)
+                          : AppColors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -204,13 +209,14 @@ class _SearchViewState extends State<SearchView> {
                       ),
                     ),
                   ),
-                  Text(
-                    booking.refNumber ?? '',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                  if (booking.refNumber != null && booking.refNumber!.isNotEmpty)
+                    Text(
+                      booking.refNumber!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
                 ],
               ),
               const Divider(height: 20),
@@ -226,9 +232,13 @@ class _SearchViewState extends State<SearchView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    booking.title,
-                    style: TextStyle(color: Colors.grey[600]),
+                  Expanded(
+                    child: Text(
+                      booking.title,
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   const Icon(Icons.title, size: 16, color: Colors.grey),
@@ -238,12 +248,16 @@ class _SearchViewState extends State<SearchView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    '${booking.hallName} - ${booking.artistName}',
-                    style: TextStyle(
-                      color: AppColors.success.withOpacity(0.8),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
+                  Expanded(
+                    child: Text(
+                      '${booking.hallName} - ${booking.artistName}',
+                      style: TextStyle(
+                        color: AppColors.success.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),

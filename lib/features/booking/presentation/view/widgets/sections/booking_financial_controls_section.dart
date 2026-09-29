@@ -15,7 +15,7 @@ class BookingFinancialControlsSection extends StatelessWidget {
     required this.onPaymentMethodChanged,
     required this.onBankChanged,
     required this.onIsCompanyChanged,
-    this.taxNumberController, // إضافة الكنترول هنا لتوحيد اللوجيك
+    this.taxNumberController,
   });
 
   final bool isDesktop;
@@ -33,32 +33,25 @@ class BookingFinancialControlsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final children = [
       BookingDropdownField(
-        label: '\u0627\u0644\u0639\u0645\u0644\u0629',
+        label: 'العملة',
         value: selectedCurrency,
         items: const ['SAR', 'USD'],
         onChanged: onCurrencyChanged,
       ),
       BookingDropdownField(
-        label: '\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u062f\u0641\u0639',
+        label: 'طريقة الدفع',
         value: selectedPaymentMethod,
-        items: const [
-          '\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0642\u064a\u0645\u0629',
-          '\u062f\u0641\u0639\u0627\u062a'
-        ],
+        items: const ['إجمالي القيمة', 'دفعات'],
         onChanged: onPaymentMethodChanged,
       ),
       BookingDropdownField(
-        label: '\u0627\u0644\u0628\u0646\u0643',
+        label: 'البنك',
         value: selectedBank,
-        items: const [
-          '\u0627\u0644\u062c\u0632\u064a\u0631\u0629',
-          '\u0623\u0645\u064a\u0645\u0629'
-        ],
+        items: const ['الجزيرة', 'أميمة'],
         onChanged: onBankChanged,
       ),
       SwitchListTile(
-        title: const Text(
-            '\u0639\u0645\u064a\u0644 \u0634\u0631\u0643\u0629\u061f'),
+        title: const Text('عميل شركة؟'),
         value: isCompany,
         onChanged: onIsCompanyChanged,
         contentPadding: EdgeInsets.zero,
@@ -89,7 +82,6 @@ class BookingFinancialControlsSection extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 12), child: c))
                 .toList(),
           ),
-        // إظهار حقل الرقم الضريبي تلقائياً إذا كان العميل شركة
         if (isCompany && taxNumberController != null) ...[
           SizedBox(height: AppSpacing.kSpaceM),
           Padding(

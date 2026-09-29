@@ -27,12 +27,13 @@ class DayEventsDialog extends StatelessWidget {
               title: Text(booking.title), // Use booking.title here
               subtitle: Text('${DateFormat.jm().format(booking.date)} - ${booking.hallName}'),
               onTap: () {
-                final parentContext = context;
-                Navigator.of(parentContext).pop(); // Close this dialog
+                final bookingCubit = context.read<BookingCubit>();
+                final navigator = Navigator.of(context, rootNavigator: true);
+                navigator.pop(); // Close this dialog
                 showDialog(
-                  context: parentContext,
+                  context: navigator.context,
                   builder: (_) => BlocProvider.value(
-                    value: parentContext.read<BookingCubit>(),
+                    value: bookingCubit,
                     child: BookingDetailsDialog(booking: booking),
                   ),
                 ); // Show the detailed one

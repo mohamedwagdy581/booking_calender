@@ -141,7 +141,7 @@ class _MobileBookingViewState extends State<MobileBookingView> {
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
                 radius: 18,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                 backgroundImage: const AssetImage(AppAssets.logo),
               ),
             ),

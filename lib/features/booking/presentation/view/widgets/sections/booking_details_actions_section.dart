@@ -18,11 +18,12 @@ class BookingDetailsActionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
+    final isNarrow = MediaQuery.sizeOf(context).width < 500;
+
+        final archiveAndEditGroup = Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             TextButton.icon(
               onPressed: onArchiveOrRestore,
@@ -33,52 +34,82 @@ class BookingDetailsActionsSection extends StatelessWidget {
               ),
               label: Text(
                 isArchived ? 'استرجاع' : 'أرشفة',
-                style:
-                    TextStyle(color: isArchived ? Colors.teal : Colors.orange),
-              ),
-            ),
-            if (!isArchived && onEdit != null) ...[
-              const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: onEdit,
-                icon: const Icon(Icons.edit_outlined,
-                    color: Colors.blue, size: 20),
-                label: const Text(
-                  'تعديل',
-                  style: TextStyle(color: Colors.blue),
+                style: TextStyle(
+                  color: isArchived ? Colors.teal : Colors.orange,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
+            ),
+            if (!isArchived && onEdit != null)
+              TextButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined, color: Colors.blue, size: 20),
+                label: const Text(
+                  'تعديل',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
           ],
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        );
+
+        final closeAndPrintGroup = Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: isNarrow ? WrapAlignment.center : WrapAlignment.end,
           children: [
             TextButton(
               onPressed: onClose,
               child: const Text(
-                '\u0625\u063a\u0644\u0627\u0642',
-                style: TextStyle(color: Colors.grey),
+                'إغلاق',
+                style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
               ),
             ),
-            const SizedBox(width: 8),
             ElevatedButton.icon(
               onPressed: onPrint,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF009873),
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              icon: const Icon(Icons.print_outlined, size: 20),
-              label: const Text(
-                  '\u0637\u0628\u0627\u0639\u0629 \u0639\u0631\u0636 \u0627\u0644\u0633\u0639\u0631'),
+              icon: const Icon(Icons.print_outlined, size: 18),
+              label: const Text('طباعة عرض السعر'),
             ),
           ],
-        ),
-      ],
-    );
+        );
+
+        if (isNarrow) {
+          return SizedBox(
+            width: double.infinity,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                closeAndPrintGroup,
+                const SizedBox(height: 8),
+                const Divider(height: 1),
+                const SizedBox(height: 4),
+                archiveAndEditGroup,
+              ],
+            ),
+          );
+        }
+
+        return SizedBox(
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              archiveAndEditGroup,
+              closeAndPrintGroup,
+            ],
+          ),
+        );
   }
 }

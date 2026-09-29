@@ -58,9 +58,7 @@ class BookingDetailsDialog extends StatelessWidget {
       if (context.mounted) Navigator.of(context).pop();
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                '\u0641\u0634\u0644 \u0625\u0646\u0634\u0627\u0621 \u0627\u0644\u0645\u0644\u0641: $e')),
+        SnackBar(content: Text('فشل إنشاء الملف: $e')),
       );
     }
   }
@@ -84,7 +82,7 @@ class BookingDetailsDialog extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text(
-              '\u0625\u0644\u063a\u0627\u0621',
+              'إلغاء',
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -130,6 +128,7 @@ class BookingDetailsDialog extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
       title: Text(
         booking.title,
         textAlign: TextAlign.center,
@@ -144,7 +143,7 @@ class BookingDetailsDialog extends StatelessWidget {
           ),
         ),
       ),
-      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       actions: [
         BookingDetailsActionsSection(
           onArchiveOrRestore: () => _confirmArchiveOrRestore(context),

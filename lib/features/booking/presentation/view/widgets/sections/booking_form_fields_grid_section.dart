@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../../core/constants/spacing/app_spacing.dart';
 import 'booking_input_fields.dart';
 
 class BookingFormFieldsGridSection extends StatelessWidget {
@@ -20,7 +19,7 @@ class BookingFormFieldsGridSection extends StatelessWidget {
     required this.totalAmountController,
     required this.firstPaymentController,
     required this.lastPaymentController,
-    this.phoneLabel = '\u0631\u0642\u0645 \u0627\u0644\u062c\u0648\u0627\u0644',
+    this.phoneLabel = 'رقم الجوال',
   });
 
   final bool isDesktop;
@@ -45,16 +44,16 @@ class BookingFormFieldsGridSection extends StatelessWidget {
 
   String? _validateAmount(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return '\u0645\u0637\u0644\u0648\u0628';
+      return 'مطلوب';
     }
 
     final amount = _tryParseAmount(value);
     if (amount == null) {
-      return '\u0623\u062f\u062e\u0644 \u0631\u0642\u0645\u0627 \u0635\u062d\u064a\u062d\u0627';
+      return 'أدخل رقماً صحيحاً';
     }
 
     if (amount < 0) {
-      return '\u064a\u062c\u0628 \u0623\u0644\u0627 \u064a\u0643\u0648\u0646 \u0627\u0644\u0645\u0628\u0644\u063a \u0633\u0627\u0644\u0628\u0627';
+      return 'يجب ألا يكون المبلغ سالباً';
     }
 
     return null;
@@ -74,7 +73,7 @@ class BookingFormFieldsGridSection extends StatelessWidget {
     }
 
     if (firstPayment > effectiveTotal) {
-      return '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649 \u0644\u0627 \u062a\u062a\u062e\u0637\u0649 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a';
+      return 'الدفعة الأولى لا تتخطى الإجمالي';
     }
 
     return null;
@@ -85,13 +84,13 @@ class BookingFormFieldsGridSection extends StatelessWidget {
     final fields = <Widget>[
       BookingTextField(
           controller: titleController,
-          label: '\u0648\u0635\u0641 \u0627\u0644\u062d\u062c\u0632'),
+          label: 'وصف الحجز'),
       BookingTextField(
           controller: clientNameController,
-          label: '\u0627\u0633\u0645 \u0627\u0644\u0639\u0645\u064a\u0644'),
+          label: 'اسم العميل'),
       BookingTextField(
           controller: locationController,
-          label: '\u0627\u0644\u0645\u0648\u0642\u0639'),
+          label: 'الموقع'),
       BookingTextField(
           controller: phoneController,
           label: phoneLabel,
@@ -99,34 +98,31 @@ class BookingFormFieldsGridSection extends StatelessWidget {
           requiredField: false),
       BookingTextField(
           controller: hallNameController,
-          label: '\u0627\u0633\u0645 \u0627\u0644\u0642\u0627\u0639\u0629',
+          label: 'اسم القاعة',
           requiredField: false),
       BookingTextField(
           controller: artistNameController,
-          label: '\u0627\u0633\u0645 \u0627\u0644\u0641\u0646\u0627\u0646'),
+          label: 'اسم الفنان'),
       BookingTextField(
           controller: hoursController,
-          label:
-              '\u0639\u062f\u062f \u0627\u0644\u0633\u0627\u0639\u0627\u062a',
+          label: 'عدد الساعات',
           isNumber: true),
       BookingTextField(
         controller: totalAmountController,
-        label:
-            '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a',
+        label: 'المبلغ الإجمالي',
         isNumber: true,
         validator: _validateAmount,
       ),
       if (isCompany)
         BookingDisplayField(
-          label:
-              '\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a \u0634\u0627\u0645\u0644 \u0627\u0644\u0636\u0631\u064a\u0628\u0629',
+          label: 'الإجمالي شامل الضريبة',
           value: vatInclusiveTotal,
         ),
       if (isCompany)
         const Padding(
           padding: EdgeInsets.only(top: 2, right: 4),
           child: Text(
-            '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0645\u062f\u062e\u0644 \u0647\u0648 \u0642\u0628\u0644 \u0627\u0644\u0636\u0631\u064a\u0628\u0629\u060c \u0648\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a \u0634\u0627\u0645\u0644 \u0636\u0631\u064a\u0628\u0629 15% \u064a\u064f\u062d\u062a\u0633\u0628 \u062a\u0644\u0642\u0627\u0626\u064a\u0627\u064b.',
+            'المبلغ المدخل هو قبل الضريبة، والإجمالي شامل ضريبة 15% يُحتسب تلقائياً.',
             textAlign: TextAlign.right,
             textDirection: TextDirection.rtl,
             style: TextStyle(
@@ -138,12 +134,11 @@ class BookingFormFieldsGridSection extends StatelessWidget {
         ),
     ];
 
-    if (selectedPaymentMethod == '\u062f\u0641\u0639\u0627\u062a') {
+    if (selectedPaymentMethod == 'دفعات') {
       fields.add(
         BookingTextField(
           controller: firstPaymentController,
-          label:
-              '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649',
+          label: 'الدفعة الأولى',
           isNumber: true,
           validator: _validateFirstPayment,
         ),
@@ -151,8 +146,7 @@ class BookingFormFieldsGridSection extends StatelessWidget {
       fields.add(
         BookingTextField(
           controller: lastPaymentController,
-          label:
-              '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u062e\u064a\u0631\u0629',
+          label: 'الدفعة الأخيرة',
           isNumber: true,
           readOnly: true,
           requiredField: false,
@@ -160,27 +154,32 @@ class BookingFormFieldsGridSection extends StatelessWidget {
       );
     }
 
-    if (isDesktop) {
-      return Wrap(
-        spacing: 16,
-        runSpacing: 16,
-        children: fields
-            .map(
-              (field) => SizedBox(
-                width:
-                    (1000 - (AppSpacing.kHorizontalPadding * 2) - 16) / 2 - 1,
-                child: field,
-              ),
-            )
-            .toList(),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useTwoColumns = constraints.maxWidth > 600;
+        if (useTwoColumns) {
+          final itemWidth = (constraints.maxWidth - 16) / 2 - 1;
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: fields
+                .map(
+                  (field) => SizedBox(
+                    width: itemWidth > 0 ? itemWidth : constraints.maxWidth,
+                    child: field,
+                  ),
+                )
+                .toList(),
+          );
+        }
 
-    return Column(
-      children: fields
-          .map((f) =>
-              Padding(padding: const EdgeInsets.only(bottom: 12), child: f))
-          .toList(),
+        return Column(
+          children: fields
+              .map((f) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12), child: f))
+              .toList(),
+        );
+      },
     );
   }
 }

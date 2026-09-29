@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/spacing/app_spacing.dart';
 import '../../data/models/booking_model.dart';
-import '../../../../core/widgets/custom_text_form_field.dart';
 import 'widgets/sections/booking_date_time_section.dart';
 import 'widgets/sections/booking_financial_controls_section.dart';
 import 'widgets/sections/booking_form_fields_grid_section.dart';
@@ -19,8 +18,8 @@ class EditBookingViewBody extends StatelessWidget {
     required this.selectedPaymentMethod,
     required this.selectedBank,
     required this.isCompany,
-    required this.isConfirmed, // إضافة المتغير
-    required this.onConfirmedChanged, // إضافة الدالة
+    required this.isConfirmed,
+    required this.onConfirmedChanged,
     required this.vatInclusiveTotal,
     required this.titleController,
     required this.artistNameController,
@@ -90,22 +89,25 @@ class EditBookingViewBody extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // وضع السويتش في البداية فوق الرقم المرجعي والتاريخ
                     Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8, horizontal: 4),
                       decoration: BoxDecoration(
                         color: isConfirmed
-                            ? Colors.green.withOpacity(0.1)
+                            ? Colors.green.withValues(alpha: 0.1)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('تأكيد الحجز نهائياً',
+                          const Expanded(
+                            child: Text(
+                              'تأكيد الحجز نهائياً',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14)),
+                                  fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                          ),
                           Switch(
                             value: isConfirmed,
                             onChanged: onConfirmedChanged,
@@ -120,8 +122,7 @@ class EditBookingViewBody extends StatelessWidget {
                         padding: EdgeInsets.only(bottom: AppSpacing.kSpaceM),
                         child: InputDecorator(
                           decoration: const InputDecoration(
-                            labelText:
-                                '\u0627\u0644\u0631\u0642\u0645 \u0627\u0644\u0645\u0631\u062c\u0639\u064a',
+                            labelText: 'الرقم المرجعي',
                             border: OutlineInputBorder(),
                             filled: true,
                             fillColor: Colors.black12,
@@ -176,8 +177,7 @@ class EditBookingViewBody extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text(
-                          '\u062d\u0641\u0638 \u0627\u0644\u062a\u063a\u064a\u064a\u0631\u0627\u062a'),
+                      child: const Text('حفظ التغييرات'),
                     ),
                   ],
                 );

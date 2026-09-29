@@ -21,29 +21,29 @@ class BookingDetailsContentSection extends StatelessWidget {
         if (booking.refNumber != null)
           _buildDetailRow(
             context,
-            '\u0627\u0644\u0631\u0642\u0645 \u0627\u0644\u0645\u0631\u062c\u0639\u064a',
+            'الرقم المرجعي',
             booking.refNumber!,
           ),
-        _buildDetailRow(context, '\u0627\u0633\u0645 \u0627\u0644\u0639\u0645\u064a\u0644', booking.clientName),
-        _buildDetailRow(context, '\u0627\u0644\u062a\u0627\u0631\u064a\u062e', DateFormat('yyyy-MM-dd').format(booking.date)),
-        _buildDetailRow(context, '\u0627\u0644\u0648\u0642\u062a', DateFormat.jm().format(booking.date)),
-        _buildDetailRow(context, '\u0627\u0644\u0645\u0648\u0642\u0639', booking.location),
-        _buildDetailRow(context, '\u0627\u0644\u0642\u0627\u0639\u0629', booking.hallName),
-        _buildDetailRow(context, '\u0639\u062f\u062f \u0627\u0644\u0633\u0627\u0639\u0627\u062a', '${booking.hours}'),
+        _buildDetailRow(context, 'اسم العميل', booking.clientName),
+        _buildDetailRow(context, 'التاريخ', DateFormat('yyyy-MM-dd').format(booking.date)),
+        _buildDetailRow(context, 'الوقت', DateFormat.jm().format(booking.date)),
+        _buildDetailRow(context, 'الموقع', booking.location),
+        _buildDetailRow(context, 'القاعة', booking.hallName),
+        _buildDetailRow(context, 'عدد الساعات', booking.hours),
         const Divider(height: 20),
         _buildDetailRow(
           context,
-          '\u0627\u0644\u0645\u0628\u0644\u063a \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a',
+          'المبلغ الإجمالي',
           _moneyWidget(booking.totalAmount),
         ),
         _buildDetailRow(
           context,
-          '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0623\u0648\u0644\u0649',
+          'الدفعة الأولى',
           _moneyWidget(booking.firstPayment),
         ),
         _buildDetailRow(
           context,
-          '\u0627\u0644\u062f\u0641\u0639\u0629 \u0627\u0644\u0627\u062e\u064a\u0631\u0629',
+          'الدفعة الأخيرة',
           _moneyWidget(booking.lastPayment),
         ),
         if (booking.notes.isNotEmpty) ...[
@@ -58,7 +58,7 @@ class BookingDetailsContentSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '\u0645\u0644\u0627\u062d\u0638\u0627\u062a',
+                  'ملاحظات',
                   style: textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF009873),
@@ -103,6 +103,7 @@ class BookingDetailsContentSection extends StatelessWidget {
             title,
             style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
+          const SizedBox(width: 8),
           if (value is Widget)
             value
           else

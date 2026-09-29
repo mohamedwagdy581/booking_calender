@@ -28,12 +28,20 @@ class CalendarTabBody extends StatelessWidget {
               if (showArchived) {
                 if (bookingState is! BookingLoaded ||
                     bookingState.filter != BookingViewFilter.archived) {
-                  uiContext.read<BookingCubit>().getArchivedBookings();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (uiContext.mounted) {
+                      uiContext.read<BookingCubit>().getArchivedBookings();
+                    }
+                  });
                 }
               } else {
                 if (bookingState is! BookingLoaded ||
                     bookingState.filter != BookingViewFilter.active) {
-                  uiContext.read<BookingCubit>().getActiveBookings();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (uiContext.mounted) {
+                      uiContext.read<BookingCubit>().getActiveBookings();
+                    }
+                  });
                 }
               }
             }
@@ -67,11 +75,13 @@ class CalendarTabBody extends StatelessWidget {
                         <Booking>[];
                     if (events.isEmpty) return;
 
+                    final bookingCubit = uiContext.read<BookingCubit>();
+
                     if (events.length == 1) {
                       showDialog(
                         context: uiContext,
                         builder: (_) => BlocProvider.value(
-                          value: uiContext.read<BookingCubit>(),
+                          value: bookingCubit,
                           child: BookingDetailsDialog(booking: events.first),
                         ),
                       );
@@ -81,7 +91,7 @@ class CalendarTabBody extends StatelessWidget {
                     showDialog(
                       context: uiContext,
                       builder: (_) => BlocProvider.value(
-                        value: uiContext.read<BookingCubit>(),
+                        value: bookingCubit,
                         child:
                             DayEventsDialog(day: selectedDay, events: events),
                       ),
