@@ -21,12 +21,12 @@ class CustomDropdownField<T> extends StatelessWidget {
     return DropdownButtonFormField<T>(
       // نستخدم value هنا لأننا نحتاج لتغيير القيمة برمجياً (عند عمل Reset مثلاً)
       // ignore: deprecated_member_use
-      value: value, 
+      value: value,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
       ),
       items: items,
+      isExpanded: true,
       onChanged: onChanged,
       validator: validator,
     );

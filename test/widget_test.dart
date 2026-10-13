@@ -1,30 +1,76 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:booking/core/theme/app_theme.dart';
+import 'package:booking/core/widgets/app_sidebar.dart';
+import 'package:booking/core/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:booking/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const DimahBooking());
+  test('Desktop destinations keep existing role permissions and order', () {
+    expect(BookingDestination.forRole('admin'), BookingDestination.values);
+    for (final role in ['staff', '', 'unknown']) {
+      expect(BookingDestination.forRole(role), [
+        BookingDestination.home,
+        BookingDestination.addBooking,
+        BookingDestination.calendar,
+        BookingDestination.search,
+        BookingDestination.archive,
+      ]);
+    }
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  for (final compact in [false, true]) {
+    testWidgets('Sidebar navigation and profile work (compact: $compact)',
+        (tester) async {
+      int selectedIndex = 0;
+      bool profileOpened = false;
+      await tester.pumpWidget(MaterialApp(
+        theme: getAppTheme(),
+        home: Scaffold(
+          body: StatefulBuilder(builder: (context, setState) {
+            return AppSidebar(
+              compact: compact,
+              destinations: BookingDestination.forRole('staff'),
+              selectedIndex: selectedIndex,
+              onSelected: (index) => setState(() => selectedIndex = index),
+              roleLabel: 'موظف',
+              onProfilePressed: () => profileOpened = true,
+            );
+          }),
+        ),
+      ));
+      expect(find.byIcon(Icons.analytics_outlined), findsNothing);
+      await tester.tap(find.byIcon(Icons.calendar_today_outlined));
+      await tester.pumpAndSettle();
+      expect(selectedIndex, 2);
+      await tester.tap(find.byIcon(Icons.person_outline));
+      expect(profileOpened, isTrue);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('Shared field preserves validation and editing', (tester) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    final formKey = GlobalKey<FormState>();
+    await tester.pumpWidget(MaterialApp(
+      theme: getAppTheme(),
+      home: Scaffold(
+        body: Form(
+          key: formKey,
+          child: CustomTextFormField(
+            controller: controller,
+            labelText: 'الاسم',
+            validator: (value) =>
+                value == null || value.isEmpty ? 'مطلوب' : null,
+          ),
+        ),
+      ),
+    ));
+    expect(formKey.currentState!.validate(), isFalse);
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('مطلوب'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField), 'ديمة');
+    expect(formKey.currentState!.validate(), isTrue);
+    expect(controller.text, 'ديمة');
   });
 }

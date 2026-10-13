@@ -8,9 +8,13 @@ import '../../../../../core/constants/colors/app_colors.dart';
 import '../../../../../core/services/dashboard_view.dart';
 import '../../../../../core/utils/app_router.dart';
 import '../../../../../core/services/supabase_service.dart';
+import '../../../../../core/localization/app_language.dart';
+import '../../../../../core/widgets/app_sidebar.dart';
 import '../../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 import '../widgets/add_booking_tab.dart';
 import '../widgets/calendar_tab.dart';
+import '../employee_home_view.dart';
+import '../search_view.dart';
 
 class MobileBookingView extends StatefulWidget {
   const MobileBookingView({super.key});
@@ -41,22 +45,31 @@ class _MobileBookingViewState extends State<MobileBookingView> {
     }
   }
 
-  List<Widget> _getPages() {
-    return [
-      if (_role == 'admin') const DashboardView(),
-      const AddBookingTab(),
-      const CalendarTab(),
-      const CalendarTab(showArchived: true),
-    ];
-  }
+  List<BookingDestination> get _destinations =>
+      BookingDestination.forRole(_role)
+          .where((destination) => destination != BookingDestination.search)
+          .toList();
 
-  List<String> _getTitles() {
-    return [
-      if (_role == 'admin') 'Dashboard',
-      'Add Booking',
-      'Calendar',
-      'Archive',
-    ];
+  List<Widget> _getPages() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final name = user?.userMetadata?['full_name']?.toString().trim() ?? '';
+    return _destinations
+        .map((destination) => switch (destination) {
+              BookingDestination.home => EmployeeHomeView(
+                  displayName: name.isNotEmpty ? name : user?.email ?? '',
+                  onSearch: () => context.push(AppRoutes.search),
+                  onCalendar: () => _onItemTapped(
+                      _destinations.indexOf(BookingDestination.calendar)),
+                  onProfile: () => _showProfileSheet(context),
+                ),
+              BookingDestination.dashboard => const DashboardView(),
+              BookingDestination.addBooking => const AddBookingTab(),
+              BookingDestination.calendar => const CalendarTab(),
+              BookingDestination.search => const SearchView(),
+              BookingDestination.archive =>
+                const CalendarTab(showArchived: true),
+            })
+        .toList();
   }
 
   void _showProfileSheet(BuildContext context) {
@@ -117,20 +130,21 @@ class _MobileBookingViewState extends State<MobileBookingView> {
     }
 
     final pages = _getPages();
-    final titles = _getTitles();
+    final destinations = _destinations;
 
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 100,
+        leadingWidth: 76,
         backgroundColor: Colors.white12,
-        title: Text(titles[_selectedIndex]),
+        title: Text(destinations[_selectedIndex].title(context)),
         leading: Image.asset(
           AppAssets.fullLogo,
           fit: BoxFit.contain,
         ),
         actions: [
+          const AppLanguageButton(compact: true),
           IconButton(
-            icon: const Icon(Icons.search, size: 28, color: AppColors.success),
+            icon: const Icon(Icons.search, size: 28, color: AppColors.primary),
             onPressed: () {
               context.push(AppRoutes.search);
             },
@@ -153,26 +167,13 @@ class _MobileBookingViewState extends State<MobileBookingView> {
         child: pages[_selectedIndex],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        fixedColor: AppColors.success,
         type: BottomNavigationBarType.fixed, // مهم عشان لو التابات زادت عن 3
-        items: <BottomNavigationBarItem>[
-          if (_role == 'admin')
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.analytics),
-              label: 'Dashboard',
+        items: [
+          for (final destination in destinations)
+            BottomNavigationBarItem(
+              icon: Icon(destination.icon),
+              label: destination.title(context),
             ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Add Booking',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.archive_outlined),
-            label: 'Archive',
-          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

@@ -1,0 +1,58 @@
+import '../../../../data/models/booking_model.dart';
+
+Booking createUpdatedBooking({
+  required Booking original,
+  required DateTime selectedDate,
+  required int selectedHour,
+  required int selectedMinute,
+  required String title,
+  required String clientName,
+  required String phoneNumber,
+  required String location,
+  required String hallName,
+  required String totalAmount,
+  required String firstPayment,
+  required String lastPayment,
+  required String hours,
+  required String currency,
+  required String paymentMethod,
+  required String artistName,
+  required bool isCompany,
+  required String bankName,
+  required String notes,
+  required bool isConfirmed,
+  String? taxNumber,
+}) {
+  final date = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+    selectedHour,
+    selectedMinute,
+  );
+
+  return Booking(
+    id: original.id,
+    refNumber: original.refNumber,
+    createdAt: original.createdAt,
+    title: title,
+    date: date,
+    clientName: clientName,
+    phoneNumber: phoneNumber,
+    location: location,
+    hallName: hallName,
+    totalAmount: double.tryParse(totalAmount) ?? 0.0,
+    firstPayment: double.tryParse(firstPayment) ?? 0.0,
+    lastPayment: double.tryParse(lastPayment) ?? 0.0,
+    hours: hours,
+    currency: currency,
+    paymentMethod: paymentMethod,
+    artistName: artistName,
+    images: original.images,
+    isCompany: isCompany,
+    bankName: bankName,
+    notes: notes,
+    isConfirmed: isConfirmed,
+    taxNumber: taxNumber,
+  );
+}

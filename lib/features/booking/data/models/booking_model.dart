@@ -201,7 +201,7 @@ class Booking extends Equatable {
       archivedAt: archivedAt ?? this.archivedAt,
       archivedBy: archivedBy ?? this.archivedBy,
       isConfirmed: isConfirmed ?? this.isConfirmed,
-      taxNumber: taxNumber ?? this.taxNumber,
+      taxNumber: taxNumber ?? taxNumber,
     );
   }
 

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../constants/colors/app_colors.dart';
+import 'app_text_theme.dart';
 
 ThemeData getAppTheme() {
   return ThemeData(
+    useMaterial3: true,
+    fontFamily: 'NotoSansArabic',
     // --- PRIMARY COLORS ---
     primaryColor: AppColors.primary,
     colorScheme: const ColorScheme.light(
@@ -13,10 +16,19 @@ ThemeData getAppTheme() {
       onSecondary: AppColors.onPrimary,
       onSurface: AppColors.onSurface,
       onError: AppColors.onPrimary,
+      error: AppColors.error,
     ),
 
     // --- SCAFFOLD ---
     scaffoldBackgroundColor: AppColors.background,
+    dividerColor: AppColors.greyLight,
+    dividerTheme:
+        const DividerThemeData(color: AppColors.greyLight, thickness: 1),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: AppColors.surface,
+      selectedItemColor: AppColors.primaryText,
+      unselectedItemColor: AppColors.greyDark,
+    ),
 
     // --- APP BAR ---
     appBarTheme: const AppBarTheme(
@@ -27,28 +39,26 @@ ThemeData getAppTheme() {
     ),
 
     // --- TEXT THEME ---
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-      displayMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.onSurface),
-      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: AppColors.onSurface),
-      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: AppColors.greyDark),
-      labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.onPrimary), // For buttons
-    ),
+    textTheme: appTextTheme,
 
     // --- BUTTON THEME ---
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
     ),
 
     // --- INPUT DECORATION THEME (for TextFormFields) ---
     inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
         borderSide: const BorderSide(color: AppColors.greyLight),
@@ -61,6 +71,17 @@ ThemeData getAppTheme() {
         borderRadius: BorderRadius.circular(12.0),
         borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
       ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.primaryText,
+        side: const BorderSide(color: AppColors.greyLight),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(foregroundColor: AppColors.primaryText),
     ),
   );
 }

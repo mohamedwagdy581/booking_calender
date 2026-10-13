@@ -7,11 +7,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../../core/constants/assets/app_assets.dart';
 import '../../../../../core/constants/colors/app_colors.dart';
 import '../../../../../core/utils/app_router.dart';
+import '../../../../../core/widgets/app_sidebar.dart';
+import '../../../../../core/localization/app_language.dart';
 import '../../../../../core/services/supabase_service.dart';
 import '../../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 import '../widgets/add_booking_tab.dart';
 import '../widgets/calendar_tab.dart';
 import '../search_view.dart';
+import '../employee_home_view.dart';
 
 class _NavigationCubit extends Cubit<int> {
   _NavigationCubit() : super(0);
@@ -52,95 +55,73 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // هنا رتبنا الصفحات بشكل ثابت ومطابق تماماً للـ NavigationRail Destinations
-    final List<Widget> pages = [
-      if (_role == 'admin') const DashboardView(),
-      const AddBookingTab(),
-      const CalendarTab(),
-      const SearchView(),
-      const CalendarTab(showArchived: true),
-    ];
-
+    final destinations = BookingDestination.forRole(_role);
+    final user = Supabase.instance.client.auth.currentUser;
+    final name = user?.userMetadata?['full_name']?.toString().trim() ?? '';
+    final displayName = name.isNotEmpty ? name : user?.email ?? '';
     return BlocProvider(
       create: (_) => _NavigationCubit(),
       child: BlocBuilder<_NavigationCubit, int>(
         builder: (context, selectedIndex) {
           // للتأكد من عدم حدوث Overflow أو Index out of range
-          final currentIndex = selectedIndex >= pages.length ? 0 : selectedIndex;
+          final currentIndex =
+              selectedIndex >= destinations.length ? 0 : selectedIndex;
+
+          final pages = destinations
+              .map((destination) => switch (destination) {
+                    BookingDestination.home => EmployeeHomeView(
+                        displayName: displayName,
+                        onSearch: () => context
+                            .read<_NavigationCubit>()
+                            .changeIndex(destinations
+                                .indexOf(BookingDestination.search)),
+                        onCalendar: () => context
+                            .read<_NavigationCubit>()
+                            .changeIndex(destinations
+                                .indexOf(BookingDestination.calendar)),
+                        onProfile: () => _showProfileDialog(context),
+                      ),
+                    BookingDestination.dashboard => const DashboardView(),
+                    BookingDestination.addBooking => const AddBookingTab(),
+                    BookingDestination.calendar => const CalendarTab(),
+                    BookingDestination.search => const SearchView(),
+                    BookingDestination.archive =>
+                      const CalendarTab(showArchived: true),
+                  })
+              .toList();
 
           return Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              foregroundColor: AppColors.onPrimary,
+              flexibleSpace: const SizedBox.expand(
+                child: DecoratedBox(
+                  decoration:
+                      BoxDecoration(gradient: AppColors.primaryGradient),
+                ),
+              ),
+              title: Text(currentIndex == 0
+                  ? AppLanguage.text(context, 'الرئيسية — لوحة الموظف',
+                      'Home — Employee dashboard')
+                  : destinations[currentIndex].title(context)),
+              actions: const [
+                AppLanguageButton(foregroundColor: AppColors.onPrimary),
+                SizedBox(width: 16),
+              ],
+            ),
             body: Row(
               children: [
-                NavigationRail(
+                AppSidebar(
+                  destinations: destinations,
                   selectedIndex: currentIndex,
-                  onDestinationSelected: (int index) {
-                    context.read<_NavigationCubit>().changeIndex(index);
-                  },
-                  labelType: NavigationRailLabelType.all,
-                  trailing: Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: InkWell(
-                        onTap: () => _showProfileDialog(context),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16.0, horizontal: 8),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: AppColors.primary, width: 2),
-                                ),
-                                child: const CircleAvatar(
-                                  radius: 24,
-                                  backgroundColor: AppColors.background,
-                                  backgroundImage: AssetImage(AppAssets.logo),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _role.toUpperCase(),
-                                style: const TextStyle(
-                                    fontSize: 10, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  destinations: <NavigationRailDestination>[
-                    if (_role == 'admin')
-                      const NavigationRailDestination(
-                        icon: Icon(Icons.analytics_outlined),
-                        selectedIcon: Icon(Icons.analytics),
-                        label: Text('Dashboard'),
-                      ),
-                    const NavigationRailDestination(
-                      icon: Icon(Icons.add_box_outlined),
-                      selectedIcon: Icon(Icons.add_box),
-                      label: Text('Add Booking'),
-                    ),
-                    const NavigationRailDestination(
-                      icon: Icon(Icons.calendar_today_outlined),
-                      selectedIcon: Icon(Icons.calendar_today),
-                      label: Text('Calendar'),
-                    ),
-                    const NavigationRailDestination(
-                      icon: Icon(Icons.search_outlined),
-                      selectedIcon: Icon(Icons.search),
-                      label: Text('Search'),
-                    ),
-                    const NavigationRailDestination(
-                      icon: Icon(Icons.archive_outlined),
-                      selectedIcon: Icon(Icons.archive),
-                      label: Text('Archive'),
-                    ),
-                  ],
+                  onSelected: (index) =>
+                      context.read<_NavigationCubit>().changeIndex(index),
+                  roleLabel: _role == 'admin'
+                      ? AppLanguage.text(
+                          context, 'مدير النظام', 'Administrator')
+                      : AppLanguage.text(context, 'موظف', 'Employee'),
+                  onProfilePressed: () => _showProfileDialog(context),
+                  compact: MediaQuery.sizeOf(context).width < 1000,
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(

@@ -8,7 +8,7 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
     this.onPressed,
-    this.color = Colors.deepPurple,
+    this.color,
     required this.text,
     this.height = 60.0,
     this.widht = double.infinity,

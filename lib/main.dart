@@ -12,6 +12,7 @@ import 'core/services/booking_notification_service.dart';
 import 'core/storage/cache_helper.dart';
 import 'core/network/dio_helper.dart';
 import 'core/theme/app_theme.dart';
+import 'core/localization/app_language.dart';
 import 'core/utils/app_router.dart';
 import 'features/auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'firebase_options.dart';
@@ -60,18 +61,31 @@ class DimahBooking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<AuthCubit>()..checkAuthStatus(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => sl<AuthCubit>()..checkAuthStatus()),
+        BlocProvider(create: (_) => AppLanguageCubit()),
+      ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812), // iPhone X resolution
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
-          return MaterialApp.router(
-            title: 'Booking App',
-            debugShowCheckedModeBanner: false,
-            theme: getAppTheme(),
-            routerConfig: appRouter,
+          return BlocBuilder<AppLanguageCubit, bool>(
+            builder: (context, isArabic) => MaterialApp.router(
+              title: 'Dimah ERP',
+              debugShowCheckedModeBanner: false,
+              theme: getAppTheme(),
+              routerConfig: appRouter,
+              builder: (context, child) => AppLanguage(
+                isArabic: isArabic,
+                child: Directionality(
+                  textDirection:
+                      isArabic ? TextDirection.rtl : TextDirection.ltr,
+                  child: child!,
+                ),
+              ),
+            ),
           );
         },
       ),
