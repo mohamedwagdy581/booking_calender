@@ -28,5 +28,8 @@ Booking bookingFromForm(BookingFormController form,
     taxNumber: form.isCompany ? fields.taxNumber.text : null,
     isConfirmed: original == null ? false : form.isConfirmed,
     images: original?.images ?? const [],
+    isArchived: original?.isArchived ?? false,
+    archivedAt: original?.archivedAt,
+    archivedBy: original?.archivedBy,
   );
 }

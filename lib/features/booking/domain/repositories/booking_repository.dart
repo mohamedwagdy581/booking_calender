@@ -9,7 +9,9 @@ abstract class BookingRepository {
   Future<void> updateBooking(Booking booking);
   Future<void> archiveBooking(String id);
   Future<void> restoreBooking(String id);
-  Future<void> sendBookingConfirmationEmail(Booking booking);
+
+  /// Admin only: sets which employee the booking is credited to.
+  Future<void> assignCreator(String bookingId, String userId);
   Future<void> sendBookingPushNotification({
     required String type,
     required Booking booking,

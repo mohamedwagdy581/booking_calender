@@ -104,85 +104,132 @@ function normalizeFcmData(data: Record<string, unknown> | undefined): Record<str
   return normalized;
 }
 
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+type PushType = "insert" | "update" | "archive" | "restore";
+const PUSH_TYPES: readonly PushType[] = ["insert", "update", "archive", "restore"];
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function clip(value: unknown, max = 100): string {
+  return String(value ?? "").trim().slice(0, max);
+}
+
+// The message is derived here from the stored booking; callers only say what happened.
+function buildMessage(type: PushType, booking: Record<string, unknown>): PushPayload {
+  const client = clip(booking.client_name);
+  const artist = clip(booking.artist_name);
+  const date = clip(booking.date, 10);
+  const titles: Record<PushType, string> = {
+    insert: "حجز جديد",
+    update: "تم تحديث حجز",
+    archive: "تمت أرشفة حجز",
+    restore: "تم استرجاع حجز",
+  };
+  const bodies: Record<PushType, string> = {
+    insert: `تم إضافة حجز جديد لـ ${client} مع ${artist} بتاريخ ${date}`,
+    update: `تم تحديث بيانات حجز ${client} مع ${artist} بتاريخ ${date}`,
+    archive: `تمت أرشفة حجز ${client} مع ${artist} بتاريخ ${date}`,
+    restore: `تم استرجاع حجز ${client} مع ${artist} بتاريخ ${date}`,
+  };
+  return { title: titles[type], body: bodies[type] };
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") return json({ error: "Method not allowed." }, 405);
 
   try {
-    const supabaseUrl = Deno.env.get("PROJECT_URL") ?? Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SERVICE_ROLE_KEY") ??
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    // Built-in values injected by Supabase are always current; the custom
+    // PROJECT_URL / SERVICE_ROLE_KEY secrets are only a fallback (a stale
+    // SERVICE_ROLE_KEY secret made every admin query fail with 401).
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? Deno.env.get("PROJECT_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      Deno.env.get("SERVICE_ROLE_KEY");
     const saRaw = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON");
 
-    if (!supabaseUrl || !serviceRoleKey || !saRaw) {
-      const missing: string[] = [];
-      if (!supabaseUrl) missing.push("PROJECT_URL/SUPABASE_URL");
-      if (!serviceRoleKey) missing.push("SERVICE_ROLE_KEY/SUPABASE_SERVICE_ROLE_KEY");
-      if (!saRaw) missing.push("FCM_SERVICE_ACCOUNT_JSON");
-      return new Response(
-        JSON.stringify({
-          error: "Missing required env secrets.",
-          missing,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+    if (!supabaseUrl || !anonKey || !serviceRoleKey || !saRaw) {
+      console.error("send-push: missing required env secrets");
+      return json({ error: "Server is not configured." }, 500);
     }
+
+    // 1. Caller must be a signed-in employee.
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) return json({ error: "Unauthorized." }, 401);
+
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false },
+    });
+    const { data: userData, error: userError } = await userClient.auth.getUser();
+    const user = userData?.user;
+    if (userError || !user) return json({ error: "Unauthorized." }, 401);
+
+    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+    const { data: callerProfile } = await adminClient
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (!callerProfile) return json({ error: "Forbidden." }, 403);
+
+    // 2. Validate input: only the event type and booking id are accepted.
+    const payload = await req.json().catch(() => null) as
+      | { type?: unknown; booking_id?: unknown }
+      | null;
+    const type = payload?.type as PushType;
+    const bookingId = String(payload?.booking_id ?? "");
+    if (!PUSH_TYPES.includes(type) || !UUID_RE.test(bookingId)) {
+      return json({ error: "type and booking_id are required." }, 400);
+    }
+
+    // 3. Read the booking as the caller, so RLS decides whether they may see it.
+    const { data: booking, error: bookingError } = await userClient
+      .from("bookings")
+      .select("id, client_name, artist_name, date")
+      .eq("id", bookingId)
+      .maybeSingle();
+    if (bookingError || !booking) return json({ error: "Booking not found." }, 404);
+
+    const { title, body } = buildMessage(type, booking as Record<string, unknown>);
+    const normalizedData = normalizeFcmData({ type, booking_id: bookingId });
 
     const serviceAccount = JSON.parse(saRaw) as ServiceAccount;
     if (
       !serviceAccount.project_id || !serviceAccount.client_email ||
       !serviceAccount.private_key
     ) {
-      return new Response(
-        JSON.stringify({ error: "Invalid FCM service account JSON." }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      console.error("send-push: invalid FCM service account JSON");
+      return json({ error: "Server is not configured." }, 500);
     }
 
-    const { title, body, data } = (await req.json()) as PushPayload;
-    if (!title || !body) {
-      return new Response(
-        JSON.stringify({ error: "title and body are required." }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
-    const normalizedData = normalizeFcmData(data);
+    // 4. Recipients: devices owned by current employees only.
+    const { data: employees, error: employeesError } = await adminClient
+      .from("profiles")
+      .select("id");
+    if (employeesError) throw new Error(employeesError.message);
+    const employeeIds = ((employees ?? []) as { id: string }[]).map((e) => e.id);
+    if (employeeIds.length === 0) return json({ success: true, sent: 0 });
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: tokenRows, error: tokenError } = await adminClient
       .from("device_tokens")
-      .select("token");
-
-    if (tokenError) {
-      return new Response(
-        JSON.stringify({ error: tokenError.message }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
-    }
+      .select("token")
+      .in("user_id", employeeIds);
+    if (tokenError) throw new Error(tokenError.message);
 
     const tokens = ((tokenRows ?? []) as TokenRow[])
       .map((r) => r.token ?? "")
       .filter((t) => !!t);
 
-    if (tokens.length === 0) {
-      return new Response(
-        JSON.stringify({ success: true, sent: 0, message: "No device tokens found." }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
+    if (tokens.length === 0) return json({ success: true, sent: 0 });
 
     const accessToken = await getGoogleAccessToken(serviceAccount);
     const fcmUrl =
@@ -230,19 +277,9 @@ Deno.serve(async (req: Request) => {
       await adminClient.from("device_tokens").delete().in("token", invalidTokens);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        sent,
-        total_tokens: tokens.length,
-        removed_invalid_tokens: invalidTokens.length,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return json({ success: true, sent, total_tokens: tokens.length });
   } catch (err: unknown) {
-    return new Response(
-      JSON.stringify({ error: toErrorMessage(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    console.error("send-push failed:", toErrorMessage(err));
+    return json({ error: "Push dispatch failed." }, 500);
   }
 });

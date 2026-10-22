@@ -1,15 +1,15 @@
 import 'dart:ui' as ui;
 
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:open_filex/open_filex.dart';
 
-import '../../../../../core/services/pdf/pdf_service.dart';
+import '../../../../../core/services/pdf/quotation_file_service.dart';
+import '../../../../../core/services/service_locator.dart';
+import '../../../../../core/services/supabase/employee_names_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 import '../edit_booking_view.dart';
+import 'booking_creator_row.dart';
 import 'sections/booking_details_actions_section.dart';
 import 'sections/booking_details_content_section.dart';
 
@@ -17,51 +17,6 @@ class BookingDetailsDialog extends StatelessWidget {
   const BookingDetailsDialog({super.key, required this.booking});
 
   final Booking booking;
-
-  String _safePart(String value) {
-    final cleaned = value
-        .trim()
-        .replaceAll(RegExp(r'[<>:"/\\|?*]'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ');
-    return cleaned.isEmpty ? 'quotation' : cleaned;
-  }
-
-  String _buildQuotationTitle() {
-    final clientName = _safePart(booking.clientName);
-    final artistName = _safePart(booking.artistName);
-    final location = _safePart(booking.location);
-    final dateText = DateFormat('d MMMM y', 'ar').format(booking.date);
-    return 'عرض سعر $clientName حفلة $artistName $dateText $location';
-  }
-
-  Future<void> _generateAndSavePdf(BuildContext context) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      final pdfData = await PdfService.generateQuotation(booking);
-      final fileName = '${_buildQuotationTitle()}.pdf';
-
-      final filePath = await FileSaver.instance.saveFile(
-        name: fileName,
-        bytes: pdfData,
-        mimeType: MimeType.pdf,
-      );
-
-      if (context.mounted) Navigator.of(context).pop();
-      if (filePath.isEmpty) return;
-      await OpenFilex.open(filePath);
-    } catch (e) {
-      if (context.mounted) Navigator.of(context).pop();
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('فشل إنشاء الملف: $e')),
-      );
-    }
-  }
 
   void _confirmArchiveOrRestore(BuildContext context) {
     final isArchived = booking.isArchived;
@@ -139,7 +94,12 @@ class BookingDetailsDialog extends StatelessWidget {
         child: SingleChildScrollView(
           child: Directionality(
             textDirection: ui.TextDirection.rtl,
-            child: BookingDetailsContentSection(booking: booking),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              // Needs the shared services; absent in isolated widget tests.
+              if (sl.isRegistered<EmployeeNamesService>())
+                BookingCreatorRow(booking: booking),
+              BookingDetailsContentSection(booking: booking),
+            ]),
           ),
         ),
       ),
@@ -149,7 +109,7 @@ class BookingDetailsDialog extends StatelessWidget {
           onArchiveOrRestore: () => _confirmArchiveOrRestore(context),
           onEdit: booking.isArchived ? null : () => _openEdit(context),
           onClose: () => Navigator.of(context).pop(),
-          onPrint: () => _generateAndSavePdf(context),
+          onPrint: () => printBookingQuotation(context, booking),
           isArchived: booking.isArchived,
         ),
       ],

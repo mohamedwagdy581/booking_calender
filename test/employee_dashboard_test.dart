@@ -143,7 +143,8 @@ void main() {
               body: Row(children: [
                 if (scenario.width >= 600)
                   AppSidebar(
-                    destinations: BookingDestination.forRole('staff'),
+                    destinations: BookingDestination.forRole('staff',
+                        showHome: true, showSearch: true),
                     selectedIndex: 0,
                     onSelected: (_) {},
                     roleLabel: scenario.arabic ? 'موظف' : 'Employee',
@@ -169,7 +170,7 @@ void main() {
             ));
       }
       await tester.pumpAndSettle();
-      expect(find.byType(ErpStatCard), findsNWidgets(4));
+      expect(find.byType(ErpStatCard), findsNWidgets(6));
       expect(
           find.text(scenario.arabic ? 'الحجوزات القادمة' : 'Upcoming bookings'),
           findsOneWidget);
@@ -235,7 +236,7 @@ void main() {
     repository.fail = false;
     await tester.tap(find.text('إعادة المحاولة'));
     await tester.pumpAndSettle();
-    expect(find.byType(ErpStatCard), findsNWidgets(4));
+    expect(find.byType(ErpStatCard), findsNWidgets(6));
     expect(find.text('لا توجد حجوزات'), findsNWidgets(2));
     expect(repository.reads, 2);
     expect(tester.takeException(), isNull);
@@ -260,7 +261,8 @@ void main() {
           home: Scaffold(
               body: Row(children: [
             AppSidebar(
-              destinations: BookingDestination.forRole('staff'),
+              destinations: BookingDestination.forRole('staff',
+                  showHome: true, showSearch: true),
               selectedIndex: 0,
               onSelected: (_) {},
               roleLabel: 'Employee',
@@ -309,7 +311,11 @@ void main() {
       ),
     ));
     await tester.pumpAndSettle();
-    final action = find.widgetWithText(TextButton, 'عرض الحجوزات').at(1);
+    final action = find.descendant(
+        of: find.ancestor(
+            of: find.text('الحجوزات المؤكدة'),
+            matching: find.byType(ErpStatCard)),
+        matching: find.byType(TextButton));
     await tester.ensureVisible(action);
     await tester.tap(action);
     await tester.pumpAndSettle();

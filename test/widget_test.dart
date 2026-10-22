@@ -6,9 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Desktop destinations keep existing role permissions and order', () {
-    expect(BookingDestination.forRole('admin'), BookingDestination.values);
+    expect(
+        BookingDestination.forRole('admin'),
+        BookingDestination.values);
     for (final role in ['staff', '', 'unknown']) {
-      expect(BookingDestination.forRole(role), [
+      expect(
+          BookingDestination.forRole(role), [
         BookingDestination.home,
         BookingDestination.addBooking,
         BookingDestination.calendar,
@@ -29,7 +32,8 @@ void main() {
           body: StatefulBuilder(builder: (context, setState) {
             return AppSidebar(
               compact: compact,
-              destinations: BookingDestination.forRole('staff'),
+              destinations: BookingDestination.forRole('staff',
+                  showHome: true, showSearch: true),
               selectedIndex: selectedIndex,
               onSelected: (index) => setState(() => selectedIndex = index),
               roleLabel: 'موظف',

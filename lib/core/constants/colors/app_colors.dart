@@ -27,6 +27,8 @@ abstract class AppColors {
   static const Color success = Color(0xFF2E7D32);
   static const Color error = Color(0xFFC62828);
   static const Color warning = Color(0xFFF9A825);
+  // Readable dark amber for "pending" text on light backgrounds.
+  static const Color pending = Color(0xFF926100);
 
   // --- NEUTRAL COLORS ---
   static const Color grey = Color(0xFF9E9E9E);

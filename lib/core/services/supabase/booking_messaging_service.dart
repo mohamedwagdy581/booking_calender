@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:booking/features/booking/data/models/booking_model.dart';
 
@@ -6,61 +5,15 @@ class BookingMessagingService {
   BookingMessagingService(this._client);
   final SupabaseClient _client;
 
-  Future<void> sendBookingConfirmationEmail(Booking booking) async {
-    final currentUser = _client.auth.currentUser;
-    try {
-      await _client.functions.invoke(
-        'send-email',
-        body: {
-          //'email': booking.email,
-          'subject': 'Booking Confirmation',
-          'created_by_name': currentUser?.email ?? 'Unknown',
-          'message':
-              'Your booking for ${booking.title} on ${booking.date} has been successfully received and is awaiting the first payment to be confirmed.',
-        },
-      );
-    } catch (e) {
-      // Handle email sending failure
-      if (kDebugMode) {
-        print('Failed to send confirmation email: $e');
-      }
-      rethrow;
-    }
-  }
-
   Future<void> sendBookingPushNotification({
     required String type,
     required Booking booking,
   }) async {
-    final clientName = booking.clientName;
-    final artistName = booking.artistName;
-    final dateText = booking.date.toIso8601String();
-
-    final message = switch (type) {
-      'insert' =>
-        'تم إضافة حجز جديد لـ $clientName مع $artistName بتاريخ $dateText',
-      'archive' => 'تمت أرشفة حجز $clientName مع $artistName بتاريخ $dateText',
-      'restore' => 'تم استرجاع حجز $clientName مع $artistName بتاريخ $dateText',
-      _ => 'تم تحديث بيانات حجز $clientName مع $artistName بتاريخ $dateText',
-    };
-
-    final title = switch (type) {
-      'insert' => 'حجز جديد',
-      'archive' => 'تمت أرشفة حجز',
-      'restore' => 'تم استرجاع حجز',
-      _ => 'تم تحديث حجز',
-    };
-
+    // The server reads the booking and builds the message itself.
+    if (booking.id == null) return;
     final response = await _client.functions.invoke(
       'send-push',
-      body: {
-        'title': title,
-        'body': message,
-        'data': {
-          'type': type,
-          if (booking.id != null) 'booking_id': booking.id!,
-        },
-      },
+      body: {'type': type, 'booking_id': booking.id!},
     );
 
     if (response.status >= 400) {

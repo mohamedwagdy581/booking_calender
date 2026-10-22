@@ -4,6 +4,7 @@ import 'package:booking/core/constants/spacing/app_spacing.dart';
 import 'employee_performance_card.dart';
 import 'performance_export_button.dart';
 import 'performance_filters.dart';
+import 'performance_calculator.dart';
 import 'performance_header.dart';
 import 'performance_stats_grid.dart';
 
@@ -16,7 +17,8 @@ class PerformanceContent extends StatelessWidget {
       required this.employeeId,
       required this.onDateChanged,
       required this.onEmployeeChanged,
-      required this.onExport});
+      required this.onExport,
+      required this.onEmployeeTap});
   final Map<String, dynamic> stats;
   final DateTime date;
   final List<Map<String, dynamic>> employees;
@@ -24,6 +26,7 @@ class PerformanceContent extends StatelessWidget {
   final ValueChanged<DateTime> onDateChanged;
   final ValueChanged<String?> onEmployeeChanged;
   final VoidCallback onExport;
+  final ValueChanged<Map<String, dynamic>> onEmployeeTap;
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
@@ -42,14 +45,14 @@ class PerformanceContent extends StatelessWidget {
           const SizedBox(height: 25),
           PerformanceStatsGrid(stats: stats),
           const SizedBox(height: 35),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('تحليل أداء الموظفين',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryDark)),
-            TextButton(onPressed: () {}, child: const Text('عرض الكل')),
-          ]),
+          const Text('تحليل أداء الموظفين',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryDark)),
+          const Text(
+              'الحجوزات المضافة حسب تاريخ الإضافة. العمولة للحفلات المؤكدة في هذا الشهر وتُستحق بعد انتهاء موعد الحفل، والملغاة لا تستحق. اضغط على الموظف لعرض التفاصيل',
+              style: TextStyle(fontSize: 12, color: AppColors.greyDark)),
           const SizedBox(height: 15),
           if ((stats['employees'] as List).isEmpty)
             const Center(child: Text('لا توجد بيانات لهذا الشهر'))
@@ -57,8 +60,10 @@ class PerformanceContent extends StatelessWidget {
             for (final employee in stats['employees'])
               EmployeePerformanceCard(
                   emp: employee,
-                  commission: stats['commissionPerConfirmedBooking'],
-                  targetPerEmployee: 20),
+                  commission: commissionRateFor(
+                      employee, stats['commissionPerConfirmedBooking']),
+                  targetPerEmployee: 20,
+                  onTap: () => onEmployeeTap(employee)),
           const SizedBox(height: 40),
           PerformanceExportButton(onPressed: onExport),
           const SizedBox(height: 30),

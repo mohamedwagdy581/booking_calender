@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/constants/spacing/app_spacing.dart';
+import '../../../../../core/utils/validators.dart';
 import '../manager/auth_cubit/auth_cubit.dart';
 import '../manager/auth_cubit/auth_state.dart';
 import 'widgets/custom_textformfield.dart';
@@ -57,16 +58,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                     controller: _emailController,
                     lable: 'Email',
                     prefixIcon: Icons.email_outlined,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      final bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
-                      if (!emailValid) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
+                    validator: validateEmail,
                   ),
                   SizedBox(height: AppSpacing.kSpaceL),
                   BlocBuilder<AuthCubit, AuthState>(

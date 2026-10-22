@@ -26,11 +26,12 @@ class BookingLoaded extends BookingState {
 // حالة جديدة لنجاح العمليات (إضافة/تعديل/حذف)
 class BookingOperationSuccess extends BookingState {
   final String message;
+  final Booking? booking;
 
-  const BookingOperationSuccess(this.message);
+  const BookingOperationSuccess(this.message, {this.booking});
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [message, if (booking != null) booking!];
 }
 
 class BookingError extends BookingState {

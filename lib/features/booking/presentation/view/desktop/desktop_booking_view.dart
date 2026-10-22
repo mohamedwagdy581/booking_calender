@@ -1,16 +1,16 @@
 import 'package:booking/core/services/dashboard_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../../core/constants/assets/app_assets.dart';
 import '../../../../../core/constants/colors/app_colors.dart';
-import '../../../../../core/utils/app_router.dart';
 import '../../../../../core/widgets/app_sidebar.dart';
+import '../../../../../core/utils/display_name.dart';
 import '../../../../../core/localization/app_language.dart';
+import '../../../../../core/services/service_locator.dart';
 import '../../../../../core/services/supabase_service.dart';
-import '../../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
+import '../../../../employees/presentation/view/employees_view.dart';
+import '../../../../profile/presentation/view/show_profile.dart';
 import '../widgets/add_booking_tab.dart';
 import '../widgets/calendar_tab.dart';
 import '../search_view.dart';
@@ -39,8 +39,7 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
   }
 
   Future<void> _loadRole() async {
-    final service = SupabaseService(Supabase.instance.client);
-    final role = await service.getCurrentUserRole();
+    final role = await sl<SupabaseService>().getCurrentUserRole();
     if (mounted) {
       setState(() {
         _role = role;
@@ -57,8 +56,9 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
 
     final destinations = BookingDestination.forRole(_role);
     final user = Supabase.instance.client.auth.currentUser;
-    final name = user?.userMetadata?['full_name']?.toString().trim() ?? '';
-    final displayName = name.isNotEmpty ? name : user?.email ?? '';
+    final displayName = friendlyName(
+        fullName: user?.userMetadata?['full_name']?.toString(),
+        email: user?.email);
     return BlocProvider(
       create: (_) => _NavigationCubit(),
       child: BlocBuilder<_NavigationCubit, int>(
@@ -87,6 +87,7 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
                     BookingDestination.search => const SearchView(),
                     BookingDestination.archive =>
                       const CalendarTab(showArchived: true),
+                    BookingDestination.employees => const EmployeesView(),
                   })
               .toList();
 
@@ -100,7 +101,7 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
                       BoxDecoration(gradient: AppColors.primaryGradient),
                 ),
               ),
-              title: Text(currentIndex == 0
+              title: Text(destinations[currentIndex] == BookingDestination.home
                   ? AppLanguage.text(context, 'الرئيسية — لوحة الموظف',
                       'Home — Employee dashboard')
                   : destinations[currentIndex].title(context)),
@@ -135,49 +136,9 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
     );
   }
 
-  void _showProfileDialog(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.background,
-              backgroundImage: AssetImage(AppAssets.logo),
-            ),
-            const SizedBox(height: 15),
-            Text(user?.email ?? 'User',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const Text("موظف معتمد",
-                style: TextStyle(color: Colors.grey, fontSize: 14)),
-            const Divider(height: 30),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text("تعديل الاسم"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline),
-              title: const Text("تغيير كلمة المرور"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("تسجيل الخروج",
-                  style: TextStyle(color: Colors.red)),
-              onTap: () {
-                context.read<AuthCubit>().signOut();
-                context.go(AppRoutes.login);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> _showProfileDialog(BuildContext context) async {
+    await showProfile(context, role: _role);
+    // The display name may have changed.
+    if (mounted) setState(() {});
   }
 }

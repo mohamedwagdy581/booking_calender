@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../../core/constants/colors/app_colors.dart';
+
 class PerformanceExportButton extends StatelessWidget {
   const PerformanceExportButton({super.key, required this.onPressed});
   final VoidCallback onPressed;
@@ -20,7 +22,8 @@ class PerformanceExportButton extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.primaryDark,
+        borderRadius: BorderRadius.circular(15),
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(15),

@@ -47,26 +47,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> signUpWithEmailAndPassword(String email, String password) async {
-    try {
-      await supabaseClient.auth.signUp(
-        email: email,
-        password: password,
-      );
-    } on AuthException catch (e) {
-      if (kDebugMode) {
-        print('Auth Error on Sign Up: ${e.message}');
-      }
-      rethrow;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error on Sign Up: $e');
-      }
-      rethrow;
-    }
-  }
-
-  @override
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await supabaseClient.auth.resetPasswordForEmail(email);
@@ -81,6 +61,23 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<void> updateDisplayName(String name) async {
+    await supabaseClient.auth
+        .updateUser(UserAttributes(data: {'full_name': name}));
+  }
+
+  @override
+  Future<void> changePassword(
+      {required String currentPassword, required String newPassword}) async {
+    final email = supabaseClient.auth.currentUser?.email;
+    if (email == null) throw const AuthException('Not signed in');
+    // Re-authenticate so an unattended session cannot change the password.
+    await supabaseClient.auth
+        .signInWithPassword(email: email, password: currentPassword);
+    await supabaseClient.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   @override

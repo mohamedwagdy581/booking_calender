@@ -6,7 +6,6 @@ import 'dialogs/add_booking_confirmation_dialog.dart';
 import 'forms/add_booking_form.dart';
 import 'helpers/booking_form_controller.dart';
 import 'helpers/booking_from_form.dart';
-import 'helpers/booking_form_factory.dart';
 import 'helpers/booking_operation_message.dart';
 
 class AddBookingTab extends StatefulWidget {
@@ -30,11 +29,9 @@ class _AddBookingTabState extends State<AddBookingTab> {
     if (!_formKey.currentState!.validate()) return;
     final confirmed = await showAddBookingConfirmationDialog(context);
     if (confirmed != true || !mounted) return;
-    final cubit = context.read<BookingCubit>();
-    final reference = BookingFormFactory.generateRefNumber(
-        bookingState: cubit.state, now: DateTime.now());
-    _lastCreatedBooking = bookingFromForm(_form, refNumber: reference);
-    cubit.addBooking(_lastCreatedBooking!);
+    // ref_number is assigned by the database when the booking is saved.
+    _lastCreatedBooking = bookingFromForm(_form);
+    context.read<BookingCubit>().addBooking(_lastCreatedBooking!);
   }
 
   @override
@@ -44,7 +41,7 @@ class _AddBookingTabState extends State<AddBookingTab> {
           if (state is BookingOperationSuccess) {
             if (!mounted) return;
             showBookingOperationSuccess(
-                context, state.message, _lastCreatedBooking);
+                context, state.message, state.booking ?? _lastCreatedBooking);
             _formKey.currentState!.reset();
             _form.reset();
           } else if (state is BookingError) {

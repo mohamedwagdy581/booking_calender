@@ -1,4 +1,11 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/booking/presentation/manager/booking_cubit/booking_cubit.dart';
+import '../config/app_features.dart';
+import '../services/service_locator.dart';
+import '../../features/auth/login/domain/repositories/auth_repository.dart';
+import 'auth_router_refresh.dart';
+import 'auth_route_policy.dart';
 
 import '../../features/auth/login/presentation/view/forgot_password_view.dart';
 import '../../features/auth/login/presentation/view/login_view.dart';
@@ -16,6 +23,9 @@ abstract class AppRoutes {
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash,
+  refreshListenable: AuthRouterRefresh(sl<AuthRepository>().authStateChanges),
+  redirect: (context, state) => authRouteRedirect(state.uri.path,
+      signedIn: sl<AuthRepository>().getCurrentUser() != null),
   routes: [
     GoRoute(
       path: AppRoutes.splash,
@@ -40,7 +50,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.search,
       name: AppRoutes.search,
-      builder: (context, state) => const SearchView(),
+      redirect: (context, state) =>
+          AppFeatures.bookingSearch ? null : AppRoutes.home,
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<BookingCubit>(),
+        child: const SearchView(),
+      ),
     ),
   ],
 );

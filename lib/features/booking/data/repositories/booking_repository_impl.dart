@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/supabase_service.dart';
 import '../../domain/repositories/booking_repository.dart';
 import '../models/booking_model.dart';
+import 'booking_search_filter.dart';
 
 class BookingRepositoryImpl implements BookingRepository {
   final SupabaseClient _supabaseClient;
@@ -42,6 +43,7 @@ class BookingRepositoryImpl implements BookingRepository {
           .update({
             'is_archived': true,
             'archived_at': DateTime.now().toUtc().toIso8601String(),
+            'archived_by': _supabaseClient.auth.currentUser?.id,
           })
           .eq('id', id)
           .select('id');
@@ -78,11 +80,6 @@ class BookingRepositoryImpl implements BookingRepository {
       }
       rethrow;
     }
-  }
-
-  @override
-  Future<void> sendBookingConfirmationEmail(Booking booking) async {
-    return await _supabaseService.sendBookingConfirmationEmail(booking);
   }
 
   @override
@@ -144,21 +141,27 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
+  Future<void> assignCreator(String bookingId, String userId) async {
+    final response = await _supabaseClient
+        .from('bookings')
+        .update({'created_by': userId})
+        .eq('id', bookingId)
+        .select('created_by');
+    // The database keeps created_by unchanged for non-admins.
+    if (response.isEmpty || response.first['created_by'] != userId) {
+      throw Exception('Assign failed: only administrators can change this.');
+    }
+  }
+
+  @override
   Future<List<Booking>> searchBookings(String query) async {
     try {
       if (query.trim().isEmpty) return [];
-      
+
       final response = await _supabaseClient
           .from('bookings')
           .select()
-          .or(
-            'client_name.ilike.%$query%,'
-            'ref_number.ilike.%$query%,'
-            'title.ilike.%$query%,'
-            'phone_number.ilike.%$query%,'
-            'artist_name.ilike.%$query%,'
-            'hall_name.ilike.%$query%'
-          )
+          .or(bookingSearchFilter(query))
           .order('date', ascending: false);
 
       final rows = (response as List?) ?? <dynamic>[];

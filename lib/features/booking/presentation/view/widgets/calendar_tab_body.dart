@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/widgets/error_retry_view.dart';
+
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 import '../../manager/calendar_ui_cubit/calendar_ui_cubit.dart';
@@ -24,7 +26,8 @@ class CalendarTabBody extends StatelessWidget {
       builder: (uiContext, uiState) {
         return BlocBuilder<BookingCubit, BookingState>(
           builder: (_, bookingState) {
-            if (bookingState is! BookingLoading) {
+            if (bookingState is! BookingLoading &&
+                bookingState is! BookingError) {
               if (showArchived) {
                 if (bookingState is! BookingLoaded ||
                     bookingState.filter != BookingViewFilter.archived) {
@@ -50,7 +53,12 @@ class CalendarTabBody extends StatelessWidget {
               return const Center(child: CircularProgressIndicator());
             }
             if (bookingState is BookingError) {
-              return Center(child: Text(bookingState.message));
+              return ErrorRetryView(
+                message: bookingState.message,
+                onRetry: () => showArchived
+                    ? uiContext.read<BookingCubit>().getArchivedBookings()
+                    : uiContext.read<BookingCubit>().getActiveBookings(),
+              );
             }
 
             final bookings = (bookingState is BookingLoaded)

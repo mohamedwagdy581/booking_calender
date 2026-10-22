@@ -48,7 +48,7 @@ class BookingFormFieldsGridSection extends StatelessWidget {
     }
 
     final amount = _tryParseAmount(value);
-    if (amount == null) {
+    if (amount == null || !amount.isFinite) {
       return 'أدخل رقماً صحيحاً';
     }
 
@@ -82,15 +82,9 @@ class BookingFormFieldsGridSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fields = <Widget>[
-      BookingTextField(
-          controller: titleController,
-          label: 'وصف الحجز'),
-      BookingTextField(
-          controller: clientNameController,
-          label: 'اسم العميل'),
-      BookingTextField(
-          controller: locationController,
-          label: 'الموقع'),
+      BookingTextField(controller: titleController, label: 'وصف الحجز'),
+      BookingTextField(controller: clientNameController, label: 'اسم العميل'),
+      BookingTextField(controller: locationController, label: 'الموقع'),
       BookingTextField(
           controller: phoneController,
           label: phoneLabel,
@@ -100,13 +94,9 @@ class BookingFormFieldsGridSection extends StatelessWidget {
           controller: hallNameController,
           label: 'اسم القاعة',
           requiredField: false),
+      BookingTextField(controller: artistNameController, label: 'اسم الفنان'),
       BookingTextField(
-          controller: artistNameController,
-          label: 'اسم الفنان'),
-      BookingTextField(
-          controller: hoursController,
-          label: 'عدد الساعات',
-          isNumber: true),
+          controller: hoursController, label: 'عدد الساعات', isNumber: true),
       BookingTextField(
         controller: totalAmountController,
         label: 'المبلغ الإجمالي',
@@ -175,8 +165,8 @@ class BookingFormFieldsGridSection extends StatelessWidget {
 
         return Column(
           children: fields
-              .map((f) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12), child: f))
+              .map((f) =>
+                  Padding(padding: const EdgeInsets.only(bottom: 12), child: f))
               .toList(),
         );
       },

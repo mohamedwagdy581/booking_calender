@@ -5,6 +5,7 @@ abstract class BookingAmounts {
 
   static double? vatInclusive(String value, bool isCompany) {
     final amount = double.tryParse(value.trim());
+    if (amount != null && !amount.isFinite) return null;
     return amount == null
         ? null
         : isCompany
@@ -13,6 +14,7 @@ abstract class BookingAmounts {
   }
 
   static String format(double value) {
+    if (!value.isFinite) return '';
     final normalized = value < 0 ? 0.0 : value;
     if (normalized == normalized.roundToDouble()) {
       return normalized.toInt().toString();
@@ -23,7 +25,9 @@ abstract class BookingAmounts {
   static String remaining(String total, String first, bool isCompany) {
     final amount = vatInclusive(total, isCompany);
     final paid = double.tryParse(first.trim());
-    return amount == null || paid == null ? '' : format(amount - paid);
+    return amount == null || paid == null || !paid.isFinite
+        ? ''
+        : format(amount - paid);
   }
 
   static void setText(TextEditingController controller, String value) {

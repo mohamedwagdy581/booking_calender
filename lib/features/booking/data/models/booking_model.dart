@@ -27,6 +27,12 @@ class Booking extends Equatable {
   final bool isConfirmed;
   final String? taxNumber;
 
+  /// Set by the database when the booking is confirmed; never sent by the app.
+  final DateTime? confirmedAt;
+
+  /// Employee who added the booking; set by the database, never sent.
+  final String? createdBy;
+
   const Booking({
     this.id,
     this.refNumber,
@@ -53,6 +59,8 @@ class Booking extends Equatable {
     this.archivedBy,
     this.isConfirmed = false,
     this.taxNumber,
+    this.confirmedAt,
+    this.createdBy,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -88,38 +96,13 @@ class Booking extends Equatable {
       archivedBy: json['archived_by']?.toString(),
       isConfirmed: json['is_confirmed'] as bool? ?? false,
       taxNumber: json['tax_number'] as String?,
+      confirmedAt:
+          DateTime.tryParse(json['confirmed_at']?.toString() ?? ''),
+      createdBy: json['created_by']?.toString(),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'ref_number': refNumber,
-      'created_at': createdAt.toIso8601String(),
-      'title': title,
-      'date': date.toIso8601String(),
-      'client_name': clientName,
-      'phone_number': phoneNumber,
-      'location': location,
-      'hall_name': hallName,
-      'total_amount': totalAmount,
-      'first_payment': firstPayment,
-      'last_payment': lastPayment,
-      'hours': hours,
-      'currency': currency,
-      'is_company': isCompany,
-      'payment_method': paymentMethod,
-      'artist_name': artistName,
-      'bank_name': bankName,
-      'notes': notes,
-      'images': images,
-      'is_archived': isArchived,
-      'archived_at': archivedAt?.toIso8601String(),
-      'archived_by': archivedBy,
-      'is_confirmed': isConfirmed, // كتابة في الـ JSON
-      'tax_number': taxNumber,
-    };
-  }
+  Map<String, dynamic> toJson() => {'id': id, ...toJsonWithoutId()};
 
   Map<String, dynamic> toJsonWithoutId() {
     return {
@@ -175,6 +158,8 @@ class Booking extends Equatable {
     DateTime? archivedAt,
     String? archivedBy,
     bool? isConfirmed,
+    String? taxNumber,
+    bool clearTaxNumber = false,
   }) {
     return Booking(
       id: id ?? this.id,
@@ -201,7 +186,9 @@ class Booking extends Equatable {
       archivedAt: archivedAt ?? this.archivedAt,
       archivedBy: archivedBy ?? this.archivedBy,
       isConfirmed: isConfirmed ?? this.isConfirmed,
-      taxNumber: taxNumber ?? taxNumber,
+      taxNumber: clearTaxNumber ? null : taxNumber ?? this.taxNumber,
+      confirmedAt: confirmedAt,
+      createdBy: createdBy,
     );
   }
 
@@ -232,5 +219,7 @@ class Booking extends Equatable {
         archivedBy,
         isConfirmed,
         taxNumber,
+        confirmedAt,
+        createdBy,
       ];
 }

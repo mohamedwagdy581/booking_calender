@@ -8,7 +8,10 @@ import '../../features/booking/data/repositories/booking_repository_impl.dart';
 import '../../features/booking/domain/repositories/booking_repository.dart';
 import '../../features/booking/presentation/manager/booking_cubit/booking_cubit.dart';
 import '../../features/booking/presentation/manager/search_cubit/search_cubit.dart';
+import '../../features/employees/data/employees_service.dart';
+import '../../features/employees/presentation/manager/employees_cubit.dart';
 import 'booking_notification_service.dart';
+import 'supabase/employee_names_service.dart';
 import 'supabase_service.dart';
 
 final sl = GetIt.instance;
@@ -19,6 +22,8 @@ void setupServiceLocator() {
 
   // Services
   sl.registerLazySingleton<SupabaseService>(() => SupabaseService(sl()));
+  sl.registerLazySingleton<EmployeeNamesService>(
+      () => EmployeeNamesService(sl()));
   sl.registerLazySingleton<BookingNotificationService>(
     () => BookingNotificationService(sl()),
   );
@@ -32,11 +37,19 @@ void setupServiceLocator() {
   );
 
   // Cubits
-  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(sl()));
+  sl.registerLazySingleton<AuthCubit>(() => AuthCubit(
+        sl(),
+        beforeSignOut: () =>
+            sl<BookingNotificationService>().unregisterCurrentDevice(),
+      ));
   sl.registerFactory<BookingCubit>(
     () => BookingCubit(sl()),
   );
   sl.registerFactory<SearchCubit>(
     () => SearchCubit(sl()),
   );
+
+  // Employees (admin)
+  sl.registerLazySingleton<EmployeesService>(() => EmployeesService(sl()));
+  sl.registerFactory<EmployeesCubit>(() => EmployeesCubit(sl()));
 }

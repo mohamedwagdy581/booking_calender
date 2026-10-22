@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'performance_calculator.dart';
 import 'performance_stat_card.dart';
 
 class PerformanceStatsGrid extends StatelessWidget {
@@ -26,7 +27,8 @@ class PerformanceStatsGrid extends StatelessWidget {
             color: Colors.green),
         PerformanceStatCard(
             title: "الموظفين",
-            value: "${stats['employees'].length}",
+            value:
+                "${(stats['employees'] as List).where((e) => !isUnassignedRow(e)).length}",
             icon: Icons.people_outline,
             color: Colors.orange),
         PerformanceStatCard(

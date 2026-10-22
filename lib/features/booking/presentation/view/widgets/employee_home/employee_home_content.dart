@@ -15,8 +15,9 @@ class EmployeeHomeContent extends StatelessWidget {
     final data = EmployeeDashboardData(bookings, DateTime.now());
     final stats = employeeStatCards(context, data, onCalendar);
     return LayoutBuilder(builder: (context, constraints) {
+      // Six cards: two rows of three on wide screens.
       final columns = constraints.maxWidth >= 960
-          ? 4
+          ? 3
           : constraints.maxWidth >= 430
               ? 2
               : 1;

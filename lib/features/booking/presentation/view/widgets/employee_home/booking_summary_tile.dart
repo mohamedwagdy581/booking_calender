@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:booking/core/constants/colors/app_colors.dart';
 import 'package:booking/core/localization/app_language.dart';
+import 'package:booking/core/widgets/status_chip.dart';
 import 'package:booking/features/booking/data/models/booking_model.dart';
+import 'package:booking/core/services/service_locator.dart';
+import 'package:booking/core/services/supabase/employee_names_service.dart';
 import 'package:intl/intl.dart';
 
 class BookingSummaryTile extends StatelessWidget {
@@ -28,6 +31,7 @@ class BookingSummaryTile extends StatelessWidget {
           if (booking.clientName.isNotEmpty)
             Text(booking.clientName,
                 maxLines: 1, overflow: TextOverflow.ellipsis),
+          _AddedBy(booking.createdBy),
           Wrap(
               spacing: 8,
               runSpacing: 4,
@@ -35,20 +39,10 @@ class BookingSummaryTile extends StatelessWidget {
               children: [
                 Text(DateFormat.yMd(AppLanguage.localeOf(context))
                     .format(booking.date)),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(status,
-                      style: TextStyle(
-                          color: booking.isConfirmed
-                              ? AppColors.success
-                              : const Color(0xFF926100),
-                          fontSize: 11)),
-                ),
+                StatusChip(status, color,
+                    textColor: booking.isConfirmed
+                        ? AppColors.success
+                        : AppColors.pending),
               ]),
         ],
       ),
@@ -57,6 +51,48 @@ class BookingSummaryTile extends StatelessWidget {
               ? Icons.chevron_left
               : Icons.chevron_right,
           size: 20),
+    );
+  }
+}
+
+/// "Added by" hint, resolved from the shared employee names.
+class _AddedBy extends StatelessWidget {
+  const _AddedBy(this.userId);
+  final String? userId;
+
+  @override
+  Widget build(BuildContext context) {
+    // Not registered in isolated widget tests; the hint is optional there.
+    if (!sl.isRegistered<EmployeeNamesService>()) return const SizedBox.shrink();
+    final service = sl<EmployeeNamesService>()..ensureLoaded();
+    return ValueListenableBuilder<Map<String, String>>(
+      valueListenable: service.names,
+      builder: (context, names, _) {
+        final String label;
+        if (userId == null) {
+          label = AppLanguage.text(
+              context, 'أضافه: غير مسجل', 'Added by: not recorded');
+        } else {
+          final name = names[userId];
+          if (name == null || name.isEmpty) return const SizedBox.shrink();
+          label = AppLanguage.text(context, 'أضافه: $name', 'Added by: $name');
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(children: [
+            const Icon(Icons.person_outline,
+                size: 14, color: AppColors.greyDark),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.greyDark)),
+            ),
+          ]),
+        );
+      },
     );
   }
 }

@@ -5,7 +5,7 @@ Future<void> pickBookingDate(BuildContext context, BookingFormController form,
     {required DateTime firstDate}) async {
   final date = await showDatePicker(
       context: context,
-      initialDate: form.date,
+      initialDate: form.date.isBefore(firstDate) ? firstDate : form.date,
       firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)));
   if (date != null && context.mounted && date != form.date) {

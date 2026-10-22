@@ -9,8 +9,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/services/service_locator.dart';
 import 'core/services/booking_notification_service.dart';
-import 'core/storage/cache_helper.dart';
-import 'core/network/dio_helper.dart';
 import 'core/theme/app_theme.dart';
 import 'core/localization/app_language.dart';
 import 'core/utils/app_router.dart';
@@ -26,16 +24,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint("⚠️ Error loading .env file: $e");
-    try {
-      await dotenv.load(fileName: ".env.example");
-    } catch (e) {
-      debugPrint("⚠️ Error loading .env.example file: $e");
-    }
-  }
+  await dotenv.load(fileName: 'assets/config/public.env');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -43,7 +32,8 @@ void main() async {
 
   await Supabase.initialize(
     url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    // Same public client key; supabase_flutter renamed the parameter.
+    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   // تهيئة بيانات التنسيق للغة العربية ليتمكن DateFormat من العمل
@@ -51,8 +41,6 @@ void main() async {
 
   setupServiceLocator(); // Initialize the service locator
   await sl<BookingNotificationService>().initialize();
-  await CacheHelper.init();
-  DioHelper.init();
   runApp(const DimahBooking());
 }
 

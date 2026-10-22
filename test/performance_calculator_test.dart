@@ -32,13 +32,26 @@ void main() {
     expect(stats['totalBookings'], 5);
     expect(stats['totalRevenue'], 385);
     final rows = stats['employees'] as List;
-    expect(
-        rows.map((row) => row['id']), ['first', 'second', 'idle', 'unknown']);
+    expect(rows.map((row) => row['id']),
+        ['first', 'second', 'idle', 'unknown', unassignedEmployeeId]);
     expect(rows.first['confirmed_bookings_count'], 2);
     expect(rows.first['revenue'], 300);
-    expect(rows.last['name'], 'Fallback');
+    expect(rows[3]['name'], 'Fallback');
     expect(rows[2]['count'], 0);
     expect(stats['commissionPerConfirmedBooking'], 500.0);
+  });
+
+  test('Bookings without a creator are shown as unassigned with no commission',
+      () {
+    final stats = calculatePerformanceStats([
+      {'total_amount': 10, 'is_confirmed': true},
+    ], employees);
+    final unassigned = (stats['employees'] as List).last;
+    expect(unassigned['id'], unassignedEmployeeId);
+    expect(unassigned['count'], 1);
+    expect(unassigned['confirmed_bookings_count'], 1);
+    expect(commissionRateFor(unassigned, 500), 0);
+    expect(commissionRateFor((stats['employees'] as List).first, 500), 500);
   });
 
   test('Employee filtering affects both totals and displayed rows', () {

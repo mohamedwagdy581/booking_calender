@@ -1,11 +1,7 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 
-import '../../../../../core/services/pdf/pdf_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../../domain/repositories/booking_repository.dart';
 
@@ -16,17 +12,28 @@ class BookingCubit extends Cubit<BookingState> {
 
   final BookingRepository _bookingRepository;
   BookingViewFilter _currentFilter = BookingViewFilter.active;
+  int _fetchRequest = 0;
+
+  void _emit(BookingState state) {
+    if (!isClosed) emit(state);
+  }
 
   Future<void> getBookings(
       {BookingViewFilter filter = BookingViewFilter.active}) async {
+    if (isClosed) return;
+    final request = ++_fetchRequest;
     _currentFilter = filter;
-    emit(BookingLoading());
+    _emit(BookingLoading());
     try {
       final bookings = await _bookingRepository.getBookings(
           scope: _mapFilterToScope(filter));
-      emit(BookingLoaded(bookings, filter: filter));
+      if (!isClosed && request == _fetchRequest) {
+        _emit(BookingLoaded(bookings, filter: filter));
+      }
     } catch (e) {
-      emit(BookingError('Failed to fetch bookings: $e'));
+      if (!isClosed && request == _fetchRequest) {
+        _emit(BookingError('Failed to fetch bookings: $e'));
+      }
     }
   }
 
@@ -37,49 +44,40 @@ class BookingCubit extends Cubit<BookingState> {
       getBookings(filter: BookingViewFilter.archived);
 
   Future<void> addBooking(Booking booking) async {
-    emit(BookingLoading());
+    _emit(BookingLoading());
     try {
-      final newRefNumber = await _generateRefNumber();
-      final updatedBooking = booking.copyWith(refNumber: newRefNumber);
-      await _bookingRepository.addBooking(updatedBooking);
+      // The database assigns ref_number on insert; the saved row carries it.
+      final savedBooking = await _bookingRepository.addBooking(booking);
       await _safeSendPush(
         type: 'insert',
-        booking: updatedBooking,
+        booking: savedBooking,
       );
 
-      try {
-        final pdfBytes = await PdfService.generateQuotation(updatedBooking);
-        final tempDir = await getTemporaryDirectory();
-        final file = File(
-          '${tempDir.path}/Quotation_${DateTime.now().millisecondsSinceEpoch}.pdf',
-        );
-        await file.writeAsBytes(pdfBytes);
-      } catch (_) {}
-
-      emit(const BookingOperationSuccess('تم إضافة الحجز بنجاح!'));
+      _emit(BookingOperationSuccess('تم إضافة الحجز بنجاح!',
+          booking: savedBooking));
       await getActiveBookings();
     } catch (e) {
-      emit(BookingError('Failed to add booking: $e'));
+      _emit(BookingError('Failed to add booking: $e'));
     }
   }
 
   Future<void> updateBooking(Booking booking) async {
-    emit(BookingLoading());
+    _emit(BookingLoading());
     try {
       await _bookingRepository.updateBooking(booking);
       await _safeSendPush(
         type: 'update',
         booking: booking,
       );
-      emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
+      _emit(const BookingOperationSuccess('تم تحديث الحجز بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
-      emit(BookingError('Failed to update booking: $e'));
+      _emit(BookingError('Failed to update booking: $e'));
     }
   }
 
   Future<void> archiveBooking(Booking booking) async {
-    emit(BookingLoading());
+    _emit(BookingLoading());
     try {
       if (booking.id == null) {
         throw Exception('Booking id is required for archive');
@@ -89,15 +87,15 @@ class BookingCubit extends Cubit<BookingState> {
         type: 'archive',
         booking: booking,
       );
-      emit(const BookingOperationSuccess('تمت أرشفة العرض بنجاح!'));
+      _emit(const BookingOperationSuccess('تمت أرشفة العرض بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
-      emit(BookingError('Failed to archive booking: $e'));
+      _emit(BookingError('Failed to archive booking: $e'));
     }
   }
 
   Future<void> restoreBooking(Booking booking) async {
-    emit(BookingLoading());
+    _emit(BookingLoading());
     try {
       if (booking.id == null) {
         throw Exception('Booking id is required for restore');
@@ -107,35 +105,25 @@ class BookingCubit extends Cubit<BookingState> {
         type: 'restore',
         booking: booking,
       );
-      emit(const BookingOperationSuccess('تم استرجاع العرض من الأرشيف بنجاح!'));
+      _emit(
+          const BookingOperationSuccess('تم استرجاع العرض من الأرشيف بنجاح!'));
       await _reloadCurrentFilter();
     } catch (e) {
-      emit(BookingError('Failed to restore booking: $e'));
+      _emit(BookingError('Failed to restore booking: $e'));
     }
   }
 
-  Future<String> _generateRefNumber() async {
+  Future<void> assignCreator(Booking booking, String userId) async {
+    _emit(BookingLoading());
     try {
-      final bookings =
-          await _bookingRepository.getBookings(scope: BookingFetchScope.all);
-      var maxNumber = 999;
-
-      for (final booking in bookings) {
-        final ref = booking.refNumber;
-        if (ref == null || ref.isEmpty) continue;
-        final parts = ref.split('/');
-        if (parts.isEmpty) continue;
-        final number = int.tryParse(parts.first.trim());
-        if (number != null && number > maxNumber) {
-          maxNumber = number;
-        }
+      if (booking.id == null) {
+        throw Exception('Booking id is required to assign an employee');
       }
-
-      final nextNumber = maxNumber + 1;
-      final currentMonth = DateTime.now().month.toString().padLeft(2, '0');
-      return '$nextNumber / $currentMonth / د م';
-    } catch (_) {
-      return '1000 / ${DateTime.now().month.toString().padLeft(2, '0')} / د م';
+      await _bookingRepository.assignCreator(booking.id!, userId);
+      _emit(const BookingOperationSuccess('تم تعيين الموظف للحجز بنجاح!'));
+      await _reloadCurrentFilter();
+    } catch (e) {
+      _emit(BookingError('Failed to assign employee: $e'));
     }
   }
 

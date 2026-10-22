@@ -13,9 +13,16 @@ class SplashView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      final state = context.read<AuthCubit>().state;
+      if (state is Authenticated) context.go(AppRoutes.home);
+      if (state is Unauthenticated) context.go(AppRoutes.login);
+    });
     return BlocListener<AuthCubit, AuthState>(
       // We only want to listen for the first time the state changes from AuthInitial.
-      listenWhen: (previous, current) => previous is AuthInitial && current is! AuthInitial,
+      listenWhen: (previous, current) =>
+          previous is AuthInitial && current is! AuthInitial,
       listener: (context, state) {
         // No delay needed here, the AuthCubit now handles it.
         if (state is Authenticated) {

@@ -1,18 +1,9 @@
-String capitalizeEmployeeName(String s) {
-  if (s.isEmpty) return s;
-  return s[0].toUpperCase() + s.substring(1);
-}
+import '../../../../../../core/utils/display_name.dart';
 
+/// Name for a report row map (`name` and/or `email`), via [friendlyName].
 String employeeDisplayName(Map<String, dynamic> employee) {
-  final email = employee['email']?.toString().trim() ?? '';
-  if (email.isNotEmpty && email.contains('@')) {
-    return capitalizeEmployeeName(email.split('@')[0]);
-  }
-
-  final name = employee['name']?.toString().trim() ?? '';
-  if (name.isNotEmpty) {
-    return name;
-  }
-
-  return 'موظف';
+  final name = friendlyName(
+      fullName: employee['name']?.toString(),
+      email: employee['email']?.toString());
+  return name.isEmpty ? 'موظف' : name;
 }

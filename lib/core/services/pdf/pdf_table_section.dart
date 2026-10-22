@@ -32,10 +32,10 @@ class PdfTableSection {
         normalizedPaymentMethod == 'installments' ||
         normalizedPaymentMethod.contains(installmentsAr);
 
-    final formatter = NumberFormat('#,###', 'en_US');
+    final formatter = NumberFormat('#,##0.00', 'en_US');
 
     pw.Widget formatMoney(double amount) {
-      final text = formatter.format(amount).replaceAll(',', '.');
+      final text = formatter.format(amount);
       if (booking.currency == 'USD') {
         return pw.Text('\$ $text ',
             textDirection: pw.TextDirection.ltr,

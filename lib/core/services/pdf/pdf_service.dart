@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -22,7 +21,6 @@ class PdfService {
   static Future<Uint8List> generateQuotation(Booking booking) async {
     await initializeDateFormatting('en', null);
     await initializeDateFormatting('ar', null);
-    Intl.defaultLocale = 'en_US';
     HijriCalendar.setLocal('ar');
 
     final pdf = pw.Document();

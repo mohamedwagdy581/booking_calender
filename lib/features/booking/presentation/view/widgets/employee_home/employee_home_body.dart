@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:booking/core/localization/app_language.dart';
 import 'package:booking/core/widgets/erp_card.dart';
+import 'package:booking/core/widgets/error_retry_view.dart';
 import '../../../manager/booking_cubit/booking_cubit.dart';
 import 'employee_home_content.dart';
 
@@ -14,17 +15,12 @@ class EmployeeHomeBody extends StatelessWidget {
         builder: (context, state) {
           if (state is BookingError) {
             return ErpPanel(
-                child: Column(children: [
-              Text(AppLanguage.text(
-                  context, 'تعذّر تحميل الحجوزات', 'Unable to load bookings')),
-              TextButton.icon(
-                onPressed: () =>
-                    context.read<BookingCubit>().getActiveBookings(),
-                icon: const Icon(Icons.refresh),
-                label:
-                    Text(AppLanguage.text(context, 'إعادة المحاولة', 'Retry')),
+              child: ErrorRetryView(
+                message: AppLanguage.text(
+                    context, 'تعذّر تحميل الحجوزات', 'Unable to load bookings'),
+                onRetry: () => context.read<BookingCubit>().getActiveBookings(),
               ),
-            ]));
+            );
           }
           if (state is! BookingLoaded ||
               state.filter != BookingViewFilter.active) {

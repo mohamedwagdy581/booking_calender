@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../../core/constants/assets/app_assets.dart';
+import '../../../../../../core/utils/validators.dart';
 import '../../../../../../core/constants/colors/app_colors.dart';
 import '../../../../../../core/constants/spacing/app_spacing.dart';
 import '../../../../../../core/helper/app_logger.dart';
@@ -44,7 +45,7 @@ class _LoginViewBodyState extends State<LoginViewBody> {
     if (_formKey.currentState!.validate()) {
       context.read<AuthCubit>().signIn(
             _emailController.text.trim(),
-            _passwordController.text.trim(),
+            _passwordController.text,
           );
     }
   }
@@ -69,7 +70,8 @@ class _LoginViewBodyState extends State<LoginViewBody> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.kHorizontalPadding),
+            padding:
+                EdgeInsets.symmetric(horizontal: AppSpacing.kHorizontalPadding),
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -87,28 +89,23 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                     SizedBox(height: AppSpacing.kSpaceL),
                     Text("Login Account", style: textTheme.displayMedium),
                     SizedBox(height: AppSpacing.kSpaceS),
-                    Text("Please login with registered account", style: textTheme.bodyMedium),
+                    Text("Please login with registered account",
+                        style: textTheme.bodyMedium),
                     SizedBox(height: AppSpacing.kSpaceXL),
-                    Text("Email", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text("Email",
+                        style: textTheme.bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     SizedBox(height: AppSpacing.kSpaceS),
                     CustomTextformfield(
                       controller: _emailController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        final bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
-                        if (!emailValid) {
-                          return 'Please enter a valid email';
-                        }
-
-                        return null;
-                      },
+                      validator: validateEmail,
                       lable: "Enter your email",
                       prefixIcon: Icons.email_outlined,
                     ),
                     SizedBox(height: AppSpacing.kSpaceL),
-                    Text("Password", style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text("Password",
+                        style: textTheme.bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     SizedBox(height: AppSpacing.kSpaceS),
                     PasswordTextFormField(
                       passwordController: _passwordController,
@@ -124,7 +121,8 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                         },
                         child: Text(
                           "Forget your password?",
-                          style: textTheme.bodyMedium?.copyWith(color: AppColors.primary),
+                          style: textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.primary),
                         ),
                       ),
                     ),
@@ -132,7 +130,8 @@ class _LoginViewBodyState extends State<LoginViewBody> {
                     BlocBuilder<AuthCubit, AuthState>(
                       builder: (BuildContext context, AuthState state) {
                         if (state is AuthLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         return CustomButton(
                           text: "Login",

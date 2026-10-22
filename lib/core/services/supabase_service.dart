@@ -17,13 +17,8 @@ class SupabaseService {
   Future<String> getCurrentUserRole() => _profiles.getCurrentUserRole();
   Future<List<Map<String, dynamic>>> getAllEmployees() =>
       _profiles.getAllEmployees();
-  Future<void> updateBookingConfirmation(String id, bool confirmed) =>
-      _bookings.updateBookingConfirmation(id, confirmed);
-  Future<List<DateTime>> getConfirmedDates() => _bookings.getConfirmedDates();
   Future<List<Map<String, dynamic>>> getEmployeesPerformance(DateTime month) =>
       _bookings.getEmployeesPerformance(month);
-  Future<void> sendBookingConfirmationEmail(Booking booking) =>
-      _messages.sendBookingConfirmationEmail(booking);
   Future<void> sendBookingPushNotification(
           {required String type, required Booking booking}) =>
       _messages.sendBookingPushNotification(type: type, booking: booking);

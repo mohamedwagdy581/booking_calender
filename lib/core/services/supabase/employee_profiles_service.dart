@@ -6,11 +6,15 @@ class EmployeeProfilesService {
   EmployeeProfilesService(this._client);
   final SupabaseClient _client;
 
+  // Role of the signed-in user, fetched once per user. Failures are not
+  // cached, so a later call can retry instead of sticking to 'staff'.
+  String? _roleUserId;
+  String? _role;
+
   Future<String> getCurrentUserRole() async {
     final user = _client.auth.currentUser;
-    if (user == null) {
-      return 'staff';
-    }
+    if (user == null) return 'staff';
+    if (_roleUserId == user.id && _role != null) return _role!;
 
     try {
       final response = await _client
@@ -18,8 +22,8 @@ class EmployeeProfilesService {
           .select('role')
           .eq('id', user.id)
           .maybeSingle();
-
-      return response?['role'] ?? 'staff';
+      _roleUserId = user.id;
+      return _role = response?['role']?.toString() ?? 'staff';
     } catch (e) {
       return 'staff';
     }
@@ -42,8 +46,9 @@ class EmployeeProfilesService {
         return normalizeEmployees(fallbackResponse);
       }
     } catch (e) {
+      // Rethrow so the report shows an error instead of "no employees".
       if (kDebugMode) print('Error fetching employees: $e');
-      return [];
+      rethrow;
     }
   }
 }
