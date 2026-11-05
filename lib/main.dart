@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -24,24 +26,78 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: 'assets/config/public.env');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Only what the app cannot run without happens before the first frame;
+  // a failure here shows its error instead of a frozen launch screen.
+  try {
+    await dotenv.load(fileName: 'assets/config/public.env');
+    await Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL'] ?? '',
+      // Same public client key; supabase_flutter renamed the parameter.
+      publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    );
+    // تهيئة بيانات التنسيق للغة العربية ليتمكن DateFormat من العمل
+    await initializeDateFormatting('ar', null);
+    setupServiceLocator();
+  } catch (error, stack) {
+    debugPrint('Startup failed: $error\n$stack');
+    runApp(StartupErrorApp(error: error));
+    return;
+  }
 
-  await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    // Same public client key; supabase_flutter renamed the parameter.
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
-
-  // تهيئة بيانات التنسيق للغة العربية ليتمكن DateFormat من العمل
-  await initializeDateFormatting('ar', null);
-
-  setupServiceLocator(); // Initialize the service locator
-  await sl<BookingNotificationService>().initialize();
   runApp(const DimahBooking());
+  unawaited(_initPushNotifications());
+}
+
+/// Push notifications are optional: set them up after the app is visible and
+/// never let a Firebase/permission/token failure block or crash startup.
+Future<void> _initPushNotifications() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await sl<BookingNotificationService>().initialize();
+  } catch (error, stack) {
+    debugPrint('Push notifications unavailable: $error\n$stack');
+  }
+}
+
+/// Shown instead of a black screen when essential startup fails.
+class StartupErrorApp extends StatelessWidget {
+  const StartupErrorApp({super.key, required this.error});
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('تعذر تشغيل التطبيق',
+                      textDirection: TextDirection.rtl,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  const Text(
+                      'تحقق من الاتصال بالإنترنت ثم أعد فتح التطبيق.\n'
+                      'Check your internet connection and reopen the app.',
+                      textAlign: TextAlign.center),
+                  const SizedBox(height: 16),
+                  SelectableText('$error',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }
 
 class DimahBooking extends StatelessWidget {

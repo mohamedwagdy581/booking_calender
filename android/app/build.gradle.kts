@@ -37,6 +37,11 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // R8 shrinking stripped plugin code that is only reached through
+            // platform channels (shared_preferences' getAll, then kotlin.Result),
+            // crashing release startup. Keep release identical to debug.
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

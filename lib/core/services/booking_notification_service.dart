@@ -15,7 +15,8 @@ class BookingNotificationService {
   BookingNotificationService(this._client);
 
   final SupabaseClient _client;
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  // Lazy: only valid after Firebase.initializeApp, which may fail or run late.
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
@@ -72,9 +73,14 @@ class BookingNotificationService {
   }
 
   Future<void> _syncFcmToken() async {
-    final token = await _messaging.getToken();
-    if (token == null || token.isEmpty) return;
-    await _upsertDeviceToken(token);
+    try {
+      // Can throw (e.g. SERVICE_NOT_AVAILABLE without Play services/network).
+      final token = await _messaging.getToken();
+      if (token == null || token.isEmpty) return;
+      await _upsertDeviceToken(token);
+    } catch (e) {
+      if (kDebugMode) debugPrint('Failed to get FCM token: $e');
+    }
   }
 
   void _listenTokenRefresh() {

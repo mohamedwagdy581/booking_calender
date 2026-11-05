@@ -86,11 +86,24 @@ class PdfService {
       ),
     );
 
+    // The terms must print on the back of the quotation's last sheet. If the
+    // quotation ran to an even number of pages, a blank page keeps the terms
+    // off the front of a new sheet.
+    if (pdf.document.pdfPageList.pages.length.isEven) {
+      pdf.addPage(pw.Page(
+        pageFormat: PdfPageFormat.a4.landscape,
+        build: (_) => pw.SizedBox(),
+      ));
+    }
+
+    // Landscape like the quotation, so one sheet prints two-sided
+    // ("flip on short edge") without turning the paper by hand.
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.symmetric(vertical: 32, horizontal: 36),
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.symmetric(vertical: 14, horizontal: 30),
         theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold),
+        textDirection: pw.TextDirection.rtl,
         build: (ctx) => PdfAcceptanceSection.build(
           booking: booking,
           accentColor: accentColor,
