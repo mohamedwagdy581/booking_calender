@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -25,7 +25,8 @@ class DayEventsDialog extends StatelessWidget {
             final booking = events[index];
             return ListTile(
               title: Text(booking.title), // Use booking.title here
-              subtitle: Text('${DateFormat.jm().format(booking.date)} - ${booking.hallName}'),
+              subtitle: Text(
+                  '${DateFormat.jm().format(booking.date)} - ${booking.hallName}'),
               onTap: () {
                 final bookingCubit = context.read<BookingCubit>();
                 final navigator = Navigator.of(context, rootNavigator: true);

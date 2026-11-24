@@ -29,8 +29,12 @@ class PdfService {
         pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontRegular));
     final fontBold = pw.Font.ttf(await rootBundle.load(AppAssets.dinnFontBold));
 
-    final logoData = await rootBundle.load(AppAssets.fullLogo);
-    final logo = pw.MemoryImage(logoData.buffer.asUint8List());
+    final quotationLogoData =
+        await rootBundle.load(AppAssets.quotationBilingualLogo);
+    final quotationLogo =
+        pw.MemoryImage(quotationLogoData.buffer.asUint8List());
+    final termsLogoData = await rootBundle.load(AppAssets.termsBilingualLogo);
+    final termsLogo = pw.MemoryImage(termsLogoData.buffer.asUint8List());
 
     final stampData = await rootBundle.load(AppAssets.stamp);
     final stamp = pw.MemoryImage(stampData.buffer.asUint8List());
@@ -41,7 +45,7 @@ class PdfService {
     final sarSymbolData = await rootBundle.load(AppAssets.sarSymbol);
     final sarSymbol = pw.MemoryImage(sarSymbolData.buffer.asUint8List());
 
-    final accentColor = PdfColor.fromHex("#009873");
+    final accentColor = PdfColor.fromHex("#9B74BF");
 
     pdf.addPage(
       pw.MultiPage(
@@ -53,7 +57,7 @@ class PdfService {
           pw.Padding(
             padding: const pw.EdgeInsets.symmetric(horizontal: 30),
             child: PdfHeaderSection.build(
-              logo: logo,
+              logo: quotationLogo,
               accentColor: accentColor,
               booking: booking,
               fontBold: fontBold,
@@ -79,10 +83,11 @@ class PdfService {
             child: PdfSignatureSection.build(
               signatureImage: signature,
               stamp: stamp,
+              accentColor: accentColor,
             ),
           ),
         ],
-        footer: (ctx) => PdfFooterSection.build(),
+        footer: (ctx) => PdfFooterSection.build(accentColor),
       ),
     );
 
@@ -108,7 +113,7 @@ class PdfService {
           booking: booking,
           accentColor: accentColor,
           fontBold: fontBold,
-          logoImage: logo,
+          logoImage: termsLogo,
         ),
       ),
     );

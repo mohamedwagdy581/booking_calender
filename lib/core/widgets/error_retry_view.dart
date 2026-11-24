@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../constants/colors/app_colors.dart';
 import '../localization/app_language.dart';

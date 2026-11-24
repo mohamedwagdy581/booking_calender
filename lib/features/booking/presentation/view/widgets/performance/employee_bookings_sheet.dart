@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -85,12 +85,12 @@ class _EmployeeBookingsState extends State<_EmployeeBookings> {
         padding: const EdgeInsets.fromLTRB(20, 16, 8, 0),
         child: Row(children: [
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(widget.employee['name'].toString(),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold)),
-              Text(
-                  'شهر ${DateFormat('MMMM yyyy', 'ar').format(widget.month)}',
+              Text('شهر ${DateFormat('MMMM yyyy', 'ar').format(widget.month)}',
                   style: const TextStyle(color: AppColors.greyDark)),
             ]),
           ),
@@ -193,7 +193,8 @@ class _Stat extends StatelessWidget {
             color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Icon(icon, color: color, size: 20),
             const SizedBox(height: 6),
             FittedBox(
@@ -204,7 +205,8 @@ class _Stat extends StatelessWidget {
             ),
             Text(label,
                 maxLines: 2,
-                style: const TextStyle(fontSize: 11, color: AppColors.greyDark)),
+                style:
+                    const TextStyle(fontSize: 11, color: AppColors.greyDark)),
           ]),
         ),
       );

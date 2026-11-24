@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CustomTextformfield extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
-  final String lable;
+  final String label;
   final String? hintText;
   final IconData prefixIcon;
 
@@ -11,7 +11,7 @@ class CustomTextformfield extends StatelessWidget {
     super.key,
     required this.controller,
     this.validator,
-    required this.lable,
+    required this.label,
     this.hintText,
     required this.prefixIcon,
   });
@@ -23,7 +23,7 @@ class CustomTextformfield extends StatelessWidget {
       validator: validator,
       decoration: InputDecoration(
         border: const OutlineInputBorder(),
-        label: Text(lable),
+        label: Text(label),
         hintText: hintText,
         prefixIcon: Icon(prefixIcon),
       ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:booking/core/constants/colors/app_colors.dart';
 import 'package:booking/core/localization/app_language.dart';
 

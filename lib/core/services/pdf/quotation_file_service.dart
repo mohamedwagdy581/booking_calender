@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
@@ -42,7 +42,6 @@ Future<void> printBookingQuotation(
     if (path.isNotEmpty) await OpenFilex.open(path);
   } catch (error) {
     navigator.pop();
-    messenger.showSnackBar(
-        SnackBar(content: Text('فشل إنشاء الملف: $error')));
+    messenger.showSnackBar(SnackBar(content: Text('فشل إنشاء الملف: $error')));
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/constants/colors/app_colors.dart';
@@ -40,25 +40,29 @@ class EmployeeTile extends StatelessWidget {
               e.isAdmin ? AppColors.primary : AppColors.primarySoft,
           foregroundColor:
               e.isAdmin ? AppColors.onPrimary : AppColors.primaryText,
-          child: Text(e.displayName.characters.firstOrNull?.toUpperCase() ?? '?'),
+          child:
+              Text(e.displayName.characters.firstOrNull?.toUpperCase() ?? '?'),
         ),
-        title: Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center,
+        title: Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-          Text(e.displayName,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
-          StatusChip(
-              e.isAdmin ? t('مدير النظام', 'Administrator') : t('موظف', 'Employee'),
-              e.isAdmin ? AppColors.primary : AppColors.greyDark),
-          if (e.disabled) StatusChip(t('معطّل', 'Disabled'), Colors.red),
-          if (e.isSelf) StatusChip(t('أنت', 'You'), AppColors.success),
-        ]),
-        subtitle: Text(
-            [if (e.fullName.isNotEmpty) e.email, lastSeen].join('\n')),
+              Text(e.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              StatusChip(
+                  e.isAdmin
+                      ? t('مدير النظام', 'Administrator')
+                      : t('موظف', 'Employee'),
+                  e.isAdmin ? AppColors.primary : AppColors.greyDark),
+              if (e.disabled) StatusChip(t('معطّل', 'Disabled'), Colors.red),
+              if (e.isSelf) StatusChip(t('أنت', 'You'), AppColors.success),
+            ]),
+        subtitle:
+            Text([if (e.fullName.isNotEmpty) e.email, lastSeen].join('\n')),
         isThreeLine: e.fullName.isNotEmpty,
         trailing: busy
             ? const SizedBox.square(
-                dimension: 24,
-                child: CircularProgressIndicator(strokeWidth: 2))
+                dimension: 24, child: CircularProgressIndicator(strokeWidth: 2))
             : e.isSelf
                 ? null
                 : PopupMenuButton<EmployeeAction>(

@@ -5,8 +5,8 @@ class PdfSignatureSection {
   static pw.Widget build({
     required pw.ImageProvider signatureImage,
     required pw.ImageProvider stamp,
+    required PdfColor accentColor,
   }) {
-    final accentColor = PdfColor.fromHex("#009873");
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       crossAxisAlignment: pw.CrossAxisAlignment.start,

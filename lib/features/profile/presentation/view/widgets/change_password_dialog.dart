@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../core/localization/app_language.dart';
@@ -124,7 +124,8 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 value: !_obscured,
-                onChanged: (show) => setState(() => _obscured = !(show ?? false)),
+                onChanged: (show) =>
+                    setState(() => _obscured = !(show ?? false)),
                 title: Text(_t('إظهار كلمات المرور', 'Show passwords')),
                 controlAffinity: ListTileControlAffinity.leading,
               ),

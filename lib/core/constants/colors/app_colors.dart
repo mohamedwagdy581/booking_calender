@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 // A more structured and professional color scheme
 
@@ -16,7 +16,6 @@ abstract class AppColors {
     begin: AlignmentDirectional.topStart,
     end: AlignmentDirectional.bottomEnd,
   );
-
   // --- UI COLORS ---
   static const Color background = Color(0xFFF8F6FA);
   static const Color surface = Color(0xFFFFFFFF); // For cards, dialogs, etc.

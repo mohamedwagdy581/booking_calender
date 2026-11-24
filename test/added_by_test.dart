@@ -2,7 +2,7 @@ import 'package:booking/core/services/service_locator.dart';
 import 'package:booking/core/services/supabase/employee_names_service.dart';
 import 'package:booking/features/booking/data/models/booking_model.dart';
 import 'package:booking/features/booking/presentation/view/widgets/employee_home/booking_summary_tile.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,8 +35,8 @@ void main() {
 
   Future<void> pump(WidgetTester tester, Booking booking) =>
       tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-            body: BookingSummaryTile(booking: booking, onTap: () {})),
+        home:
+            Scaffold(body: BookingSummaryTile(booking: booking, onTap: () {})),
       ));
 
   testWidgets('Booking shows the employee who added it', (tester) async {

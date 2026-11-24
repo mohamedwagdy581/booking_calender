@@ -35,7 +35,12 @@ class PdfHeaderSection {
             ],
           ),
         ),
-        pw.Image(logo, height: 110, width: 110),
+        pw.Image(
+          logo,
+          height: 85,
+          width: 260,
+          fit: pw.BoxFit.contain,
+        ),
         pw.Container(
           width: 150,
           alignment: pw.Alignment.topLeft,

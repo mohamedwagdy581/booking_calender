@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/constants/spacing/app_spacing.dart';
@@ -26,7 +26,9 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      context.read<AuthCubit>().sendPasswordResetEmail(_emailController.text.trim());
+      context
+          .read<AuthCubit>()
+          .sendPasswordResetEmail(_emailController.text.trim());
     }
   }
 
@@ -56,7 +58,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                   SizedBox(height: AppSpacing.kSpaceL),
                   CustomTextformfield(
                     controller: _emailController,
-                    lable: 'Email',
+                    label: 'Email',
                     prefixIcon: Icons.email_outlined,
                     validator: validateEmail,
                   ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:booking/core/localization/app_language.dart';
 import 'package:booking/core/widgets/erp_card.dart';
 import 'package:booking/core/widgets/responsive_layout.dart';
@@ -7,7 +7,7 @@ import 'show_booking_list.dart';
 
 List<Widget> employeeStatCards(
     BuildContext context, EmployeeDashboardData data, VoidCallback onCalendar) {
-  // Phone layout only: cards get a primary-colour footer.
+  // Phone layout only: cards get a primary-color footer.
   final phone = MediaQuery.sizeOf(context).width < kMobileBreakpoint;
   final viewBookings =
       AppLanguage.text(context, 'عرض الحجوزات', 'View bookings');
@@ -21,8 +21,8 @@ List<Widget> employeeStatCards(
     ErpStatCard(
       title: totalTitle,
       value: '${data.active.length}',
-      description: AppLanguage.text(context, 'كل الحجوزات غير المؤرشفة',
-          'Every booking not archived'),
+      description: AppLanguage.text(
+          context, 'كل الحجوزات غير المؤرشفة', 'Every booking not archived'),
       icon: Icons.inventory_2_outlined,
       color: const Color(0xFF6A4C93),
       actionLabel: AppLanguage.text(context, 'عرض التقويم', 'View calendar'),
@@ -43,7 +43,9 @@ List<Widget> employeeStatCards(
     ErpStatCard(
       title: pastTitle,
       value: '${data.past.length}',
-      description: AppLanguage.text(context, 'حفلات انتهى موعدها (أمس وما قبله)',
+      description: AppLanguage.text(
+          context,
+          'حفلات انتهى موعدها (أمس وما قبله)',
           'Events already held (yesterday and before)'),
       icon: Icons.history,
       color: const Color(0xFF757575),

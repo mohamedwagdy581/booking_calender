@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Small tinted label, e.g. a status, role or count.
 class StatusChip extends StatelessWidget {
@@ -6,7 +6,7 @@ class StatusChip extends StatelessWidget {
 
   final String label;
 
-  /// Tint of the background; also the text colour unless [textColor] is set.
+  /// Tint of the background; also the text color unless [textColor] is set.
   final Color color;
   final Color? textColor;
 

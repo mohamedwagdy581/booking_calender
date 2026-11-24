@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../manager/auth_cubit/auth_cubit.dart';
 import '../../manager/auth_cubit/auth_state.dart';
-
 
 class PasswordTextFormField extends StatelessWidget {
   final TextEditingController passwordController;
@@ -30,7 +29,8 @@ class PasswordTextFormField extends StatelessWidget {
         return previous.runtimeType != current.runtimeType;
       },
       builder: (context, state) {
-        final isObscured = (state is Unauthenticated) ? state.isPasswordObscured : true;
+        final isObscured =
+            (state is Unauthenticated) ? state.isPasswordObscured : true;
 
         return TextFormField(
           controller: passwordController,
@@ -40,15 +40,17 @@ class PasswordTextFormField extends StatelessWidget {
               return "Please enter your password";
             } else if (value.length < 8) {
               return "Password must be at least 8 characters";
-            } if (!RegExp(r'[A-Z]').hasMatch(value))
-            {
+            }
+            if (!RegExp(r'[A-Z]').hasMatch(value)) {
               return "Password must contain at least one uppercase letter";
-            } if (!RegExp(r'[a-z]').hasMatch(value))
-            {
+            }
+            if (!RegExp(r'[a-z]').hasMatch(value)) {
               return "Password must contain at least one lowercase letter";
-            } if (!RegExp(r'[0-9]').hasMatch(value)) {
+            }
+            if (!RegExp(r'[0-9]').hasMatch(value)) {
               return "Password must contain at least one number";
-            } if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+            }
+            if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
               return "Password must contain at least one special character";
             }
 

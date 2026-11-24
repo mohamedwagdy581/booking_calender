@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:booking/core/constants/colors/app_colors.dart';
 import 'sidebar/booking_destination.dart';
 import 'sidebar/sidebar_brand.dart';

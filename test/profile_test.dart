@@ -2,7 +2,7 @@ import 'package:booking/core/services/service_locator.dart';
 import 'package:booking/features/auth/login/domain/repositories/auth_repository.dart';
 import 'package:booking/features/profile/presentation/view/widgets/change_password_dialog.dart';
 import 'package:booking/features/profile/presentation/view/widgets/edit_name_dialog.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,8 +38,8 @@ void main() {
 
   tearDown(() => sl.unregister<AuthRepository>());
 
-  Future<void> open(WidgetTester tester,
-      Future<bool?> Function(BuildContext) show) async {
+  Future<void> open(
+      WidgetTester tester, Future<bool?> Function(BuildContext) show) async {
     await tester.pumpWidget(MaterialApp(
       home: Builder(
         builder: (context) => TextButton(
@@ -80,8 +80,8 @@ void main() {
 
   testWidgets('Wrong current password keeps the dialog open with a message',
       (tester) async {
-    auth.passwordError =
-        const AuthException('Invalid login credentials', code: 'invalid_credentials');
+    auth.passwordError = const AuthException('Invalid login credentials',
+        code: 'invalid_credentials');
     await open(tester, showChangePasswordDialog);
 
     await tester.enterText(field('كلمة المرور الحالية'), 'wrong');

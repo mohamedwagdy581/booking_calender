@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -66,8 +66,8 @@ class _ProfilePanelState extends State<ProfilePanel> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(_t('تسجيل الخروج', 'Sign out')),
-        content: Text(_t('هل تريد تسجيل الخروج من هذا الجهاز؟',
-            'Sign out of this device?')),
+        content: Text(_t(
+            'هل تريد تسجيل الخروج من هذا الجهاز؟', 'Sign out of this device?')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -120,7 +120,9 @@ class _ProfilePanelState extends State<ProfilePanel> {
         const SizedBox(height: 8),
         Chip(
           avatar: Icon(
-              isAdmin ? Icons.admin_panel_settings_outlined : Icons.badge_outlined,
+              isAdmin
+                  ? Icons.admin_panel_settings_outlined
+                  : Icons.badge_outlined,
               size: 18),
           label: Text(isAdmin
               ? _t('مدير النظام', 'Administrator')

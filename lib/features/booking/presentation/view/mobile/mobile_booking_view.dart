@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -49,12 +49,12 @@ class _MobileBookingViewState extends State<MobileBookingView> {
 
   // Search opens from the app bar and Employees from the profile sheet,
   // keeping the bottom bar to five items.
-  List<BookingDestination> get _destinations => BookingDestination.forRole(
-          _role)
-      .where((destination) =>
-          destination != BookingDestination.search &&
-          destination != BookingDestination.employees)
-      .toList();
+  List<BookingDestination> get _destinations =>
+      BookingDestination.forRole(_role)
+          .where((destination) =>
+              destination != BookingDestination.search &&
+              destination != BookingDestination.employees)
+          .toList();
 
   List<Widget> _getPages() {
     final user = Supabase.instance.client.auth.currentUser;
@@ -83,8 +83,8 @@ class _MobileBookingViewState extends State<MobileBookingView> {
 
   void _openEmployees() => Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: AppBar(
-              title: Text(BookingDestination.employees.title(context))),
+          appBar:
+              AppBar(title: Text(BookingDestination.employees.title(context))),
           body: const EmployeesView(),
         ),
       ));
@@ -118,7 +118,7 @@ class _MobileBookingViewState extends State<MobileBookingView> {
         backgroundColor: Colors.white12,
         title: Text(destinations[_selectedIndex].title(context)),
         leading: Image.asset(
-          AppAssets.fullLogo,
+          AppAssets.appFullLogo,
           fit: BoxFit.contain,
         ),
         actions: [

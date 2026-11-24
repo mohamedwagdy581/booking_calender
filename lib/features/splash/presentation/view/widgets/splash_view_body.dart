@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../../core/constants/assets/app_assets.dart';
 import '../../../../../core/constants/colors/app_colors.dart';
@@ -11,7 +11,8 @@ class SplashViewBody extends StatefulWidget {
   State<SplashViewBody> createState() => _SplashViewBodyState();
 }
 
-class _SplashViewBodyState extends State<SplashViewBody> with SingleTickerProviderStateMixin {
+class _SplashViewBodyState extends State<SplashViewBody>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -58,7 +59,7 @@ class _SplashViewBodyState extends State<SplashViewBody> with SingleTickerProvid
           FadeTransition(
             opacity: _fadeAnimation,
             child: Image.asset(
-              AppAssets.fullLogo,
+              AppAssets.appFullLogo,
               height: 150,
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(

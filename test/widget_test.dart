@@ -1,17 +1,14 @@
 import 'package:booking/core/theme/app_theme.dart';
 import 'package:booking/core/widgets/app_sidebar.dart';
 import 'package:booking/core/widgets/custom_text_form_field.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Desktop destinations keep existing role permissions and order', () {
-    expect(
-        BookingDestination.forRole('admin'),
-        BookingDestination.values);
+    expect(BookingDestination.forRole('admin'), BookingDestination.values);
     for (final role in ['staff', '', 'unknown']) {
-      expect(
-          BookingDestination.forRole(role), [
+      expect(BookingDestination.forRole(role), [
         BookingDestination.home,
         BookingDestination.addBooking,
         BookingDestination.calendar,

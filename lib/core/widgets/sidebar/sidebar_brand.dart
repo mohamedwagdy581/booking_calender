@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:booking/core/constants/colors/app_colors.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../constants/assets/app_assets.dart';
 
 class SidebarBrand extends StatelessWidget {
@@ -10,13 +9,10 @@ class SidebarBrand extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Image.asset(AppAssets.logo, height: 44),
-            if (!compact) ...[
-              const SizedBox(height: 8),
-              const Text('Dimah ERP',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.onPrimary)),
-            ],
+            if (compact)
+              Image.asset(AppAssets.logo, height: 44)
+            else
+              Image.asset(AppAssets.appFullLogoWhite, height: 78),
           ],
         ),
       );

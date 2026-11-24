@@ -19,6 +19,7 @@
         "Schyler",
         "screenutil",
         "TALEB",
+        "textformfield",
         "آلاف",
         "آلية",
         "أحقية",
@@ -202,6 +203,7 @@
         "بكتابة",
         "بمثابة",
         "بمدة",
+        "بمراجعة",
         "بموجب",
         "بنكي",
         "بنلغي",
@@ -406,5 +408,6 @@
         "يمين",
         "يُنص"
     ],
-    "cmake.sourceDirectory": "D:/Flutter Projects/booking_calender/windows/flutter"
+    "cmake.sourceDirectory": "D:/Flutter Projects/booking_calender/windows/flutter",
+    "python.terminal.useEnvFile": true
 }

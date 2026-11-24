@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'responsive_layout.dart';
 
@@ -20,8 +20,7 @@ Future<T?> showAdaptivePanel<T>(
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: ConstrainedBox(
-          constraints:
-              BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+          constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
           child: child,
         ),
       ),

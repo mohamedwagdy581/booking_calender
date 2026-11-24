@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:booking/core/constants/colors/app_colors.dart';
 import 'package:booking/core/localization/app_language.dart';
 import 'package:booking/core/widgets/status_chip.dart';
@@ -55,15 +55,15 @@ class BookingSummaryTile extends StatelessWidget {
   }
 }
 
-/// "Added by" hint, resolved from the shared employee names.
 class _AddedBy extends StatelessWidget {
   const _AddedBy(this.userId);
   final String? userId;
 
   @override
   Widget build(BuildContext context) {
-    // Not registered in isolated widget tests; the hint is optional there.
-    if (!sl.isRegistered<EmployeeNamesService>()) return const SizedBox.shrink();
+    if (!sl.isRegistered<EmployeeNamesService>()) {
+      return const SizedBox.shrink();
+    }
     final service = sl<EmployeeNamesService>()..ensureLoaded();
     return ValueListenableBuilder<Map<String, String>>(
       valueListenable: service.names,
@@ -87,8 +87,8 @@ class _AddedBy extends StatelessWidget {
               child: Text(label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.greyDark)),
+                  style:
+                      const TextStyle(fontSize: 12, color: AppColors.greyDark)),
             ),
           ]),
         );

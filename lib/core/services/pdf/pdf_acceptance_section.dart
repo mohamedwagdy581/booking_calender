@@ -128,7 +128,7 @@ class PdfAcceptanceSection {
               ],
             ),
           ),
-          PdfFooterSection.build(),
+          PdfFooterSection.build(accentColor),
         ],
       ),
     );
@@ -140,7 +140,12 @@ class PdfAcceptanceSection {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        pw.Image(logoImage, width: 95, height: 80),
+        pw.Image(
+          logoImage,
+          width: 95,
+          height: 80,
+          fit: pw.BoxFit.contain,
+        ),
         pw.SizedBox(width: 16),
         pw.Expanded(
           child: pw.Column(
@@ -156,8 +161,8 @@ class PdfAcceptanceSection {
                 pw.SizedBox(height: 3),
                 pw.Text(
                   'مرفق بعرض السعر رقم $ref',
-                  style: const pw.TextStyle(
-                      fontSize: 9, color: PdfColors.grey700),
+                  style:
+                      const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
                 ),
               ],
             ],
@@ -191,8 +196,7 @@ class PdfAcceptanceSection {
         ),
       );
 
-  static pw.Widget _bulletItem(String text, PdfColor accentColor) =>
-      pw.Padding(
+  static pw.Widget _bulletItem(String text, PdfColor accentColor) => pw.Padding(
         padding: const pw.EdgeInsets.only(bottom: 2),
         child: pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:booking/core/constants/colors/app_colors.dart';
 import 'package:booking/core/localization/app_language.dart';
 import 'package:booking/core/widgets/status_chip.dart';
@@ -64,7 +64,8 @@ class EmployeePerformanceCard extends StatelessWidget {
                           const SizedBox(height: 4),
                           Wrap(spacing: 6, runSpacing: 4, children: [
                             StatusChip('مضافة: $added', AppColors.primary),
-                            StatusChip('مؤكدة لحفلات الشهر: $confirmed', AppColors.success),
+                            StatusChip('مؤكدة لحفلات الشهر: $confirmed',
+                                AppColors.success),
                             StatusChip('بانتظار: $pending', AppColors.pending),
                           ]),
                         ],
@@ -74,8 +75,7 @@ class EmployeePerformanceCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         // العمولة المستحقة: حفلات مؤكدة انتهى موعدها
-                        Text(
-                            "${(earned * commission).toStringAsFixed(0)} ر.س",
+                        Text("${(earned * commission).toStringAsFixed(0)} ر.س",
                             style: const TextStyle(
                                 color: AppColors.success,
                                 fontWeight: FontWeight.bold)),

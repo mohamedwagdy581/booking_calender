@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CustomButton extends StatelessWidget {
   final void Function()? onPressed;
   final Color? color;
   final String text;
-  final double? height, widht, borderRadius;
+  final double? height, width, borderRadius;
   const CustomButton({
     super.key,
     this.onPressed,
     this.color,
     required this.text,
     this.height = 60.0,
-    this.widht = double.infinity,
+    this.width = double.infinity,
     this.borderRadius = 30.0,
   });
 
@@ -21,7 +21,7 @@ class CustomButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        minimumSize: Size(widht!, height!),
+        minimumSize: Size(width!, height!),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius!),
         ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../../core/constants/assets/app_assets.dart';
@@ -25,7 +25,8 @@ class BookingDetailsContentSection extends StatelessWidget {
             booking.refNumber!,
           ),
         _buildDetailRow(context, 'اسم العميل', booking.clientName),
-        _buildDetailRow(context, 'التاريخ', DateFormat('yyyy-MM-dd').format(booking.date)),
+        _buildDetailRow(
+            context, 'التاريخ', DateFormat('yyyy-MM-dd').format(booking.date)),
         _buildDetailRow(context, 'الوقت', DateFormat.jm().format(booking.date)),
         _buildDetailRow(context, 'الموقع', booking.location),
         _buildDetailRow(context, 'القاعة', booking.hallName),

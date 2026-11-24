@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Primary dialog action that shows a spinner and disables itself while
 /// [loading].
@@ -19,8 +19,7 @@ class LoadingButton extends StatelessWidget {
         onPressed: loading ? null : onPressed,
         child: loading
             ? const SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(strokeWidth: 2))
+                dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
             : Text(label),
       );
 }

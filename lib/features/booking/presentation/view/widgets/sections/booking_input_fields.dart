@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class BookingTextField extends StatelessWidget {
   const BookingTextField({
@@ -36,7 +36,9 @@ class BookingTextField extends StatelessWidget {
       onChanged: onChanged,
       validator: validator ??
           (requiredField
-              ? (val) => val == null || val.isEmpty ? '\u0645\u0637\u0644\u0648\u0628' : null
+              ? (val) => val == null || val.isEmpty
+                  ? '\u0645\u0637\u0644\u0648\u0628'
+                  : null
               : null),
     );
   }

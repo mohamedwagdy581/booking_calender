@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../../core/localization/app_language.dart';
 import '../../../../../core/utils/validators.dart';
