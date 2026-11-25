@@ -5,7 +5,6 @@ import '../../../../../core/widgets/loading_button.dart';
 import '../../../../../core/services/service_locator.dart';
 import '../../../../auth/login/domain/repositories/auth_repository.dart';
 
-/// Returns true when the name was saved.
 Future<bool?> showEditNameDialog(BuildContext context, String currentName) =>
     showDialog<bool>(
       context: context,

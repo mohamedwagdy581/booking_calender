@@ -63,7 +63,6 @@ class _DesktopBookingViewState extends State<DesktopBookingView> {
       create: (_) => _NavigationCubit(),
       child: BlocBuilder<_NavigationCubit, int>(
         builder: (context, selectedIndex) {
-          // للتأكد من عدم حدوث Overflow أو Index out of range
           final currentIndex =
               selectedIndex >= destinations.length ? 0 : selectedIndex;
 

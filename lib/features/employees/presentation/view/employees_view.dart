@@ -11,7 +11,6 @@ import 'employee_error_text.dart';
 import 'widgets/add_employee_dialog.dart';
 import 'widgets/employee_tile.dart';
 
-/// Admin-only. The server rejects non-admin callers regardless of the UI.
 class EmployeesView extends StatelessWidget {
   const EmployeesView({super.key});
 

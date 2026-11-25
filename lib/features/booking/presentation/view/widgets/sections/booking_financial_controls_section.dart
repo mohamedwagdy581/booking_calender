@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import '../../../../../../core/widgets/custom_text_form_field.dart';
 import '../../../../../../core/constants/spacing/app_spacing.dart';
+import '../helpers/booking_form_controller.dart';
 import 'booking_input_fields.dart';
 
 class BookingFinancialControlsSection extends StatelessWidget {
@@ -47,7 +48,7 @@ class BookingFinancialControlsSection extends StatelessWidget {
       BookingDropdownField(
         label: 'البنك',
         value: selectedBank,
-        items: const ['الجزيرة', 'أميمة'],
+        items: BookingFormController.banks,
         onChanged: onBankChanged,
       ),
       SwitchListTile(

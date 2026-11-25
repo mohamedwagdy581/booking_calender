@@ -13,8 +13,6 @@ import '../../../auth/login/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'widgets/change_password_dialog.dart';
 import 'widgets/edit_name_dialog.dart';
 
-/// Opens the profile as a dialog on wide screens and a bottom sheet on phones.
-/// Completes when it closes, so callers can refresh a changed display name.
 Future<void> showProfile(BuildContext context,
         {required String role, VoidCallback? onManageEmployees}) =>
     showAdaptivePanel(context,
@@ -24,7 +22,6 @@ class ProfilePanel extends StatefulWidget {
   const ProfilePanel({super.key, required this.role, this.onManageEmployees});
   final String role;
 
-  /// Shown as an entry for admins on layouts without an Employees tab.
   final VoidCallback? onManageEmployees;
 
   @override

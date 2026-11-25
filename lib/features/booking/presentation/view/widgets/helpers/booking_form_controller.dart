@@ -21,7 +21,7 @@ class BookingFormController extends ChangeNotifier {
   }
 
   static const installments = 'دفعات';
-  static const banks = ['الجزيرة', 'أميمة'];
+  static const banks = ['الجزيرة', 'زينب عماد', 'أميمة'];
   final BookingFormFields fields;
   late DateTime date;
   late TimeOfDay time;

@@ -8,7 +8,6 @@ import '../../../../auth/login/domain/repositories/auth_repository.dart';
 
 const minPasswordLength = 8;
 
-/// Returns true when the password was changed.
 Future<bool?> showChangePasswordDialog(BuildContext context) =>
     showDialog<bool>(
       context: context,
@@ -49,7 +48,6 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
       _error = null;
     });
     try {
-      // Passwords are sent exactly as typed; whitespace can be significant.
       await sl<AuthRepository>().changePassword(
           currentPassword: _current.text, newPassword: _new.text);
       if (mounted) Navigator.of(context).pop(true);

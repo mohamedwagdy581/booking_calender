@@ -26,8 +26,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Only what the app cannot run without happens before the first frame;
-  // a failure here shows its error instead of a frozen launch screen.
   try {
     await dotenv.load(fileName: 'assets/config/public.env');
     await Supabase.initialize(
@@ -35,7 +33,6 @@ void main() async {
       // Same public client key; supabase_flutter renamed the parameter.
       publishableKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     );
-    // تهيئة بيانات التنسيق للغة العربية ليتمكن DateFormat من العمل
     await initializeDateFormatting('ar', null);
     setupServiceLocator();
   } catch (error, stack) {
@@ -62,7 +59,6 @@ Future<void> _initPushNotifications() async {
   }
 }
 
-/// Shown instead of a black screen when essential startup fails.
 class StartupErrorApp extends StatelessWidget {
   const StartupErrorApp({super.key, required this.error});
   final Object error;

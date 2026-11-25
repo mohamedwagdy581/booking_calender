@@ -9,8 +9,6 @@ import '../../../../../core/services/supabase_service.dart';
 import '../../../data/models/booking_model.dart';
 import '../../manager/booking_cubit/booking_cubit.dart';
 
-/// "Added by" line in the booking details. Admins can change the employee the
-/// booking is credited to (the database rejects this for everyone else).
 class BookingCreatorRow extends StatefulWidget {
   const BookingCreatorRow({super.key, required this.booking});
   final Booking booking;

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-/// Quote user text as a value, never as PostgREST filter syntax.
 String bookingSearchFilter(String query) {
   final pattern = jsonEncode('%${query.trim()}%');
   return [

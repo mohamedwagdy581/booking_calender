@@ -7,7 +7,6 @@ class AppLanguageCubit extends Cubit<bool> {
   void toggle() => emit(!state);
 }
 
-/// Keeps the new ERP shell bilingual without changing legacy screen strings.
 class AppLanguage extends InheritedWidget {
   const AppLanguage({
     super.key,

@@ -20,11 +20,9 @@ class SplashView extends StatelessWidget {
       if (state is Unauthenticated) context.go(AppRoutes.login);
     });
     return BlocListener<AuthCubit, AuthState>(
-      // We only want to listen for the first time the state changes from AuthInitial.
       listenWhen: (previous, current) =>
           previous is AuthInitial && current is! AuthInitial,
       listener: (context, state) {
-        // No delay needed here, the AuthCubit now handles it.
         if (state is Authenticated) {
           context.go(AppRoutes.home);
         } else {

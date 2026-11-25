@@ -6,7 +6,6 @@ import '../../../../../core/widgets/loading_button.dart';
 import '../../manager/employees_cubit.dart';
 import '../employee_error_text.dart';
 
-/// Returns true when the employee was created.
 Future<bool?> showAddEmployeeDialog(
         BuildContext context, EmployeesCubit cubit) =>
     showDialog<bool>(

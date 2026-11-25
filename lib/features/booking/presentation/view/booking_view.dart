@@ -16,7 +16,6 @@ class BookingView extends StatelessWidget {
       create: (context) => sl<BookingCubit>(),
       child: BlocBuilder<BookingCubit, BookingState>(
         builder: (context, state) {
-          // If we are in the initial state, trigger the first data fetch.
           if (state is BookingInitial) {
             context.read<BookingCubit>().getActiveBookings();
           }
